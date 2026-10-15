@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>926 苏妍</title>
+    <style>
+        /* 标签选择器：选中页面里所有 <p> 标签 */
+        p{
+            color: rgb(158, 247, 228);
+            font-size: 50px;
+        }
+
+        /* 扩展2：h2 标题黑底白字 */
+        h2{
+            background-color: black;   /* 黑底 */
+            color: white;              /* 白字 */
+        }
+
+        /* id选择器 */
+        #box{
+            width: 600px;
+            height: 500px;
+            background-color: rgb(120, 7, 212);
+        }
+
+        /* 扩展1：类选择器，以 . 开头，可被多个元素重复使用 */
+        .n1{
+            color: rgb(229, 241, 118);
+        }
+        .n2{
+            color: rgb(244, 159, 159);
+        }
+
+        /* 扩展3：让“选择器”三个字为白色 */
+        .white{
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>层叠样式表 CSS</h2>
+    <div id="box">
+        <!-- 扩展3：标签选择器（p）作用后文字是粉色，“选择器”三字再覆盖为白色 -->
+        <p>CSS<span class="white">选择器</span></p>
+        <!-- 扩展1：类选择器，给同一行里不同的字上不同的颜色 -->
+        <p><span class="n1">苏</span><span class="n2">妍</span></p>
+        <p>CSS属性</p>
+    </div>
+    <!-- 扩展4:新建一个宽300高300的盒子，有背景颜色 -->
+    <div style="width: 300px; height: 300px; background-color: rgb(16, 133, 243);"></div>
+</body>
+</html>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>网页浏览器</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f4f5f7;
+    --chrome: #e8eaed;
+    --panel: #ffffff;
+    --text: #202124;
+    --muted: #5f6368;
+    --accent: #1a73e8;
+    --accent-hover: #1765cc;
+    --border: #dadce0;
+    --danger: #ea4335;
+    --tab-active: #ffffff;
+    --tab-inactive: #d5d8dc;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  body.dark {
+    --bg: #1f1f1f;
+    --chrome: #2d2d2d;
+    --panel: #333333;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --accent: #8ab4f8;
+    --accent-hover: #aecbfa;
+    --border: #3c4043;
+    --tab-active: #35363a;
+    --tab-inactive: #292a2d;
+    --shadow: 0 2px 8px rgba(0,0,0,.4);
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== 顶部标签栏 ===== */
+  #tabbar {
+    display: flex;
+    align-items: flex-end;
+    background: var(--chrome);
+    padding: 6px 8px 0;
+    gap: 4px;
+    flex-shrink: 0;
+    min-height: 40px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  #tabbar::-webkit-scrollbar { height: 4px; }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 120px;
+    max-width: 220px;
+    padding: 7px 10px;
+    background: var(--tab-inactive);
+    border-radius: var(--radius) var(--radius) 0 0;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+    position: relative;
+  }
+  .tab.active {
+    background: var(--tab-active);
+    box-shadow: var(--shadow);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+  .tab .favicon {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+  .tab .favicon img { width: 100%; height: 100%; border-radius: 3px; }
+  .tab .tab-title {
+    flex: 1;
+    font-size: 12.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tab .tab-close {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    width: 18px; height: 18px;
+    line-height: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tab .tab-close:hover { background: var(--border); color: var(--text); }
+  .tab.active .tab-close:hover { background: rgba(0,0,0,.1); }
+  #newtab-btn {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 20px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+  }
+  #newtab-btn:hover { background: var(--tab-inactive); color: var(--text); }
+
+  /* ===== 工具栏 ===== */
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tab-active);
+    padding: 8px 12px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+  }
+  .tbtn {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .tbtn:hover { background: var(--chrome); }
+  .tbtn:disabled { opacity: .35; cursor: default; }
+  .tbtn:disabled:hover { background: transparent; }
+  .tbtn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  #addressbar-wrap {
+    flex: 1;
+    position: relative;
+    min-width: 120px;
+  }
+  #addressbar {
+    width: 100%;
+    height: 36px;
+    border: none;
+    outline: none;
+    background: var(--chrome);
+    border-radius: 18px;
+    padding: 0 16px 0 38px;
+    font-size: 13.5px;
+    color: var(--text);
+    transition: background .15s, box-shadow .15s;
+  }
+  #addressbar:focus {
+    background: var(--panel);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  #address-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    pointer-events: none;
+    color: var(--muted);
+  }
+  #address-icon svg { width: 100%; height: 100%; fill: currentColor; }
+
+  #go-btn {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 0 16px;
+    height: 36px;
+    border-radius: 18px;
+    font-size: 13.5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .15s;
+  }
+  #go-btn:hover { background: var(--accent-hover); }
+
+  /* 搜索建议下拉 */
+  #suggestions {
+    position: absolute;
+    top: 42px; left: 0; right: 0;
+    background: var(--panel);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: none;
+    z-index: 100;
+  }
+  #suggestions .sug {
+    padding: 10px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #suggestions .sug:hover, #suggestions .sug.hover { background: var(--chrome); }
+  #suggestions .sug .sug-icon { flex-shrink: 0; color: var(--muted); }
+
+  /* ===== 新标签页主页 ===== */
+  #home {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 40px;
+  }
+  #home.show { display: flex; }
+  #home .logo {
+    font-size: 34px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  #home .sub { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+  #home .searchbox {
+    width: min(560px, 92%);
+    position: relative;
+    margin-bottom: 44px;
+  }
+  #home .searchbox input {
+    width: 100%;
+    height: 48px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 0 24px 0 46px;
+    font-size: 15px;
+    outline: none;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s;
+  }
+  #home .searchbox input:focus { box-shadow: 0 0 0 3px var(--accent); }
+  #home .searchbox .s-icon {
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+  #home .searchbox .s-icon svg { width: 20px; height: 20px; fill: currentColor; }
+  #home .searchbox button {
+    position: absolute;
+    right: 8px; top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    height: 34px;
+    padding: 0 18px;
+    border-radius: 17px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #home .searchbox button:hover { background: var(--accent-hover); }
+
+  #quicklinks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 20px;
+    width: min(720px, 96%);
+  }
+  .ql {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px 6px;
+    border-radius: var(--radius);
+    transition: background .15s;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ql:hover { background: var(--chrome); }
+  .ql .ql-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--shadow);
+    background: var(--panel);
+  }
+  .ql .ql-icon img { width: 100%; height: 100%; border-radius: 14px; }
+  .ql .ql-name { font-size: 12.5px; color: var(--muted); text-align: center; }
+
+  #edit-links {
+    margin-top: 32px;
+    border: none;
+    background: var(--chrome);
+    color: var(--text);
+    padding: 9px 18px;
+    border-radius: 18px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #edit-links:hover { background: var(--border); }
+
+  /* ===== 网页显示区 ===== */
+  #view {
+    flex: 1;
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+  }
+  iframe#browser-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  #frame-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+  }
+  #frame-overlay.show { display: flex; }
+  #frame-overlay .ov-icon { font-size: 48px; }
+  #frame-overlay .ov-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  #frame-overlay .ov-msg { font-size: 13.5px; max-width: 480px; line-height: 1.6; }
+  #frame-overlay .ov-open {
+    margin-top: 6px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  #frame-overlay .ov-open:hover { background: var(--accent-hover); }
+
+  #loading {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: transparent;
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+  }
+  #loading.show { display: block; }
+  #loading::after {
+    content: '';
+    position: absolute;
+    width: 40%;
+    height: 100%;
+    background: var(--accent);
+    animation: loading 1s infinite ease-in-out;
+    border-radius: 2px;
+  }
+  @keyframes loading {
+    0% { left: -40%; }
+    100% { left: 100%; }
+  }
+
+  /* ===== 编辑快捷方式弹窗 ===== */
+  #modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+  }
+  #modal.show { display: flex; }
+  #modal-card {
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 24px;
+    width: min(460px, 92vw);
+    box-shadow: 0 12px 40px rgba(0,0,0,.3);
+  }
+  #modal-card h3 { margin-bottom: 18px; font-size: 17px; }
+  #modal-card .row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  #modal-card input {
+    flex: 1;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  #modal-card input:focus { border-color: var(--accent); }
+  #modal-card .del {
+    border: none;
+    background: transparent;
+    color: var(--danger);
+    font-size: 16px;
+    cursor: pointer;
+    width: 30px; height: 30px;
+    border-radius: 6px;
+  }
+  #modal-card .del:hover { background: var(--chrome); }
+  #modal-card .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  #modal-card .actions button {
+    border: none;
+    padding: 9px 18px;
+    border-radius: 18px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #modal-card .actions .add { background: var(--chrome); color: var(--text); }
+  #modal-card .actions .add:hover { background: var(--border); }
+  #modal-card .actions .save { background: var(--accent); color: #fff; }
+  #modal-card .actions .save:hover { background: var(--accent-hover); }
+
+  /* ===== 状态栏 ===== */
+  #statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--tab-active);
+    border-top: 1px solid var(--border);
+    padding: 4px 14px;
+    font-size: 11.5px;
+    color: var(--muted);
+    flex-shrink: 0;
+    min-height: 24px;
+  }
+  #status-right { display: flex; align-items: center; gap: 12px; }
+
+  @media (max-width: 640px) {
+    #go-btn { display: none; }
+    .tab { min-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 标签栏 -->
+<div id="tabbar"></div>
+
+<!-- 工具栏 -->
+<div id="toolbar">
+  <button class="tbtn" id="btn-back" title="后退">
+    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+  </button>
+  <button class="tbtn" id="btn-forward" title="前进">
+    <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+  </button>
+  <button class="tbtn" id="btn-reload" title="刷新">
+    <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+  </button>
+  <button class="tbtn" id="btn-home" title="主页">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+  </button>
+  <button class="tbtn" id="btn-fullscreen" title="全屏">
+    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+  </button>
+
+  <div id="addressbar-wrap">
+    <div id="address-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+    </div>
+    <input type="text" id="addressbar" placeholder="输入网址或搜索内容" autocomplete="off" spellcheck="false">
+    <div id="suggestions"></div>
+  </div>
+
+  <button id="go-btn">前往</button>
+</div>
+
+<!-- 主页 / 新标签页 -->
+<div id="home">
+  <div class="logo">WebBrowser</div>
+  <div class="sub">在网页里运行的浏览器</div>
+  <div class="searchbox">
+    <span class="s-icon"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg></span>
+    <input type="text" id="home-search" placeholder="搜索或输入网址" autocomplete="off" spellcheck="false">
+    <button id="home-go">搜索</button>
+  </div>
+  <div id="quicklinks"></div>
+  <button id="edit-links">编辑快捷方式</button>
+</div>
+
+<!-- 网页显示区 -->
+<div id="view">
+  <div id="loading"></div>
+  <iframe id="browser-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div id="frame-overlay">
+    <div class="ov-icon">&#128274;</div>
+    <div class="ov-title">无法在此处显示</div>
+    <div class="ov-msg" id="overlay-msg">该网站可能设置了安全策略（如 X-Frame-Options），不允许被嵌入到其他页面中。</div>
+    <button class="ov-open" id="overlay-open">在新窗口打开</button>
+  </div>
+</div>
+
+<!-- 状态栏 -->
+<div id="statusbar">
+  <span id="status-left">就绪</span>
+  <span id="status-right">
+    <span id="zoom-info">100%</span>
+    <span id="theme-btn" style="cursor:pointer;" title="切换主题">&#9789;</span>
+  </span>
+</div>
+
+<!-- 编辑快捷方式弹窗 -->
+<div id="modal">
+  <div id="modal-card">
+    <h3>管理快捷方式</h3>
+    <div id="modal-list"></div>
+    <div class="actions">
+      <button class="add" id="modal-add">添加</button>
+      <button class="save" id="modal-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const $ = (s) => document.querySelector(s);
+  const SEARCH_ENGINE = 'https://www.bing.com/search?q=';
+  const FALLBACK_SEARCH = 'https://www.bing.com/search?q=';
+  const HOMEPAGE = 'https://www.bing.com';
+
+  const DEFAULT_LINKS = [
+    { name: '必应', url: 'https://www.bing.com', icon: '&#128269;' },
+    { name: '百度', url: 'https://www.baidu.com', icon: '&#128269;' },
+    { name: '哔哩哔哩', url: 'https://www.bilibili.com', icon: '&#128250;' },
+    { name: '微博', url: 'https://www.weibo.com', icon: '&#128172;' },
+    { name: 'GitHub', url: 'https://github.com', icon: '&#128187;' },
+    { name: '知乎', url: 'https://www.zhihu.com', icon: '&#128173;' },
+    { name: '维基百科', url: 'https://zh.wikipedia.org', icon: '&#128218;' },
+    { name: '淘宝', url: 'https://www.taobao.com', icon: '&#128722;' }
+  ];
+
+  let tabs = [];
+  let activeTabId = null;
+  let tabIdCounter = 1;
+  let links = loadLinks();
+
+  const els = {
+    tabbar: $('#tabbar'),
+    addressbarWrap: $('#addressbar-wrap'),
+    addressbar: $('#addressbar'),
+    suggestions: $('#suggestions'),
+    goBtn: $('#go-btn'),
+    btnBack: $('#btn-back'),
+    btnForward: $('#btn-forward'),
+    btnReload: $('#btn-reload'),
+    btnHome: $('#btn-home'),
+    btnFullscreen: $('#btn-fullscreen'),
+    frame: $('#browser-frame'),
+    overlay: $('#frame-overlay'),
+    overlayMsg: $('#overlay-msg'),
+    overlayOpen: $('#overlay-open'),
+    loading: $('#loading'),
+    home: $('#home'),
+    homeSearch: $('#home-search'),
+    homeGo: $('#home-go'),
+    quicklinks: $('#quicklinks'),
+    editLinks: $('#edit-links'),
+    statusLeft: $('#status-left'),
+    zoomInfo: $('#zoom-info'),
+    themeBtn: $('#theme-btn'),
+    modal: $('#modal'),
+    modalList: $('#modal-list'),
+    modalAdd: $('#modal-add'),
+    modalSave: $('#modal-save')
+  };
+
+  /* ---------- 存储 ---------- */
+  function loadLinks() {
+    try {
+      const raw = localStorage.getItem('webBrowser.links');
+      const parsed = raw ? JSON.parse(raw) : null;
+      return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_LINKS;
+    } catch (e) { return DEFAULT_LINKS; }
+  }
+  function saveLinks() {
+    try { localStorage.setItem('webBrowser.links', JSON.stringify(links)); } catch (e) {}
+  }
+  function loadTheme() {
+    try { return localStorage.getItem('webBrowser.theme') === 'dark'; } catch (e) { return false; }
+  }
+
+  /* ---------- 工具函数 ---------- */
+  function normalizeInput(input) {
+    input = input.trim();
+    if (!input) return null;
+    if (/^https?:\/\//i.test(input)) return input;
+    if (/^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#].*)?$/i.test(input)) return 'https://' + input;
+    if (input.includes('.') && !input.includes(' ')) return 'https://' + input;
+    return null;
+  }
+  function isSearch(input) {
+    return !normalizeInput(input) || /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#].*)?$/i.test(input.trim()) === false && input.includes(' ');
+  }
+  function buildUrl(input) {
+    const u = normalizeInput(input);
+    if (u) return u;
+    return SEARCH_ENGINE + encodeURIComponent(input);
+  }
+  function getDomain(url) {
+    try { return new URL(url).hostname; } catch (e) { return url; }
+  }
+  function faviconFor(url) {
+    try {
+      const host = new URL(url).hostname;
+      return 'https://www.google.com/s2/favicons?domain=' + host + '&sz=32';
+    } catch (e) { return ''; }
+  }
+
+  /* ---------- 标签管理 ---------- */
+  function createTab(url, opts) {
+    opts = opts || {};
+    const tab = {
+      id: tabIdCounter++,
+      title: opts.title || '新标签页',
+      url: url || '',
+      history: url ? [url] : [],
+      historyIndex: url ? 0 : -1,
+      iframe: null,
+      home: false
+    };
+    tabs.push(tab);
+    renderTabs();
+    setActive(tab.id);
+    if (url) navigate(tab.id, url, { push: true });
+    else showHome();
+    return tab;
+  }
+
+  function getTab(id) { return tabs.find(t => t.id === id); }
+
+  function setActive(id) {
+    activeTabId = id;
+    renderTabs();
+    const tab = getTab(id);
+    if (!tab) return;
+    if (tab.home) {
+      showHome();
+    } else if (tab.iframe) {
+      els.frame.src = tab.iframe.src;
+      els.frame.style.display = 'block';
+      els.home.classList.remove('show');
+      els.overlay.classList.toggle('show', tab.iframeBlocked === true);
+      els.addressbar.value = tab.url;
+    } else {
+      els.frame.removeAttribute('src');
+      showHome();
+    }
+    updateChromeState();
+  }
+
+  function renderTabs() {
+    els.tabbar.innerHTML = '';
+    tabs.forEach(tab => {
+      const el = document.createElement('div');
+      el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+      const icon = tab.home
+        ? '<span class="favicon">&#127760;</span>'
+        : (tab.favicon
+            ? '<span class="favicon"><img src="' + tab.favicon + '" alt=""></span>'
+            : '<span class="favicon">&#128196;</span>');
+      el.innerHTML = icon +
+        '<span class="tab-title"></span>' +
+        '<button class="tab-close" title="关闭">&#10005;</button>';
+      el.querySelector('.tab-title').textContent = tab.title;
+      el.addEventListener('click', () => setActive(tab.id));
+      el.querySelector('.tab-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tab.id);
+      });
+      els.tabbar.appendChild(el);
+    });
+    const btn = document.createElement('button');
+    btn.id = 'newtab-btn';
+    btn.title = '新建标签页';
+    btn.textContent = '+';
+    btn.addEventListener('click', () => createTab(''));
+    els.tabbar.appendChild(btn);
+    els.tabbar.scrollLeft = els.tabbar.scrollWidth;
+  }
+
+  function closeTab(id) {
+    const idx = tabs.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    const wasActive = id === activeTabId;
+    tabs.splice(idx, 1);
+    if (!tabs.length) {
+      createTab('');
+      return;
+    }
+    renderTabs();
+    if (wasActive) {
+      const next = tabs[Math.min(idx, tabs.length - 1)];
+      setActive(next.id);
+    }
+  }
+
+  function updateTabMeta(tab, title, favicon) {
+    if (title) tab.title = title;
+    if (favicon) tab.favicon = favicon;
+    renderTabs();
+  }
+
+  /* ---------- 导航 ---------- */
+  function navigate(id, url, opts) {
+    opts = opts || {};
+    const tab = getTab(id);
+    if (!tab) return;
+    const finalUrl = buildUrl(url);
+
+    tab.home = false;
+    tab.url = finalUrl;
+    tab.iframe = { src: finalUrl };
+    tab.iframeBlocked = false;
+    tab.title = getDomain(finalUrl);
+    tab.favicon = faviconFor(finalUrl);
+
+    if (opts.push) {
+      tab.history = tab.history.slice(0, tab.historyIndex + 1);
+      tab.history.push(finalUrl);
+      tab.historyIndex = tab.history.length - 1;
+    }
+
+    renderTabs();
+    els.addressbar.value = finalUrl;
+    els.home.classList.remove('show');
+    els.frame.style.display = 'block';
+    els.overlay.classList.remove('show');
+    els.loading.classList.add('show');
+    els.statusLeft.textContent = '正在加载 ' + getDomain(finalUrl) + ' …';
+
+    els.frame.src = finalUrl;
+    updateChromeState();
+  }
+
+  function showHome() {
+    const tab = getTab(activeTabId);
+    if (tab) {
+      tab.home = true;
+      tab.title = '新标签页';
+      tab.favicon = null;
+    }
+    renderTabs();
+    els.frame.removeAttribute('src');
+    els.frame.style.display = 'none';
+    els.overlay.classList.remove('show');
+    els.home.classList.add('show');
+    els.addressbar.value = '';
+    els.statusLeft.textContent = '就绪';
+    renderQuicklinks();
+    updateChromeState();
+  }
+
+  function goBack() {
+    const tab = getTab(activeTabId);
+    if (!tab || tab.historyIndex <= 0) return;
+    tab.historyIndex--;
+    navigate(tab.id, tab.history[tab.historyIndex], { push: false });
+  }
+  function goForward() {
+    const tab = getTab(activeTabId);
+    if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+    tab.historyIndex++;
+    navigate(tab.id, tab.history[tab.historyIndex], { push: false });
+  }
+
+  function updateChromeState() {
+    const tab = getTab(activeTabId);
+    els.btnBack.disabled = !tab || tab.home || tab.historyIndex <= 0;
+    els.btnForward.disabled = !tab || tab.home || tab.historyIndex >= tab.history.length - 1;
+  }
+
+  /* ---------- 地址栏 / 搜索建议 ---------- */
+  const SUGGESTIONS = [
+    '百度', '哔哩哔哩', 'GitHub', '知乎', '维基百科', '淘宝', '微博',
+    '天气', '新闻', '电影', '音乐', '游戏', '编程', 'Python', 'JavaScript'
+  ];
+  function showSuggestions() {
+    const q = els.addressbar.value.trim();
+    if (!q) { els.suggestions.style.display = 'none'; return; }
+    const items = [];
+    const u = normalizeInput(q);
+    if (u) items.push({ icon: '&#128279;', text: u });
+    SUGGESTIONS.filter(s => s.includes(q) || q.includes(s)).slice(0, 5).forEach(s => {
+      items.push({ icon: '&#128269;', text: SEARCH_ENGINE + encodeURIComponent(s) });
+    });
+    if (!items.length) {
+      items.push({ icon: '&#128269;', text: SEARCH_ENGINE + encodeURIComponent(q) });
+    }
+    els.suggestions.innerHTML = '';
+    items.forEach(it => {
+      const el = document.createElement('div');
+      el.className = 'sug';
+      el.innerHTML = '<span class="sug-icon">' + it.icon + '</span><span>' + it.text.replace(/</g, '&lt;') + '</span>';
+      el.addEventListener('click', () => {
+        els.addressbar.value = it.text;
+        navigate(activeTabId, it.text, { push: true });
+        els.suggestions.style.display = 'none';
+      });
+      els.suggestions.appendChild(el);
+    });
+    els.suggestions.style.display = 'block';
+  }
+
+  /* ---------- 主页快捷方式 ---------- */
+  function renderQuicklinks() {
+    els.quicklinks.innerHTML = '';
+    links.forEach(l => {
+      const a = document.createElement('a');
+      a.className = 'ql';
+      a.href = l.url;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigate(activeTabId, l.url, { push: true });
+      });
+      a.innerHTML = '<div class="ql-icon">' + (l.icon || '&#128279;') + '</div><div class="ql-name"></div>';
+      a.querySelector('.ql-name').textContent = l.name;
+      els.quicklinks.appendChild(a);
+    });
+  }
+
+  /* ---------- 弹窗编辑 ---------- */
+  function openModal() {
+    els.modalList.innerHTML = '';
+    links.forEach((l, i) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<input class="m-name" placeholder="名称" value="">' +
+        '<input class="m-url" placeholder="网址（如 https://example.com）" value="">' +
+        '<button class="del" title="删除">&#10005;</button>';
+      row.querySelector('.m-name').value = l.name;
+      row.querySelector('.m-url').value = l.url;
+      row.querySelector('.del').addEventListener('click', () => {
+        links.splice(i, 1);
+        openModal();
+      });
+      els.modalList.appendChild(row);
+    });
+    els.modal.classList.add('show');
+  }
+  els.modalAdd.addEventListener('click', () => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = '<input class="m-name" placeholder="名称" value="">' +
+      '<input class="m-url" placeholder="网址" value="">' +
+      '<button class="del" title="删除">&#10005;</button>';
+    row.querySelector('.del').addEventListener('click', () => row.remove());
+    els.modalList.appendChild(row);
+  });
+  els.modalSave.addEventListener('click', () => {
+    const rows = els.modalList.querySelectorAll('.row');
+    const next = [];
+    rows.forEach(r => {
+      const name = r.querySelector('.m-name').value.trim();
+      const url = r.querySelector('.m-url').value.trim();
+      if (name && url) next.push({ name, url, icon: '' });
+    });
+    links = next.length ? next : DEFAULT_LINKS;
+    saveLinks();
+    els.modal.classList.remove('show');
+    renderQuicklinks();
+  });
+  els.modal.addEventListener('click', (e) => {
+    if (e.target === els.modal) els.modal.classList.remove('show');
+  });
+
+  /* ---------- 主题 ---------- */
+  function applyTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    els.themeBtn.innerHTML = dark ? '&#9788;' : '&#9789;';
+    try { localStorage.setItem('webBrowser.theme', dark ? 'dark' : 'light'); } catch (e) {}
+  }
+
+  /* ---------- iframe 事件 ---------- */
+  els.frame.addEventListener('load', () => {
+    els.loading.classList.remove('show');
+    const tab = getTab(activeTabId);
+    if (!tab) return;
+    els.statusLeft.textContent = getDomain(tab.url);
+    try {
+      const doc = els.frame.contentDocument;
+      const t = doc && doc.title ? doc.title : getDomain(tab.url);
+      updateTabMeta(tab, t, tab.favicon);
+    } catch (e) { /* 跨域限制 */ }
+  });
+  els.frame.addEventListener('error', () => {
+    els.loading.classList.remove('show');
+  });
+
+  /* ---------- 工具栏事件 ---------- */
+  els.btnBack.addEventListener('click', goBack);
+  els.btnForward.addEventListener('click', goForward);
+  els.btnReload.addEventListener('click', () => {
+    const tab = getTab(activeTabId);
+    if (!tab || tab.home) return;
+    els.loading.classList.add('show');
+    els.frame.src = tab.url;
+  });
+  els.btnHome.addEventListener('click', showHome);
+  els.btnFullscreen.addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  });
+
+  els.goBtn.addEventListener('click', () => {
+    navigate(activeTabId, els.addressbar.value, { push: true });
+    els.suggestions.style.display = 'none';
+  });
+  els.addressbar.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      navigate(activeTabId, els.addressbar.value, { push: true });
+      els.suggestions.style.display = 'none';
+    }
+  });
+  els.addressbar.addEventListener('input', showSuggestions);
+  els.addressbar.addEventListener('focus', showSuggestions);
+  document.addEventListener('click', (e) => {
+    if (!els.addressbarWrap.contains(e.target)) els.suggestions.style.display = 'none';
+  });
+
+  els.homeSearch.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') els.homeGo.click();
+  });
+  els.homeGo.addEventListener('click', () => {
+    navigate(activeTabId, els.homeSearch.value, { push: true });
+  });
+
+  els.overlayOpen.addEventListener('click', () => {
+    const tab = getTab(activeTabId);
+    if (tab) window.open(tab.url, '_blank');
+  });
+
+  els.editLinks.addEventListener('click', openModal);
+
+  els.themeBtn.addEventListener('click', () => {
+    applyTheme(!document.body.classList.contains('dark'));
+  });
+
+  /* ---------- 快捷键 ---------- */
+  document.addEventListener('keydown', (e) => {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && e.key === 't') { e.preventDefault(); createTab(''); }
+    else if (ctrl && e.key === 'w') { e.preventDefault(); closeTab(activeTabId); }
+    else if (ctrl && e.key === 'l') { e.preventDefault(); els.addressbar.focus(); els.addressbar.select(); }
+    else if (ctrl && e.key === 'r') { e.preventDefault(); els.btnReload.click(); }
+    else if (e.key === 'F5') { e.preventDefault(); els.btnReload.click(); }
+    else if (ctrl && e.key === '1') { e.preventDefault(); if (tabs[0]) setActive(tabs[0].id); }
+    else if (ctrl && e.key === '2') { e.preventDefault(); if (tabs[1]) setActive(tabs[1].id); }
+    else if (ctrl && e.key === '3') { e.preventDefault(); if (tabs[2]) setActive(tabs[2].id); }
+    else if (ctrl && e.key === '4') { e.preventDefault(); if (tabs[3]) setActive(tabs[3].id); }
+    else if (e.key === 'Escape') { els.suggestions.style.display = 'none'; }
+  });
+
+  /* ---------- 初始化 ---------- */
+  applyTheme(loadTheme());
+  createTab('');
+})();
+</script>
+</body>
+</html>

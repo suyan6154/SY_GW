@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Animation - 背景颜色变化</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f4f6;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        .color-box {
+            width: min(280px, 80vw);
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 24px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            box-shadow: 0 16px 40px rgb(0 0 0 / 18%);
+            animation:
+                change-color 8s ease-in-out infinite,
+                float-and-rotate 5s ease-in-out infinite,
+                morph-shape 7s ease-in-out infinite,
+                glow-shadow 4s ease-in-out infinite;
+        }
+
+        @keyframes change-color {
+            0%, 100% {
+                background-color: #f8f4e9;
+            }
+            25% {
+                background-color: #fdd3d5;
+            }
+            50% {
+                background-color: #d5eae3;
+            }
+            75% {
+                background-color: #775c55;
+            }
+        }
+
+        @keyframes float-and-rotate {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translateY(-18px) rotate(5deg) scale(1.04);
+            }
+            50% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            75% {
+                transform: translateY(12px) rotate(-5deg) scale(.97);
+            }
+        }
+
+        @keyframes morph-shape {
+            0%, 100% {
+                border-radius: 24px;
+            }
+            50% {
+                border-radius: 50%;
+            }
+        }
+
+        @keyframes glow-shadow {
+            0%, 100% {
+                box-shadow: 0 16px 40px rgb(0 0 0 / 18%);
+            }
+            50% {
+                box-shadow: 0 24px 55px rgb(0 0 0 / 30%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .color-box {
+                animation: none;
+                background-color: #ff6b6b;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="color-box">CSS Animation</div>
+</body>
+</html>

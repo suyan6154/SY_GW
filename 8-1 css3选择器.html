@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .main{
+            /* 背景颜色#f2f3f4 */
+            background-color: #f2f3f4;
+            display: flex;
+            flex-wrap: wrap;
+            margin: 10px;
+        }
+        .box{
+            width: 150px;
+            height: 159px;
+            border: 1px solid #000;
+            margin: 10px;
+            background-color: white;
+            font-size: 30px;
+            display: flex;
+            /* 水平垂直居中 */
+            justify-content: center;
+            align-items: center;
+            transition: all 0.6s;
+            box-sizing: border-box;
+        }
+        /* 扩展2：鼠标在偶数个盒子上时有变化，原有单独hover不受影响 */
+        /* 偶数盒子显示红色阴影，红色边框，缩小0.9倍，旋转10度 */
+        .box:nth-child(even):hover {
+            transform: rotate(10deg) scale(0.9);
+            box-shadow: 0 0 18px red;
+            border-color: red;
+        }
+        .box:first-child:hover{
+            background-color: #000;
+            color:white;
+            font-size:100px;
+            border-width: 30px;
+        }
+        .box:nth-child(2):hover{
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+        }
+        .box:nth-child(3):hover{
+            text-shadow: 12px 12px 30px rgba(0,0,0,0.6);
+        }
+        .box:nth-child(4):hover{
+            border-radius: 50%;
+        }
+        .box:nth-child(5){
+            /* 线性渐变 */
+            background: linear-gradient(30deg,#FFB48A,#DEF8FF);
+        }
+        .box:nth-child(6){
+            /* 径向渐变 */
+            background: radial-gradient(#D0A7CF,#FFE4D9);
+        }
+        /* 相邻兄弟选择器 */
+        /* ~hour 兄弟选择器 */
+        .box:nth-of-type(6)+.box:hover{
+            transform:scale(0.5)
+        }
+        .box:nth-child(8):hover{
+            transform: translateX(-100px);
+        }
+        .box:nth-child(9):hover{
+            transform: rotateZ(-180deg);
+        }
+        .box:nth-child(10):hover{
+            transform: skewX(45deg);
+        }
+        .box:nth-last-child(2):hover::before{
+            content:"#";
+            color:orange;
+        }
+        /* 最后一个 */
+        .box:last-child:hover::after{
+            content:"苏妍";
+            color: white;
+            font-size: 8px;
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 10px;
+        /* 扩展1：黑底白字圆角居中的“苏妍”，有距离 */
+            background-color: #000;
+            border-radius: 50%; 
+            display: flex;
+            justify-content: center; 
+            align-items: center;   
+        }
+        .box:nth-of-type(3n):hover{
+            border: 3px solid aqua;
+        }
+    </style>
+</head>
+<body>
+    <div class = "main">
+        <div class="box">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+        <div class="box">4</div>
+        <div class="box">5</div>
+        <div class="box">6</div>
+        <div class="box">7</div>
+        <div class="box">8</div>
+        <div class="box">9</div>
+        <div class="box">10</div>
+        <div class="box">11</div>
+        <div class="box">12</div>
+    </div>
+</body>
+</html>

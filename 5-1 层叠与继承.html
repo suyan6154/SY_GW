@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>层叠与继承</title>
+        <link rel="stylesheet" href="css.css"></link>
+    <style>
+        P{
+            color:red;
+            font-size: 100px;
+        }
+        .text{
+            color: green;
+        }
+        #text{
+            color: purple;
+        }
+        .box p{
+            color: orange;
+        }
+        #box #text{
+            color: silver;
+        }
+        .text{
+            color: yellow !important;
+            /* !important优先级最高，hack可覆盖内嵌css */
+        }
+        /* 选择器的优先级：id选择器 > class选择器 > 标签选择器 */
+        #box{
+            /* 宽400，高400，灰色背景，距离，字间距5px */
+            width: 400px;
+            height: 400px;
+            background-color: gray;
+            margin: 10px;
+            padding: 10px;
+            letter-spacing: 25px;
+            /* 圆角矩形50% */
+            border-radius: 50%;
+
+        }
+        h2 {
+            text-align: center; /* 文字在行内水平居中 */
+            font-size: 30px;    /* 可选，调大字体，和截图效果匹配 */
+        }
+    </style>
+    <!-- 后定义的覆盖前定义的 -->
+</head>
+<body>
+    <h2> 层叠与继承 </h2>
+    <div id="box" class="box">
+        <p id="text" class="text">926 苏妍</p>
+        <p>层叠与继承的优先级</p>
+        </div>
+</body>
+</html>

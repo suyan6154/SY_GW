@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 100%;
+            margin: 20px;
+        }
+        .zitem{
+            display: flex;
+            padding: 10px 5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        .zitem img{
+            width: 27%;
+            margin-right: 1px;
+        }
+        .ytext{
+            flex-grow: 1;
+            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .ytext h3{
+            width: 100%;
+            font-size: 16px;
+            line-height: 40px;
+            color: #333;
+        }
+        .author{
+            flex-grow: 1;
+        }
+        .time{
+            margin-left: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class = "box">
+        <div class = "zitem">
+            <img src ="Images/7.jpg" alt = "图片1">
+            <div class = "ytext">
+                <h3>标题1</h3>
+                <span class = "time">2024-06-10</span>
+            </div>
+        </div>
+        <div class = "zitem">
+            <img src ="Images/8.jpg" alt = "图片2">
+            <div class = "ytext">
+                <h3>标题2</h3>
+                <span class = "time">2024-06-10</span>
+            </div>
+        </div>
+        <div class = "zitem">
+            <img src ="Images/9.jpg" alt = "图片3">
+            <div class = "ytext">
+                <h3>标题3</h3>
+                <span class = "time">2024-06-10</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

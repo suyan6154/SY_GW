@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏妍的媒体查询响应式布局</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-width: 320px;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            padding: 32px 20px;
+            background: #f3f6fb;
+            color: #24324a;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .description {
+            margin: 0 0 28px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .box-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            width: min(100%, 1080px);
+            margin: 0 auto;
+        }
+
+        .box {
+            min-height: 150px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgb(255 255 255 / 70%);
+            border-radius: 16px;
+            background: linear-gradient(135deg, #5b8def, #7c5ce7);
+            box-shadow: 0 8px 20px rgb(36 50 74 / 12%);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        @media (min-width: 480px) {
+            .box-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 768px) {
+            .box-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .box-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>苏妍的媒体查询响应式布局</h1>
+        <p class="description">调整浏览器窗口宽度，观察每行盒子数量变化</p>
+        <section class="box-list" aria-label="八个响应式盒子">
+            <div class="box">盒子 1</div>
+            <div class="box">盒子 2</div>
+            <div class="box">盒子 3</div>
+            <div class="box">盒子 4</div>
+            <div class="box">盒子 5</div>
+            <div class="box">盒子 6</div>
+            <div class="box">盒子 7</div>
+            <div class="box">盒子 8</div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web 前端长度单位</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            color-scheme: light;
+        }
+
+        body {
+            min-width: 320px;
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: #5969d9;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .intro {
+            max-width: 640px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        .unit-group {
+            margin-top: 24px;
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .group-description {
+            margin: 0 0 20px;
+            color: #6d7890;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+            gap: 14px;
+        }
+
+        .demo {
+            min-width: 0;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f6f8fc;
+        }
+
+        .demo h3 {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin: 0 0 4px;
+            font-size: 1rem;
+        }
+
+        code {
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.92em;
+        }
+
+        .note {
+            margin: 0 0 14px;
+            color: #6d7890;
+            font-size: 0.88rem;
+        }
+
+        .ruler {
+            height: 18px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #5969d9, #8792f1);
+        }
+
+        .px-ruler {
+            width: 160px;
+            max-width: 100%;
+        }
+
+        .physical-ruler {
+            width: 2in;
+            max-width: 100%;
+        }
+
+        .em-demo {
+            font-size: 20px;
+        }
+
+        .em-ruler {
+            width: 10em;
+            max-width: 100%;
+        }
+
+        .rem-ruler {
+            width: 10rem;
+            max-width: 100%;
+        }
+
+        .percent-track {
+            width: 100%;
+            height: 30px;
+            padding: 5px;
+            border-radius: 8px;
+            background: #e2e7f3;
+        }
+
+        .percent-ruler {
+            width: 60%;
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #e9954b, #f1bd73);
+        }
+
+        .viewport-ruler {
+            width: 50vw;
+            max-width: 100%;
+        }
+
+        .viewport-height {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 12vh;
+            min-height: 44px;
+            border-radius: 10px;
+            color: #345d4b;
+            background: #d9f1e4;
+            font-size: 0.85rem;
+        }
+
+        .viewport-minmax {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20vmin;
+            height: 20vmin;
+            min-width: 64px;
+            min-height: 64px;
+            border-radius: 14px;
+            color: #633e75;
+            background: #eee0f6;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        .viewport-demo-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        footer {
+            margin-top: 24px;
+            color: #6d7890;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 28px 14px 40px;
+            }
+
+            .unit-group {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <p class="eyebrow">CSS length units</p>
+            <h1>Web 前端长度单位</h1>
+            <p class="intro">CSS 长度单位用来设置宽度、间距、字号等尺寸。常见单位可分为绝对长度和相对长度，调整窗口大小观察示例变化。</p>
+        </header>
+
+        <section class="unit-group" aria-labelledby="absolute-title">
+            <h2 id="absolute-title">绝对长度单位</h2>
+            <p class="group-description">尺寸不依赖父元素或视口。网页布局中最常用的是 px；物理单位通常用于打印场景。</p>
+            <div class="demo-grid">
+                <article class="demo">
+                    <h3><code>px</code> 像素</h3>
+                    <p class="note">160px：屏幕设计中常用的固定尺寸。</p>
+                    <div class="ruler px-ruler" aria-label="宽度 160 像素"></div>
+                </article>
+                <article class="demo">
+                    <h3><code>in</code> 英寸</h3>
+                    <p class="note">2in：物理长度单位；CSS 中 1in 等于 96px。</p>
+                    <div class="ruler physical-ruler" aria-label="宽度 2 英寸"></div>
+                </article>
+                <article class="demo">
+                    <h3><code>cm</code>、<code>mm</code>、<code>pt</code>、<code>pc</code></h3>
+                    <p class="note">其他物理单位：厘米、毫米、磅、派卡。1pt 等于 1/72in，1pc 等于 12pt。</p>
+                    <div class="ruler px-ruler" aria-hidden="true"></div>
+                </article>
+            </div>
+        </section>
+
+        <section class="unit-group" aria-labelledby="relative-title">
+            <h2 id="relative-title">字体与容器相对单位</h2>
+            <p class="group-description">尺寸会参照当前字体大小或父级容器，适合构建灵活、易缩放的布局。</p>
+            <div class="demo-grid">
+                <article class="demo">
+                    <h3><code>em</code></h3>
+                    <p class="note">此示例字号为 20px，宽度 10em = 200px。</p>
+                    <div class="em-demo">
+                        <div class="ruler em-ruler" aria-label="宽度 10em"></div>
+                    </div>
+                </article>
+                <article class="demo">
+                    <h3><code>rem</code></h3>
+                    <p class="note">参照根元素字号；默认根字号为 16px，宽度 10rem = 160px。</p>
+                    <div class="ruler rem-ruler" aria-label="宽度 10rem"></div>
+                </article>
+                <article class="demo">
+                    <h3><code>%</code> 百分比</h3>
+                    <p class="note">相对于包含块的对应尺寸；色条宽度为容器的 60%。</p>
+                    <div class="percent-track">
+                        <div class="percent-ruler" aria-label="容器宽度的 60%"></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="unit-group" aria-labelledby="viewport-title">
+            <h2 id="viewport-title">视口相对单位</h2>
+            <p class="group-description">随浏览器视口尺寸变化，常用于响应式布局。调整窗口宽度或高度查看效果。</p>
+            <div class="demo-grid">
+                <article class="demo">
+                    <h3><code>vw</code></h3>
+                    <p class="note">1vw 等于视口宽度的 1%；下方色条宽度为 50vw。</p>
+                    <div class="ruler viewport-ruler" aria-label="宽度 50vw"></div>
+                </article>
+                <article class="demo">
+                    <h3><code>vh</code></h3>
+                    <p class="note">1vh 等于视口高度的 1%；色块高度为 12vh。</p>
+                    <div class="viewport-height">12vh</div>
+                </article>
+                <article class="demo">
+                    <h3><code>vmin</code> 与 <code>vmax</code></h3>
+                    <p class="note">分别参照视口宽高中的较小值与较大值。方块边长为 20vmin。</p>
+                    <div class="viewport-demo-row">
+                        <div class="viewport-minmax">20vmin</div>
+                        <code>1vmax = 视口较大边的 1%</code>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <footer>小提示：字号常用 rem，容器布局常结合 %、vw、vh 与 max-width 使用。</footer>
+    </main>
+</body>
+</html>

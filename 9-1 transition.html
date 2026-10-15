@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{padding: 0; margin: 0;}
+        img{display: block;}
+        ul{list-style: none;}
+        .list{
+            display:flex;
+            flex-wrap: wrap; /* 换行 */
+            margin: 10px;
+        }
+        .list li{
+            width:30%;
+            overflow: hidden; /* 隐藏超出部分 */
+            position: relative; /* 相对定位 */
+            flex-grow: 1; /* 自适应 */
+            margin: 6px;
+        }
+        .list img{
+            width: 100%;
+            transition: all 0.5s ease-in-out; /* 动画 */
+        }
+        .text{
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 33px;
+            background-color: rgba(0,0,0,0.5);
+            color: #fff;
+            transition: all 0.5s ease-in-out;
+
+        }
+        .text h3{
+            height: 33px;
+            line-height: 33px;
+            text-align: center;
+        }
+        .text p{
+            height: 40px;
+            line-height: 20px;
+            padding: 5px;
+            overflow: hidden;
+            /* 首行空2格 */
+            text-indent: 2em;
+            font-size: 12px;
+        }
+        .list li:nth-child(3n+1):hover img{
+            transform: scale(1.7);
+        }
+        .list li:nth-child(3n+2):hover .text{
+            height: 100%;
+        }
+        .list li:nth-child(3n):hover .text{
+            height: 83px;
+        }
+    </style>
+</head>
+<body>
+    <h2>苏妍的transition过渡</h2>
+    <ul class = "list">
+        <li>
+            <img src = "./Images/10.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/11.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/12.png">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/4.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/5.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/6.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/7.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/8.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+                <li>
+            <img src = "./Images/9.jpg">
+            <div class = "text">
+                <h3>苏妍的标题</h3>
+                <p>
+                    下面的文字，默认隐藏，可能在hover的时候显示文字，可能是固定高度，也可能是100%高度。
+                </p>
+            </div>
+        </li>
+    </ul>
+</body>
+</html>

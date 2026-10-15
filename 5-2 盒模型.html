@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盒子模型/框模型(box model)</title>
+    <style>
+        body{
+            padding: 0;
+            margin: 0;
+        }
+        #a{
+            width: 400px;
+            height: 400px;
+            border:1px solid #039; /* 边框1px，边框实线，颜色为#039 */
+            padding: 50px 40px 30px 20px; /* 内边框：上右下左 */
+            margin: 40px auto; /* 外边框：上右下左，水平居中 */
+        }
+        #b{
+            width: 400px;
+            height: 400px;
+            border:1px dashed #039; /* 边框虚线 */
+            margin: 50px auto 40px;
+        }
+        /* 扩展1：完成c和d，边框用doted，宽度为3px */
+        #c{
+            width: 400px;
+            height: 400px;
+            border:3px dotted #039;
+            margin: 50px auto 40px auto;
+        }
+        #d{
+            width: 400px;
+            height: 400px;
+            border:3px dotted #039;
+            margin: 50px auto 40px auto;
+        }
+        /* 扩展2：找任何网页，修改其中的3-5部分 */
+    </style>
+</head>
+<body>
+    <div id="a">926苏妍</div>
+    <div id="b">926苏妍</div>
+    <div id="c">926苏妍</div>  
+    <div id="d">926苏妍</div>
+</body>
+</html>

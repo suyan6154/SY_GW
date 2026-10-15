@@ -1,0 +1,54 @@
+name: html-css-teaching
+description: 生成符合本项目规范的 HTML/CSS 教学示例文件。当用户需要创建新的教学练习页面、编写 HTML 结构或 CSS 样式示例时使用。
+---
+
+# HTML/CSS 教学示例生成 Skill
+
+## 项目规范
+
+- 文件命名格式：`章节-序号.html`（如 `1-1.html`、`10-2.html`）
+- 所有新 HTML 文件必须包含指向首页 `index.html` 的超链接
+- 使用语义化 HTML 标签
+- CSS 遵循 `css.css` 中的命名和组织方式
+- 保留中文注释和教学内容
+
+## 生成流程
+
+1. **确认章节编号**：根据用户描述的主题，确定章节号和序号
+2. **创建 HTML 文件**：
+   - 包含完整的 HTML5 文档结构
+   - 引入全局样式 `<link rel="stylesheet" href="css.css">`
+   - 添加返回首页链接
+   - 添加中文注释说明知识点
+3. **页面结构模板**：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章节主题 - 知识点</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+    <a href="index.html">返回首页</a>
+    <h1>章节主题</h1>
+    <p>知识点说明</p>
+    <!-- 教学内容区域 -->
+</body>
+</html>
+```
+
+4. **CSS 样式**：如需内联样式，使用 `<style>` 标签并添加中文注释
+
+## 命名约定
+
+- 章节编号参考现有文件命名（如 flex 布局章节用 `6-1 flex.html`）
+- 中文文件名需使用正确的编码
+
+## 注意事项
+
+- 确保文件编码统一为 UTF-8
+- 保持与现有教学文件一致的风格
+- 添加适当的中文教学注释
