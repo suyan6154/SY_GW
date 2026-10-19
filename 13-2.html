@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucide SVG 图标</title>
+    <script src="cdn/lucide.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            color-scheme: light;
+        }
+
+        body {
+            min-width: 320px;
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .su_eyebrow {
+            margin: 0 0 8px;
+            color: #5969d9;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .su_intro {
+            max-width: 640px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        .su_group {
+            margin-top: 24px;
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .su_group-desc {
+            margin: 0 0 20px;
+            color: #6d7890;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .su_icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .su_icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 8px 14px;
+            border-radius: 12px;
+            background: #f6f8fc;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+
+        .su_icon-card:hover {
+            transform: translateY(-4px);
+            background: #eef1fb;
+        }
+
+        .su_icon-card svg {
+            width: 32px;
+            height: 32px;
+            color: #5969d9;
+        }
+
+        .su_icon-card:hover svg {
+            color: #2457a6;
+        }
+
+        .su_icon-card span {
+            color: #6d7890;
+            font-size: 0.78rem;
+        }
+
+        .su_size-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 28px;
+            margin: 8px 0 0;
+        }
+
+        .su_size-item {
+            text-align: center;
+        }
+
+        .su_size-item svg {
+            display: block;
+            margin: 0 auto 8px;
+            color: #e9954b;
+        }
+
+        .su_size-item span {
+            color: #6d7890;
+            font-size: 0.78rem;
+        }
+
+        .su_style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 14px;
+        }
+
+        .su_style-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f6f8fc;
+        }
+
+        .su_style-card svg {
+            width: 30px;
+            height: 30px;
+            flex: none;
+        }
+
+        .su_style-card .su_c-heart { color: #e05a7a; }
+        .su_style-card .su_c-bell { color: #e9a13b; }
+        .su_style-card .su_c-check { color: #3f9d6e; }
+        .su_style-card .su_c-alert { color: #d97706; }
+        .su_style-card .su_c-spin {
+            color: #5969d9;
+            animation: su_spin 1.6s linear infinite;
+        }
+
+        @keyframes su_spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .su_style-card div p {
+            margin: 0;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .su_style-card div small {
+            color: #6d7890;
+            font-size: 0.76rem;
+        }
+
+        .su_raw {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f6f8fc;
+        }
+
+        .su_raw svg {
+            width: 34px;
+            height: 34px;
+            color: #2e7d9a;
+        }
+
+        footer {
+            margin-top: 24px;
+            color: #6d7890;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .su_back {
+            display: inline-block;
+            margin-top: 16px;
+            color: #2457a6;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .su_back:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 28px 14px 40px;
+            }
+
+            .su_group {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <p class="su_eyebrow">Lucide · SVG Icons</p>
+            <h1>Lucide SVG 图标</h1>
+            <p class="su_intro">Lucide 以 <strong>SVG 矢量</strong>的方式提供图标：它把图标作为内联 SVG 插入页面，颜色跟随 <code>currentColor</code>，可以直接用 CSS 控制描边、大小和动画。</p>
+        </header>
+
+        <section class="su_group" aria-labelledby="su_solid-title">
+            <h2 id="su_solid-title">基础图标</h2>
+            <p class="su_group-desc">使用 <code>&lt;i data-lucide="*"&gt;</code>，再调用 <code>lucide.createIcons()</code> 渲染为 SVG。</p>
+            <div class="su_icon-grid">
+                <div class="su_icon-card"><i data-lucide="home"></i><span>home</span></div>
+                <div class="su_icon-card"><i data-lucide="user"></i><span>user</span></div>
+                <div class="su_icon-card"><i data-lucide="heart"></i><span>heart</span></div>
+                <div class="su_icon-card"><i data-lucide="star"></i><span>star</span></div>
+                <div class="su_icon-card"><i data-lucide="mail"></i><span>mail</span></div>
+                <div class="su_icon-card"><i data-lucide="search"></i><span>search</span></div>
+                <div class="su_icon-card"><i data-lucide="settings"></i><span>settings</span></div>
+                <div class="su_icon-card"><i data-lucide="camera"></i><span>camera</span></div>
+                <div class="su_icon-card"><i data-lucide="music"></i><span>music</span></div>
+                <div class="su_icon-card"><i data-lucide="trash-2"></i><span>trash-2</span></div>
+                <div class="su_icon-card"><i data-lucide="plus"></i><span>plus</span></div>
+                <div class="su_icon-card"><i data-lucide="check"></i><span>check</span></div>
+                <div class="su_icon-card"><i data-lucide="download"></i><span>download</span></div>
+                <div class="su_icon-card"><i data-lucide="lock"></i><span>lock</span></div>
+                <div class="su_icon-card"><i data-lucide="shopping-cart"></i><span>shopping-cart</span></div>
+                <div class="su_icon-card"><i data-lucide="bell"></i><span>bell</span></div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_brand-title">
+            <h2 id="su_brand-title">品牌图标</h2>
+            <p class="su_group-desc">Lucide 也内置了部分品牌图标，例如 <code>data-lucide="github"</code>。</p>
+            <div class="su_icon-grid">
+                <div class="su_icon-card"><i data-lucide="github"></i><span>github</span></div>
+                <div class="su_icon-card"><i data-lucide="gitlab"></i><span>gitlab</span></div>
+                <div class="su_icon-card"><i data-lucide="twitter"></i><span>twitter</span></div>
+                <div class="su_icon-card"><i data-lucide="chrome"></i><span>chrome</span></div>
+                <div class="su_icon-card"><i data-lucide="apple"></i><span>apple</span></div>
+                <div class="su_icon-card"><i data-lucide="android"></i><span>android</span></div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_size-title">
+            <h2 id="su_size-title">尺寸控制</h2>
+            <p class="su_group-desc">SVG 图标通过 <code>width</code>、<code>height</code> 或 CSS 控制大小，矢量图形任意缩放都清晰。</p>
+            <div class="su_size-row">
+                <div class="su_size-item"><i data-lucide="star" style="width:16px;height:16px"></i><span>16px</span></div>
+                <div class="su_size-item"><i data-lucide="star" style="width:24px;height:24px"></i><span>24px</span></div>
+                <div class="su_size-item"><i data-lucide="star" style="width:36px;height:36px"></i><span>36px</span></div>
+                <div class="su_size-item"><i data-lucide="star" style="width:56px;height:56px"></i><span>56px</span></div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_state-title">
+            <h2 id="su_state-title">状态与颜色</h2>
+            <p class="su_group-desc">SVG 使用 <code>stroke="currentColor"</code>，颜色随父元素 <code>color</code> 变化，也可用 <code>stroke-width</code> 调整线条粗细。</p>
+            <div class="su_style-grid">
+                <div class="su_style-card"><i data-lucide="heart" class="su_c-heart"></i><div><p>收藏</p><small>currentColor 变色</small></div></div>
+                <div class="su_style-card"><i data-lucide="bell" class="su_c-bell"></i><div><p>通知</p><small>悬停交互</small></div></div>
+                <div class="su_style-card"><i data-lucide="circle-check" class="su_c-check"></i><div><p>成功</p><small>语义化颜色</small></div></div>
+                <div class="su_style-card"><i data-lucide="triangle-alert" class="su_c-alert"></i><div><p>警告</p><small>醒目的提示色</small></div></div>
+                <div class="su_style-card"><i data-lucide="loader-circle" class="su_c-spin"></i><div><p>加载</p><small>@keyframes 旋转</small></div></div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_raw-title">
+            <h2 id="su_raw-title">直接内联 SVG</h2>
+            <p class="su_group-desc">除了用 <code>data-lucide</code> 自动生成，也可以直接把 SVG 代码写进 HTML，完全不依赖 JavaScript。</p>
+            <div class="su_raw">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <path d="M12 17h.01"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+        </section>
+
+        <footer>
+            <p>Lucide SVG 图标：纯矢量、随 <code>currentColor</code> 变色、支持描边与动画，缺点是图标数量多时用 JS 渲染。</p>
+            <a class="su_back" href="index.html">← 返回首页</a>
+        </footer>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

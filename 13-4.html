@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iconfont SVG 图标 · 移动端下导航</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            color-scheme: light;
+        }
+
+        body {
+            min-width: 320px;
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .su_eyebrow {
+            margin: 0 0 8px;
+            color: #5969d9;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .su_intro {
+            max-width: 680px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        .su_group {
+            margin-top: 24px;
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .su_group-desc {
+            margin: 0 0 20px;
+            color: #6d7890;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+            border-radius: 12px;
+            background: #172235;
+            color: #dbe4ff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+        }
+
+        /* 隐藏 SVG 雪碧图 */
+        .su_sprite {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        /* 手机外壳 */
+        .su_phone-stage {
+            display: flex;
+            justify-content: center;
+        }
+
+        .su_phone {
+            position: relative;
+            width: min(390px, 100%);
+            height: 720px;
+            overflow: hidden;
+            border: 10px solid #172235;
+            border-radius: 44px;
+            background: #fff;
+            box-shadow: 0 24px 60px rgb(23 34 53 / 22%);
+        }
+
+        .su_phone-notch {
+            position: absolute;
+            z-index: 3;
+            top: 10px;
+            left: 50%;
+            width: 130px;
+            height: 26px;
+            transform: translateX(-50%);
+            border-radius: 0 0 16px 16px;
+            background: #172235;
+        }
+
+        .su_phone-screen {
+            height: 100%;
+            overflow-y: auto;
+            background: #f6f8fc;
+        }
+
+        .su_phone-screen::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .su_appbar {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 40px 18px 12px;
+            background: #fff;
+            border-bottom: 1px solid #eef1f8;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .su_feed {
+            padding: 14px 16px 84px;
+        }
+
+        .su_feed-card {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .su_avatar {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5969d9, #9aa5ee);
+        }
+
+        .su_avatar.su_a2 { background: linear-gradient(135deg, #e9954b, #f1bd73); }
+        .su_avatar.su_a3 { background: linear-gradient(135deg, #3f9d6e, #7bc7a2); }
+        .su_avatar.su_a4 { background: linear-gradient(135deg, #c94f6d, #e88aa2); }
+
+        .su_feed-body strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .su_feed-body p {
+            margin: 0;
+            color: #8b96ab;
+            font-size: 0.78rem;
+        }
+
+        /* 固定下导航 */
+        .su_tabbar {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 4;
+            display: flex;
+            padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+            background: #fff;
+            border-top: 1px solid #eef1f8;
+            box-shadow: 0 -6px 20px rgb(23 34 53 / 8%);
+        }
+
+        .su_tab {
+            position: relative;
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 0;
+            color: #9aa3b2;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .su_tab:hover {
+            color: #5969d9;
+        }
+
+        .su_tab.is-active {
+            color: #5969d9;
+        }
+
+        .su_tab .su_ic {
+            position: relative;
+            display: block;
+            width: 24px;
+            height: 24px;
+            color: currentColor;
+            fill: currentColor;
+        }
+
+        /* 数字徽章与红点 */
+        .su_badge {
+            position: absolute;
+            top: -6px;
+            right: -12px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border: 2px solid #fff;
+            border-radius: 9px;
+            background: #ef4b5d;
+            color: #fff;
+            font-size: 0.66rem;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 14px;
+            text-align: center;
+        }
+
+        .su_badge.su_dot {
+            right: -6px;
+            min-width: 9px;
+            width: 9px;
+            height: 9px;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        /* 徽章拆解 */
+        .su_badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+        }
+
+        .su_badge-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 12px;
+            border-radius: 14px;
+            background: #f6f8fc;
+        }
+
+        .su_badge-cell .su_demo-icon {
+            position: relative;
+            display: block;
+            width: 40px;
+            height: 40px;
+            color: #5969d9;
+            fill: currentColor;
+        }
+
+        .su_badge-cell .su_badge {
+            top: -4px;
+            right: -16px;
+        }
+
+        .su_badge-cell p {
+            margin: 0;
+            color: #6d7890;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: 24px;
+            color: #6d7890;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .su_back {
+            display: inline-block;
+            margin-top: 16px;
+            color: #2457a6;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .su_back:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 28px 14px 40px;
+            }
+
+            .su_group {
+                padding: 18px;
+            }
+
+            .su_phone {
+                height: 640px;
+                border-radius: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg class="su_sprite" aria-hidden="true" focusable="false">
+        <symbol id="icon-a-shouyechangguishouye" viewBox="0 0 1024 1024"><path d="M996.087 487.193L557.6 19.816a62.656 62.656 0 0 0-91.443 0L27.72 487.193A62.656 62.656 0 0 0 73.443 592.8h62.245v314.715a116.331 116.331 0 0 0 116.177 116.228h170.623V711.44a21.398 21.398 0 0 1 21.347-21.347h136.087a21.398 21.398 0 0 1 21.347 21.347V1024h170.623a116.331 116.331 0 0 0 116.177-116.229V592.8h62.245a62.707 62.707 0 0 0 45.773-105.607z m-182.425 31.2v389.122a41.822 41.822 0 0 1-41.77 41.822h-96.216V711.44a95.857 95.857 0 0 0-95.754-95.754H443.835a95.857 95.857 0 0 0-95.754 95.754v238.153h-96.216a41.822 41.822 0 0 1-41.77-41.822V518.393h-109.66l411.443-438.59 411.445 438.59z"></path></symbol>
+        <symbol id="icon-faxian" viewBox="0 0 1024 1024"><path d="M512 85.333333c235.637333 0 426.666667 191.029333 426.666667 426.666667S747.637333 938.666667 512 938.666667 85.333333 747.637333 85.333333 512 276.362667 85.333333 512 85.333333z m0 64c-200.298667 0-362.666667 162.368-362.666667 362.666667s162.368 362.666667 362.666667 362.666667 362.666667-162.368 362.666667-362.666667-162.368-362.666667-362.666667-362.666667z m149.162667 158.901334a42.666667 42.666667 0 0 1 54.602666 54.602666L637.642667 579.84a96 96 0 0 1-57.813334 57.802667l-216.992 78.122666a42.666667 42.666667 0 0 1-54.602666-54.602666l78.122666-217.002667a96 96 0 0 1 57.813334-57.802667z m-20.970667 75.573333l-174.346667 62.762667a32 32 0 0 0-19.274666 19.274666l-62.762667 174.346667 174.346667-62.762667a32 32 0 0 0 19.274666-19.274666l62.762667-174.346667z"></path></symbol>
+        <symbol id="icon-xiaoxi" viewBox="0 0 1024 1024"><path d="M738.048 189.184H277.76a126.72 126.72 0 0 0-126.464 126.464v315.136a126.72 126.72 0 0 0 126.464 126.464h71.424l120.576 86.528c10.496 7.68 23.04 11.264 35.328 11.264 12.288 0 24.832-3.84 35.328-11.264l120.576-86.528h77.056a126.72 126.72 0 0 0 126.464-126.464V315.648a126.72 126.72 0 0 0-126.464-126.464z m66.304 441.6a66.304 66.304 0 0 1-66.304 66.304h-86.528c-1.024 0-2.048 0.512-3.072 0.512-2.048 0.256-4.096 0.512-5.888 1.28-2.048 0.512-3.84 1.536-5.632 2.56-1.024 0.512-2.048 0.768-2.816 1.28l-129.28 92.16-128.512-92.16c-1.024-0.768-2.048-0.768-2.816-1.28-1.792-1.024-3.584-1.792-5.632-2.56-2.048-0.512-3.84-1.024-5.888-1.28-1.024 0-2.048-0.512-3.072-0.512h-80.896a66.304 66.304 0 0 1-66.304-66.304V315.648a66.304 66.304 0 0 1 66.304-66.304h460.288a66.304 66.304 0 0 1 66.304 66.304v315.136z"></path><path d="M338.688 489.216m-44.288 0a44.288 44.288 0 1 0 88.576 0 44.288 44.288 0 1 0-88.576 0Z"></path><path d="M507.904 489.216m-44.288 0a44.288 44.288 0 1 0 88.576 0 44.288 44.288 0 1 0-88.576 0Z"></path><path d="M677.376 489.216m-44.288 0a44.288 44.288 0 1 0 88.576 0 44.288 44.288 0 1 0-88.576 0Z"></path></symbol>
+        <symbol id="icon-a-wodedefuben2" viewBox="0 0 1024 1024"><path d="M512 385.6840625a126.3159375 126.3159375 0 1 0 0-252.631875 126.3159375 126.3159375 0 0 0 0 252.631875z m0 75.789375a202.1053125 202.1053125 0 1 1 0-404.210625 202.1053125 202.1053125 0 0 1 0 404.210625zM183.57875 890.9478125h656.8425V789.89375a202.1053125 202.1053125 0 0 0-202.10625-202.1053125H385.685a202.1053125 202.1053125 0 0 0-202.1053125 202.10625V890.946875zM385.685 512h252.6309375c153.4734375 0 277.89375 124.42125 277.89375 277.8946875v176.8425H107.7903125V789.89375C107.789375 636.42125 232.210625 512 385.6840625 512z"></path></symbol>
+        <symbol id="icon-shezhi" viewBox="0 0 1024 1024"><path d="M463.36 149.211l-21.504 3.146-7.607 1.901a57.417 57.417 0 0 0-39.497 43.667l-8.923 45.348-0.659 0.366a316.312 316.312 0 0 0-52.15 28.599l-1.39 0.95-47.836-16.09a59.465 59.465 0 0 0-57.417 10.97l-6.729 6.803a362.277 362.277 0 0 0-61.806 95.378l-8.045 19.749-2.195 7.607a56.32 56.32 0 0 0 19.749 55.734l37.595 30.428-1.024 11.995a287.525 287.525 0 0 0-0.439 16.238l0.44 16.238 1.023 11.922-37.449 30.354a56.247 56.247 0 0 0-19.822 56.028l2.926 9.289c13.532 35.767 32.476 68.754 56.466 98.523l13.898 16.311 5.558 5.34c15.58 13.165 37.303 17.48 57.052 10.971l48.128-16.238 1.39 1.024c16.457 11.191 33.938 20.773 52.662 28.819l8.997 45.568c4.023 20.845 19.53 37.302 39.497 43.593l9.728 2.194a405.211 405.211 0 0 0 113.591 3.218l24.65-3.584 7.68-1.828a57.417 57.417 0 0 0 39.496-43.667l8.777-45.129 0.732-0.292a313.576 313.576 0 0 0 52.663-28.745l1.243-1.098 47.543 16.092c19.895 6.583 41.765 2.34 57.344-10.972l6.875-6.948c25.82-28.818 46.52-60.855 61.733-95.378l8.046-19.749 2.267-7.534a56.32 56.32 0 0 0-19.748-55.588l-37.01-29.989 1.096-12.507c0.293-5.413 0.44-10.825 0.44-16.238l-0.44-16.238-1.097-12.58 36.864-29.843a56.247 56.247 0 0 0 19.749-55.954l-2.853-9.362a358.107 358.107 0 0 0-56.466-98.45l-13.97-16.311-5.56-5.34a59.538 59.538 0 0 0-57.05-10.971l-47.69 16.018-1.463-1.024a312.832 312.832 0 0 0-34.377-20.26l-18.87-8.778-8.778-45.129a57.71 57.71 0 0 0-47.104-45.495l-2.12-0.365a407.918 407.918 0 0 0-116.737-2.78z m86.674 65.683l15.287 2.194 14.702 75.19 17.847 6.364a246.155 246.155 0 0 1 68.973 37.669l14.044 10.971 76.068-25.6 10.021 11.703c14.994 19.017 27.575 39.497 37.376 61.367l4.827 11.557-60.854 49.298 3.291 19.163a219.721 219.721 0 0 1 0 74.533l-3.291 19.236 60.708 49.152-4.754 11.703a293.157 293.157 0 0 1-37.376 61.22l-9.948 11.63-76.068-25.6-14.117 11.045c-20.626 16.092-43.74 28.745-68.9 37.669l-17.847 6.363-14.702 75.191 3.292-0.439a337.335 337.335 0 0 1-56.54 4.754l-19.017-0.512a339.017 339.017 0 0 1-19.017-1.609l-15.36-2.267-14.629-75.41-17.92-6.364a244.81 244.81 0 0 1-68.315-37.522l-14.117-10.972-76.58 25.747-9.948-11.776a292.498 292.498 0 0 1-37.376-61.294l-4.9-11.703 61.586-49.664-3.365-19.236a212.992 212.992 0 0 1 0-73.363l3.365-19.236-61.586-49.737 4.9-11.703c9.801-21.65 22.382-42.204 37.45-61.22l9.874-11.85 76.58 25.82 14.117-10.972c20.553-15.945 43.593-28.526 68.388-37.522l17.774-6.29 14.775-75.484-3.291 0.512a340.7 340.7 0 0 1 94.573-2.633z"></path><path d="M512 365.714a146.286 146.286 0 1 1 0 292.572 146.286 146.286 0 0 1 0-292.572z m0 48.787a97.5 97.5 0 1 0 0 194.998 97.5 97.5 0 0 0 0-194.998z"></path></symbol>
+    </svg>
+
+    <main>
+        <header>
+            <p class="su_eyebrow">iconfont · SVG Symbols · Mobile Tabbar</p>
+            <h1>移动端固定下导航（SVG 图标）</h1>
+            <p class="su_intro">使用 <code>font/</code> 目录 iconfont 的 <strong>SVG Symbol</strong> 形式制作同一个下导航。图标作为内联 SVG，通过 <code>&lt;use&gt;</code> 引用，颜色由 <code>currentColor</code> 决定，矢量缩放更清晰。</p>
+        </header>
+
+        <section class="su_group" aria-labelledby="su_demo-title">
+            <h2 id="su_demo-title">页面效果</h2>
+            <p class="su_group-desc">导航结构与字体版完全一致，只是图标改为 SVG 渲染，固定在底部并随容器自适应宽度。</p>
+            <div class="su_phone-stage">
+                <div class="su_phone">
+                    <div class="su_phone-notch"></div>
+                    <div class="su_phone-screen">
+                        <div class="su_appbar">发现 · 首页</div>
+                        <div class="su_feed">
+                            <div class="su_feed-card"><div class="su_avatar"></div><div class="su_feed-body"><strong>袁磊</strong><p>今天的高级网页设计课完成了下导航练习。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a2"></div><div class="su_feed-body"><strong>课堂笔记</strong><p>字体图标与 SVG 图标的区别。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a3"></div><div class="su_feed-body"><strong>作业展示</strong><p>徽章分为数字徽章和红点两种。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a4"></div><div class="su_feed-body"><strong>小组讨论</strong><p>下导航需要自适应不同屏幕宽度。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar"></div><div class="su_feed-body"><strong>设计灵感</strong><p>底部导航高度通常包含安全区。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a2"></div><div class="su_feed-body"><strong>代码片段</strong><p>使用 env(safe-area-inset-bottom) 处理全面屏。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a3"></div><div class="su_feed-body"><strong>图标库</strong><p>iconfont 提供字体和 symbol 两种用法。</p></div></div>
+                        </div>
+                    </div>
+                    <nav class="su_tabbar" aria-label="底部导航">
+                        <div class="su_tab is-active">
+                            <svg class="su_ic" aria-hidden="true"><use href="#icon-a-shouyechangguishouye"></use></svg>
+                            <span>首页</span>
+                        </div>
+                        <div class="su_tab">
+                            <svg class="su_ic" aria-hidden="true"><use href="#icon-faxian"></use><i class="su_badge su_dot"></i></svg>
+                            <span>发现</span>
+                        </div>
+                        <div class="su_tab">
+                            <svg class="su_ic" aria-hidden="true"><use href="#icon-xiaoxi"></use><i class="su_badge">5</i></svg>
+                            <span>消息</span>
+                        </div>
+                        <div class="su_tab">
+                            <svg class="su_ic" aria-hidden="true"><use href="#icon-a-wodedefuben2"></use></svg>
+                            <span>我的</span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_badge-title">
+            <h2 id="su_badge-title">数字徽章与红点</h2>
+            <p class="su_group-desc">徽章叠在 SVG 图标右上角，方式与字体版相同；SVG 本身使用 <code>fill: currentColor</code> 继承颜色。</p>
+            <div class="su_badge-grid">
+                <div class="su_badge-cell">
+                    <svg class="su_demo-icon" aria-hidden="true"><use href="#icon-xiaoxi"></use><i class="su_badge">5</i></svg>
+                    <p>数字徽章<br>展示未读数量</p>
+                </div>
+                <div class="su_badge-cell">
+                    <svg class="su_demo-icon" aria-hidden="true"><use href="#icon-faxian"></use><i class="su_badge su_dot"></i></svg>
+                    <p>红点<br>仅提示“有新内容”</p>
+                </div>
+                <div class="su_badge-cell">
+                    <svg class="su_demo-icon" aria-hidden="true"><use href="#icon-shezhi"></use></svg>
+                    <p>无徽章<br>普通图标状态</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_code-title">
+            <h2 id="su_code-title">关键代码</h2>
+            <p class="su_group-desc">SVG 版把字体类换成 <code>&lt;svg&gt;&lt;use href="#icon-*"&gt;</code>，其余结构不变。</p>
+            <pre>&lt;svg class="su_sprite"&gt;
+  &lt;symbol id="icon-xiaoxi" viewBox="0 0 1024 1024"&gt;
+    &lt;path d="M738.048 189.184H277.76..."&gt;&lt;/path&gt;
+  &lt;/symbol&gt;
+&lt;/svg&gt;
+
+&lt;nav class="su_tabbar"&gt;
+  &lt;div class="su_tab is-active"&gt;
+    &lt;svg class="su_ic"&gt;&lt;use href="#icon-a-shouyechangguishouye"&gt;&lt;/use&gt;&lt;/svg&gt;
+    &lt;span&gt;首页&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;svg class="su_ic"&gt;
+      &lt;use href="#icon-faxian"&gt;&lt;/use&gt;
+      &lt;i class="su_badge su_dot"&gt;&lt;/i&gt;
+    &lt;/svg&gt;
+    &lt;span&gt;发现&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;svg class="su_ic"&gt;
+      &lt;use href="#icon-xiaoxi"&gt;&lt;/use&gt;
+      &lt;i class="su_badge"&gt;5&lt;/i&gt;
+    &lt;/svg&gt;
+    &lt;span&gt;消息&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;svg class="su_ic"&gt;&lt;use href="#icon-a-wodedefuben2"&gt;&lt;/use&gt;&lt;/svg&gt;
+    &lt;span&gt;我的&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+.su_tabbar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+.su_tab { flex: 1; position: relative; }
+.su_tab .su_ic { width: 24px; height: 24px; fill: currentColor; position: relative; }
+.su_badge { position: absolute; top: -6px; right: -12px; background: #ef4b5d; color: #fff; border-radius: 9px; }
+.su_badge.su_dot { width: 9px; height: 9px; border-radius: 50%; right: -6px; }</pre>
+        </section>
+
+        <footer>
+            <p>SVG 图标优点：矢量清晰、可多色、可用 CSS 精细控制；缺点：图标多时 SVG 体积较大。</p>
+            <a class="su_back" href="index.html">← 返回首页</a>
+        </footer>
+    </main>
+</body>
+</html>

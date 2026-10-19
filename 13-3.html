@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iconfont 字体图标 · 移动端下导航</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            color-scheme: light;
+        }
+
+        body {
+            min-width: 320px;
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .su_eyebrow {
+            margin: 0 0 8px;
+            color: #5969d9;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .su_intro {
+            max-width: 680px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        .su_group {
+            margin-top: 24px;
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        h2 {
+            margin: 0 0 6px;
+            font-size: 1.3rem;
+        }
+
+        .su_group-desc {
+            margin: 0 0 20px;
+            color: #6d7890;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+            border-radius: 12px;
+            background: #172235;
+            color: #dbe4ff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+        }
+
+        /* 手机外壳 */
+        .su_phone-stage {
+            display: flex;
+            justify-content: center;
+        }
+
+        .su_phone {
+            position: relative;
+            width: min(390px, 100%);
+            height: 720px;
+            overflow: hidden;
+            border: 10px solid #172235;
+            border-radius: 44px;
+            background: #fff;
+            box-shadow: 0 24px 60px rgb(23 34 53 / 22%);
+        }
+
+        .su_phone-notch {
+            position: absolute;
+            z-index: 3;
+            top: 10px;
+            left: 50%;
+            width: 130px;
+            height: 26px;
+            transform: translateX(-50%);
+            border-radius: 0 0 16px 16px;
+            background: #172235;
+        }
+
+        .su_phone-screen {
+            height: 100%;
+            overflow-y: auto;
+            background: #f6f8fc;
+        }
+
+        .su_phone-screen::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .su_appbar {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 40px 18px 12px;
+            background: #fff;
+            border-bottom: 1px solid #eef1f8;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .su_feed {
+            padding: 14px 16px 84px;
+        }
+
+        .su_feed-card {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .su_avatar {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5969d9, #9aa5ee);
+        }
+
+        .su_avatar.su_a2 { background: linear-gradient(135deg, #e9954b, #f1bd73); }
+        .su_avatar.su_a3 { background: linear-gradient(135deg, #3f9d6e, #7bc7a2); }
+        .su_avatar.su_a4 { background: linear-gradient(135deg, #c94f6d, #e88aa2); }
+
+        .su_feed-body strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .su_feed-body p {
+            margin: 0;
+            color: #8b96ab;
+            font-size: 0.78rem;
+        }
+
+        /* 固定下导航 */
+        .su_tabbar {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 4;
+            display: flex;
+            padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+            background: #fff;
+            border-top: 1px solid #eef1f8;
+            box-shadow: 0 -6px 20px rgb(23 34 53 / 8%);
+        }
+
+        .su_tab {
+            position: relative;
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 0;
+            color: #9aa3b2;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .su_tab:hover {
+            color: #5969d9;
+        }
+
+        .su_tab.is-active {
+            color: #5969d9;
+        }
+
+        .su_tab .iconfont {
+            position: relative;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* 数字徽章与红点 */
+        .su_badge {
+            position: absolute;
+            top: -6px;
+            right: -12px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border: 2px solid #fff;
+            border-radius: 9px;
+            background: #ef4b5d;
+            color: #fff;
+            font-size: 0.66rem;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 14px;
+            text-align: center;
+        }
+
+        .su_badge.su_dot {
+            right: -6px;
+            min-width: 9px;
+            width: 9px;
+            height: 9px;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        /* 徽章拆解 */
+        .su_badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+        }
+
+        .su_badge-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 12px;
+            border-radius: 14px;
+            background: #f6f8fc;
+        }
+
+        .su_badge-cell .su_demo-icon {
+            position: relative;
+            font-size: 40px;
+            color: #5969d9;
+        }
+
+        .su_badge-cell .su_badge {
+            top: -4px;
+            right: -16px;
+        }
+
+        .su_badge-cell p {
+            margin: 0;
+            color: #6d7890;
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: 24px;
+            color: #6d7890;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .su_back {
+            display: inline-block;
+            margin-top: 16px;
+            color: #2457a6;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .su_back:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 28px 14px 40px;
+            }
+
+            .su_group {
+                padding: 18px;
+            }
+
+            .su_phone {
+                height: 640px;
+                border-radius: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <p class="su_eyebrow">iconfont · Font Icons · Mobile Tabbar</p>
+            <h1>移动端固定下导航（字体图标）</h1>
+            <p class="su_intro">使用 <code>font/</code> 目录下的 iconfont <strong>字体图标</strong>制作一个固定在底部的四宫格下导航。图标本质是字体，可用 <code>font-size</code>、<code>color</code> 控制，并通过绝对定位叠加数字徽章与红点。</p>
+        </header>
+
+        <section class="su_group" aria-labelledby="su_demo-title">
+            <h2 id="su_demo-title">页面效果</h2>
+            <p class="su_group-desc">导航固定在手机底部，内容可滚动，四个项目通过 <code>flex: 1</code> 平分宽度，随容器自适应。</p>
+            <div class="su_phone-stage">
+                <div class="su_phone">
+                    <div class="su_phone-notch"></div>
+                    <div class="su_phone-screen">
+                        <div class="su_appbar">发现 · 首页</div>
+                        <div class="su_feed">
+                            <div class="su_feed-card"><div class="su_avatar"></div><div class="su_feed-body"><strong>袁磊</strong><p>今天的高级网页设计课完成了下导航练习。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a2"></div><div class="su_feed-body"><strong>课堂笔记</strong><p>字体图标与 SVG 图标的区别。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a3"></div><div class="su_feed-body"><strong>作业展示</strong><p>徽章分为数字徽章和红点两种。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a4"></div><div class="su_feed-body"><strong>小组讨论</strong><p>下导航需要自适应不同屏幕宽度。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar"></div><div class="su_feed-body"><strong>设计灵感</strong><p>底部导航高度通常包含安全区。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a2"></div><div class="su_feed-body"><strong>代码片段</strong><p>使用 env(safe-area-inset-bottom) 处理全面屏。</p></div></div>
+                            <div class="su_feed-card"><div class="su_avatar su_a3"></div><div class="su_feed-body"><strong>图标库</strong><p>iconfont 提供字体和 symbol 两种用法。</p></div></div>
+                        </div>
+                    </div>
+                    <nav class="su_tabbar" aria-label="底部导航">
+                        <div class="su_tab is-active">
+                            <i class="iconfont icon-a-shouyechangguishouye"></i>
+                            <span>首页</span>
+                        </div>
+                        <div class="su_tab">
+                            <i class="iconfont icon-faxian"><i class="su_badge su_dot"></i></i>
+                            <span>发现</span>
+                        </div>
+                        <div class="su_tab">
+                            <i class="iconfont icon-xiaoxi"><i class="su_badge">5</i></i>
+                            <span>消息</span>
+                        </div>
+                        <div class="su_tab">
+                            <i class="iconfont icon-a-wodedefuben2"></i>
+                            <span>我的</span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_badge-title">
+            <h2 id="su_badge-title">数字徽章与红点</h2>
+            <p class="su_group-desc">把徽章元素放进图标内部并绝对定位到右上角：<code>right</code> 为负值使其“探出”图标边缘，红点则是一个小圆点。</p>
+            <div class="su_badge-grid">
+                <div class="su_badge-cell">
+                    <i class="iconfont icon-xiaoxi su_demo-icon"><i class="su_badge">5</i></i>
+                    <p>数字徽章<br>展示未读数量</p>
+                </div>
+                <div class="su_badge-cell">
+                    <i class="iconfont icon-faxian su_demo-icon"><i class="su_badge su_dot"></i></i>
+                    <p>红点<br>仅提示“有新内容”</p>
+                </div>
+                <div class="su_badge-cell">
+                    <i class="iconfont icon-shezhi su_demo-icon"></i>
+                    <p>无徽章<br>普通图标状态</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="su_group" aria-labelledby="su_code-title">
+            <h2 id="su_code-title">关键代码</h2>
+            <p class="su_group-desc">字体图标用 <code>&lt;i class="iconfont icon-*"&gt;</code>，导航用 Flex 平分宽度并固定在底部。</p>
+            <pre>&lt;link rel="stylesheet" href="font/iconfont.css"&gt;
+
+&lt;nav class="su_tabbar"&gt;
+  &lt;div class="su_tab is-active"&gt;
+    &lt;i class="iconfont icon-a-shouyechangguishouye"&gt;&lt;/i&gt;
+    &lt;span&gt;首页&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;i class="iconfont icon-faxian"&gt;
+      &lt;i class="su_badge su_dot"&gt;&lt;/i&gt;
+    &lt;/i&gt;
+    &lt;span&gt;发现&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;i class="iconfont icon-xiaoxi"&gt;
+      &lt;i class="su_badge"&gt;5&lt;/i&gt;
+    &lt;/i&gt;
+    &lt;span&gt;消息&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="su_tab"&gt;
+    &lt;i class="iconfont icon-a-wodedefuben2"&gt;&lt;/i&gt;
+    &lt;span&gt;我的&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+.su_tabbar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+.su_tab { flex: 1; position: relative; }
+.su_tab .iconfont { font-size: 24px; position: relative; }
+.su_badge { position: absolute; top: -6px; right: -12px; background: #ef4b5d; color: #fff; border-radius: 9px; }
+.su_badge.su_dot { width: 9px; height: 9px; border-radius: 50%; right: -6px; }</pre>
+        </section>
+
+        <footer>
+            <p>字体图标优点：单色、可控性强、文件体积小；缺点：无法使用多色图标，且依赖字体文件加载。</p>
+            <a class="su_back" href="index.html">← 返回首页</a>
+        </footer>
+    </main>
+</body>
+</html>
