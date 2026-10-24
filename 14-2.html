@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    日期：2026-10-22
+    功能名称：JavaScript 基本六种数据类型演示
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：六种基本数据类型演示页面">
+    <title>14-2 JavaScript 六种基本数据类型</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        :root {
+            --sy-ink: #202b45;
+            --sy-muted: #61708a;
+            --sy-paper: #f4f6fb;
+            --sy-card: #ffffff;
+            --sy-line: #e3e8f2;
+            --sy-blue: #2457a6;
+            --sy-blue-deep: #15376d;
+            --sy-coral: #ef775e;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: var(--sy-ink);
+            background: var(--sy-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: var(--sy-blue);
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: var(--sy-muted); letter-spacing: 0.05em; }
+
+        header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: var(--sy-coral);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 640px;
+            margin: 14px auto 0;
+            color: var(--sy-muted);
+        }
+
+        /* 类型卡片 */
+        .sy_type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .sy_card {
+            padding: 24px;
+            border: 1px solid var(--sy-line);
+            border-radius: 18px;
+            background: var(--sy-card);
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .sy_badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+
+        .sy_badge-number { background: #2457a6; }
+        .sy_badge-string { background: #ef775e; }
+        .sy_badge-boolean { background: #3e8e5a; }
+        .sy_badge-undefined { background: #7c5cbf; }
+        .sy_badge-null { background: #6b7280; }
+        .sy_badge-object { background: #15376d; }
+
+        .sy_card h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .sy_card h2 small {
+            display: block;
+            color: var(--sy-muted);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .sy_desc {
+            margin: 0 0 14px;
+            color: var(--sy-muted);
+            font-size: 0.92rem;
+        }
+
+        .sy_code {
+            margin: 0 0 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .sy_run-btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: var(--sy-blue);
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_run-btn:hover { background: var(--sy-blue-deep); }
+        .sy_run-btn:active { transform: scale(0.96); }
+
+        .sy_output {
+            display: none;
+            margin: 14px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid var(--sy-coral);
+            border-radius: 8px;
+            background: #fdf3f0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* typeof 演练区 */
+        .sy_playground {
+            margin-top: 22px;
+            padding: 26px;
+            border: 1px solid var(--sy-line);
+            border-radius: 18px;
+            background: var(--sy-card);
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            text-align: center;
+        }
+
+        .sy_playground h2 { margin: 0 0 6px; font-size: 1.3rem; }
+
+        .sy_playground p { margin: 0 0 16px; color: var(--sy-muted); font-size: 0.92rem; }
+
+        .sy_play-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .sy_sample-select {
+            padding: 9px 14px;
+            border: 1px solid var(--sy-line);
+            border-radius: 10px;
+            background: #fff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.92rem;
+            color: var(--sy-ink);
+            cursor: pointer;
+        }
+
+        .sy-type-result {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 10px;
+            background: #eef1f8;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.92rem;
+            color: var(--sy-blue-deep);
+        }
+
+        /* 汇总表格 */
+        .sy-summary {
+            margin-top: 22px;
+            padding: 26px;
+            border: 1px solid var(--sy-line);
+            border-radius: 18px;
+            background: var(--sy-card);
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            overflow-x: auto;
+        }
+
+        .sy-summary h2 { margin: 0 0 14px; font-size: 1.3rem; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid var(--sy-line);
+            text-align: left;
+        }
+
+        th { background: #f6f8fc; color: var(--sy-blue-deep); }
+
+        td code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy-note {
+            margin: 14px 0 0;
+            color: var(--sy-muted);
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: var(--sy-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a { color: var(--sy-blue); }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 14 · JavaScript 基础</p>
+            <h1>六种基本数据类型</h1>
+            <p class="sy_intro">
+                JavaScript 的数据类型分为<b>简单类型</b>（Number、String、Boolean、Undefined、Null）
+                和<b>复杂类型</b>（Object）。点击每张卡片中的「运行演示」按钮，即可查看 <code>typeof</code> 检测结果。
+            </p>
+        </header>
+
+        <section class="sy_type-grid">
+            <!-- 1. Number 数值型 -->
+            <article class="sy_card" id="sy_card_number">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-number">1</span>
+                    <h2>Number<small>数值型</small></h2>
+                </div>
+                <p class="sy_desc">用于表示整数和小数（浮点数），也可以表示 NaN（非数字）和 Infinity（无穷大）。</p>
+                <pre class="sy_code">var sy_age = 18;        // 整数
+var sy_price = 9.9;     // 浮点数
+var sy_pi = 3.14e2;     // 科学计数法</pre>
+                <button class="sy_run-btn" onclick="sy_demoNumber()">运行演示</button>
+                <output class="sy_output" id="sy_out_number"></output>
+            </article>
+
+            <!-- 2. String 字符串型 -->
+            <article class="sy_card" id="sy_card_string">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-string">2</span>
+                    <h2>String<small>字符串型</small></h2>
+                </div>
+                <p class="sy_desc">由单引号或双引号包裹的文本，可以用 + 进行拼接，通过 .length 获取长度。</p>
+                <pre class="sy_code">var sy_name = "苏妍";
+var sy_course = '高级网页设计';
+var sy_msg = "你好，" + sy_name;</pre>
+                <button class="sy_run-btn" onclick="sy_demoString()">运行演示</button>
+                <output class="sy_output" id="sy_out_string"></output>
+            </article>
+
+            <!-- 3. Boolean 布尔型 -->
+            <article class="sy_card" id="sy_card_boolean">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-boolean">3</span>
+                    <h2>Boolean<small>布尔型</small></h2>
+                </div>
+                <p class="sy_desc">只有 true（真）和 false（假）两个值，常用于条件判断，比较运算的结果也是布尔值。</p>
+                <pre class="sy_code">var sy_isStudent = true;
+var sy_isRaining = false;
+var sy_result = 18 > 20;  // false</pre>
+                <button class="sy_run-btn" onclick="sy_demoBoolean()">运行演示</button>
+                <output class="sy_output" id="sy_out_boolean"></output>
+            </article>
+
+            <!-- 4. Undefined 未定义型 -->
+            <article class="sy_card" id="sy_card_undefined">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-undefined">4</span>
+                    <h2>Undefined<small>未定义型</small></h2>
+                </div>
+                <p class="sy_desc">变量只声明、未赋值时的默认类型，表示"还没有给出定义"。</p>
+                <pre class="sy_code">var sy_unassigned;   // 未赋值
+console.log(sy_unassigned);  // undefined</pre>
+                <button class="sy_run-btn" onclick="sy_demoUndefined()">运行演示</button>
+                <output class="sy_output" id="sy_out_undefined"></output>
+            </article>
+
+            <!-- 5. Null 空型 -->
+            <article class="sy_card" id="sy_card_null">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-null">5</span>
+                    <h2>Null<small>空型</small></h2>
+                </div>
+                <p class="sy_desc">表示"空的、不存在的对象"，通常主动用来清空变量。注意：typeof null 返回 "object"，属于历史遗留问题。</p>
+                <pre class="sy_code">var sy_empty = null;
+typeof sy_empty;        // "object"
+sy_empty == undefined;  // true</pre>
+                <button class="sy_run-btn" onclick="sy_demoNull()">运行演示</button>
+                <output class="sy_output" id="sy_out_null"></output>
+            </article>
+
+            <!-- 6. Object 对象型 -->
+            <article class="sy_card" id="sy_card_object">
+                <div class="sy_card-head">
+                    <span class="sy_badge sy_badge-object">6</span>
+                    <h2>Object<small>对象型</small></h2>
+                </div>
+                <p class="sy_desc">六种类型中唯一的引用类型，用 { } 定义对象、[ ] 定义数组，通过属性名访问成员。</p>
+                <pre class="sy_code">var sy_person = { name: "苏妍", age: 18 };
+var sy_hobbies = ["读书", "编程", "设计"];</pre>
+                <button class="sy_run-btn" onclick="sy_demoObject()">运行演示</button>
+                <output class="sy_output" id="sy_out_object"></output>
+            </article>
+        </section>
+
+        <!-- typeof 互动演练 -->
+        <section class="sy_playground">
+            <h2>typeof 检测演练</h2>
+            <p>从下拉框中选择一个示例值，右侧立即显示 typeof 检测出的数据类型。</p>
+            <div class="sy_play-row">
+                <select class="sy_sample-select" id="sy_sample_select" onchange="sy_updateTypeof()">
+                    <option value="0">123（整数）</option>
+                    <option value="1">9.9（小数）</option>
+                    <option value="2">"苏妍"（字符串）</option>
+                    <option value="3">true（布尔值）</option>
+                    <option value="4">undefined（未定义）</option>
+                    <option value="5">null（空值）</option>
+                    <option value="6">[1, 2, 3]（数组）</option>
+                    <option value="7">{ name: "苏妍" }（对象）</option>
+                </select>
+                <span class="sy-type-result" id="sy_type_result">请选择一个示例值 ↑</span>
+            </div>
+        </section>
+
+        <!-- 汇总表格 -->
+        <section class="sy_summary">
+            <h2>六种数据类型汇总</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>类别</th>
+                        <th>说明</th>
+                        <th>示例</th>
+                        <th>typeof 结果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Number</td>
+                        <td>简单类型</td>
+                        <td>整数、小数、NaN</td>
+                        <td><code>18</code>、<code>9.9</code></td>
+                        <td><code>"number"</code></td>
+                    </tr>
+                    <tr>
+                        <td>String</td>
+                        <td>简单类型</td>
+                        <td>引号包裹的文本</td>
+                        <td><code>"苏妍"</code></td>
+                        <td><code>"string"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Boolean</td>
+                        <td>简单类型</td>
+                        <td>真 / 假</td>
+                        <td><code>true</code></td>
+                        <td><code>"boolean"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Undefined</td>
+                        <td>简单类型</td>
+                        <td>声明未赋值</td>
+                        <td><code>var sy_x;</code></td>
+                        <td><code>"undefined"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Null</td>
+                        <td>简单类型</td>
+                        <td>空的对象指针</td>
+                        <td><code>null</code></td>
+                        <td><code>"object"</code></td>
+                    </tr>
+                    <tr>
+                        <td>Object</td>
+                        <td>引用类型</td>
+                        <td>对象、数组、函数等</td>
+                        <td><code>{ }</code>、<code>[ ]</code></td>
+                        <td><code>"object"</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="sy-note">提示：前 5 种为基本（简单）类型，按值访问；Object 为引用（复杂）类型，按地址访问。</p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // 通用输出函数：把演示结果写入指定的输出区域
+        function sy_showOutput(sy_targetId, sy_lines) {
+            var sy_box = document.getElementById(sy_targetId);
+            sy_box.textContent = sy_lines.join("\n");
+            sy_box.style.display = "block";
+        }
+
+        // 1. Number 数值型
+        function sy_demoNumber() {
+            var sy_age = 18;        // 整数
+            var sy_price = 9.9;      // 浮点数
+            var sy_pi = 3.14e2;      // 科学计数法
+            sy_showOutput("sy_out_number", [
+                'var sy_age = 18;     → typeof: ' + typeof sy_age,
+                'var sy_price = 9.9;  → typeof: ' + typeof sy_price,
+                'var sy_pi = 3.14e2;  → 值为 ' + sy_pi,
+                '数值运算：18 + 9.9 = ' + (sy_age + sy_price)
+            ]);
+        }
+
+        // 2. String 字符串型
+        function sy_demoString() {
+            var sy_name = "苏妍";
+            var sy_course = "高级网页设计";
+            var sy_msg = "你好，" + sy_name + "！";
+            sy_showOutput("sy_out_string", [
+                'var sy_name = "苏妍";    → typeof: ' + typeof sy_name,
+                "var sy_course = '高级网页设计'; → typeof: " + typeof sy_course,
+                "拼接结果 → " + sy_msg,
+                "sy_name.length → " + sy_name.length + "（length 属性，注意：中文按字符计）"
+            ]);
+        }
+
+        // 3. Boolean 布尔型
+        function sy_demoBoolean() {
+            var sy_isStudent = true;
+            var sy_isRaining = false;
+            var sy_compare = 18 > 20;
+            sy_showOutput("sy_out_boolean", [
+                "var sy_isStudent = true;  → typeof: " + typeof sy_isStudent,
+                "var sy_isRaining = false; → typeof: " + typeof sy_isRaining,
+                "18 > 20 的结果 → " + sy_compare + "（比较运算返回布尔值）",
+                "if (sy_isStudent) { ... } → 布尔值常用于条件判断"
+            ]);
+        }
+
+        // 4. Undefined 未定义型
+        function sy_demoUndefined() {
+            var sy_unassigned;   // 只声明、未赋值
+            sy_showOutput("sy_out_undefined", [
+                "var sy_unassigned; → typeof: " + typeof sy_unassigned,
+                "sy_unassigned 的值 → " + sy_unassigned,
+                "未定义的值与类型都显示为 undefined"
+            ]);
+        }
+
+        // 5. Null 空型
+        function sy_demoNull() {
+            var sy_empty = null;
+            sy_showOutput("sy_out_null", [
+                "var sy_empty = null; → typeof: " + typeof sy_empty,
+                "sy_empty == undefined  → " + (sy_empty == undefined) + "（值相等）",
+                "sy_empty === undefined → " + (sy_empty === undefined) + "（类型不同）",
+                '注意：typeof null 返回 "object"，这是历史遗留问题'
+            ]);
+        }
+
+        // 6. Object 对象型
+        function sy_demoObject() {
+            var sy_person = { name: "苏妍", age: 18 };
+            var sy_hobbies = ["读书", "编程", "设计"];
+            sy_showOutput("sy_out_object", [
+                'var sy_person = { name: "苏妍", age: 18 };',
+                "sy_person.name → " + sy_person.name + "，sy_person.age → " + sy_person.age,
+                "typeof sy_person → " + typeof sy_person,
+                'var sy_hobbies = ["读书", "编程", "设计"];',
+                "typeof sy_hobbies → " + typeof sy_hobbies + "，长度: " + sy_hobbies.length
+            ]);
+        }
+
+        // typeof 演练：样本值数组
+        var sy_samples = [
+            { sy_label: "123", sy_value: 123 },
+            { sy_label: "9.9", sy_value: 9.9 },
+            { sy_label: '"苏妍"', sy_value: "苏妍" },
+            { sy_label: "true", sy_value: true },
+            { sy_label: "undefined", sy_value: undefined },
+            { sy_label: "null", sy_value: null },
+            { sy_label: "[1, 2, 3]", sy_value: [1, 2, 3] },
+            { sy_label: '{ name: "苏妍" }', sy_value: { name: "苏妍" } }
+        ];
+
+        // 根据下拉框选择更新 typeof 检测结果
+        function sy_updateTypeof() {
+            var sy_select = document.getElementById("sy_sample_select");
+            var sy_item = sy_samples[sy_select.value];
+            var sy_display;
+            if (typeof sy_item.sy_value === "object" && sy_item.sy_value !== null) {
+                sy_display = JSON.stringify(sy_item.sy_value);
+            } else {
+                sy_display = String(sy_item.sy_value);
+            }
+            document.getElementById("sy_type_result").textContent =
+                "typeof " + sy_item.sy_label + " → " + typeof sy_item.sy_value;
+        }
+    </script>
+</body>
+</html>
