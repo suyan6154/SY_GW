@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-10-26
+    使用模型：GLM-5.3-Flash
+    功能名称：数7游戏（一百个盒子）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：数7游戏，100个盒子按规则显示数字或空盒">
+    <title>15-1 数7游戏 · 一百个盒子</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: #2457a6;
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 680px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        .sy_legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            margin: 16px 0 0;
+            color: #61708a;
+            font-size: 0.88rem;
+        }
+
+        .sy_legend-item i {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            margin-right: 6px;
+            border-radius: 4px;
+            vertical-align: -2px;
+            font-style: normal;
+        }
+
+        .sy_dot_normal { background: #fff; border: 1px solid #e3e8f2; }
+        .sy_dot_empty { background: #fdf3f0; border: 1.5px dashed #ef775e; }
+        .sy_dot_open { background: #ef775e; }
+
+        /* 工具栏 */
+        .sy_toolbar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+
+        .sy_btn_ghost {
+            background: #fff;
+            color: #2457a6;
+            border: 1px solid #c9d5ea;
+        }
+
+        .sy_btn_ghost:hover { background: #eef3f8; }
+
+        .sy_stat {
+            margin-left: auto;
+            color: #61708a;
+            font-size: 0.9rem;
+        }
+
+        .sy_stat b { color: #ef775e; }
+
+        /* 盒子面板 */
+        .sy_board {
+            padding: 18px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .sy_box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            border: 1px solid #e3e8f2;
+            border-radius: 12px;
+            background: #fff;
+            font-weight: 700;
+            font-size: clamp(0.85rem, 2vw, 1.15rem);
+            color: #202b45;
+            user-select: none;
+        }
+
+        /* 满足数7规则的空盒 */
+        .sy_box_empty {
+            background: #fdf3f0;
+            border: 1.5px dashed #ef775e;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .sy_box_empty:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgb(239 119 94 / 25%);
+        }
+
+        /* 已揭示原因的空盒 */
+        .sy_box_open {
+            background: #ef775e;
+            border-style: solid;
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            line-height: 1.25;
+            padding: 4px;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        /* 规则说明 */
+        .sy_rules {
+            margin-top: 22px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_rules h2 { margin: 0 0 12px; font-size: 1.3rem; }
+
+        .sy_rules ul { margin: 0 0 12px; padding-left: 22px; color: #4a5a76; }
+
+        .sy_rules li { margin-bottom: 4px; }
+
+        .sy_rules code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #2457a6; }
+
+        @media (max-width: 600px) {
+            .sy_grid { grid-template-columns: repeat(5, 1fr); }
+            .sy_stat { margin-left: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 15 · JavaScript 综合练习</p>
+            <h1>数7游戏 · 一百个盒子</h1>
+            <p class="sy_intro">
+                100 个盒子里依次放入数字 1~100。凡是<b>7 的倍数</b>或<b>数字中含有 7</b>（个位、十位……）的盒子，
+                按数7规则要"拍手跳过"，因此显示为<b>空盒</b>；不满足规则的盒子正常显示数字。点击空盒可查看它被置空的原因。
+            </p>
+            <p class="sy_legend">
+                <span class="sy_legend-item"><i class="sy_dot_normal"></i>普通盒（显示数字）</span>
+                <span class="sy_legend-item"><i class="sy_dot_empty"></i>空盒（满足数7规则）</span>
+                <span class="sy_legend-item"><i class="sy_dot_open"></i>已揭示原因</span>
+            </p>
+        </header>
+
+        <section class="sy_toolbar">
+            <button class="sy_btn" id="sy_btn_reveal" type="button">显示全部原因</button>
+            <button class="sy_btn sy_btn_ghost" id="sy_btn_hide" type="button">隐藏全部原因</button>
+            <span class="sy_stat" id="sy_stat">空盒数量：<b>--</b></span>
+        </section>
+
+        <section class="sy_board">
+            <ul class="sy_grid" id="sy_box_grid"></ul>
+        </section>
+
+        <section class="sy_rules">
+            <h2>数7规则说明</h2>
+            <ul>
+                <li>7 的倍数：7、14、21、28……，判断式 <code>sy_num % 7 === 0</code></li>
+                <li>数字中含有 7：7、17、27、70~79……，判断式 <code>String(sy_num).indexOf("7") !== -1</code></li>
+                <li>同时满足两条的数字（如 7、77）也只占一个空盒</li>
+            </ul>
+            <p>核心判断代码：<code>sy_num % 7 === 0 || String(sy_num).indexOf("7") !== -1</code></p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // 判断数字是否满足数7规则（7的倍数 或 数字中含有7）
+        function sy_isSpecial(sy_num) {
+            if (sy_num % 7 === 0) {
+                return true;
+            }
+            return String(sy_num).indexOf("7") !== -1;
+        }
+
+        // 空盒的简短原因（显示在盒子内部）
+        function sy_shortReason(sy_num) {
+            var sy_isMulti = sy_num % 7 === 0;
+            var sy_has7 = String(sy_num).indexOf("7") !== -1;
+            if (sy_isMulti && sy_has7) {
+                return "倍数且含7";
+            }
+            if (sy_isMulti) {
+                return "7的倍数";
+            }
+            return "含7";
+        }
+
+        // 空盒的完整原因（显示在悬停提示中）
+        function sy_fullReason(sy_num) {
+            var sy_isMulti = sy_num % 7 === 0;
+            var sy_has7 = String(sy_num).indexOf("7") !== -1;
+            if (sy_isMulti && sy_has7) {
+                return sy_num + "：既是7的倍数，数字中又含7";
+            }
+            if (sy_isMulti) {
+                return sy_num + "：是7的倍数（7×" + (sy_num / 7) + "）";
+            }
+            return sy_num + "：数字中含有7";
+        }
+
+        // 生成 100 个盒子
+        (function sy_createBoxes() {
+            var sy_grid = document.getElementById("sy_box_grid");
+            var sy_fragment = document.createDocumentFragment();
+            var sy_emptyCount = 0;
+            for (var sy_i = 1; sy_i <= 100; sy_i++) {
+                var sy_box = document.createElement("li");
+                if (sy_isSpecial(sy_i)) {
+                    sy_emptyCount++;
+                    sy_box.className = "sy_box sy_box_empty";
+                    sy_box.setAttribute("data-sy_reason", sy_shortReason(sy_i));
+                    sy_box.setAttribute("title", sy_fullReason(sy_i) + "（点击查看/隐藏原因）");
+                } else {
+                    sy_box.className = "sy_box";
+                    sy_box.textContent = sy_i;
+                }
+                sy_fragment.appendChild(sy_box);
+            }
+            sy_grid.appendChild(sy_fragment);
+            document.getElementById("sy_stat").innerHTML =
+                "空盒数量：<b>" + sy_emptyCount + "</b> 个";
+        })();
+
+        // 点击空盒：切换显示/隐藏置空原因（事件委托）
+        document.getElementById("sy_box_grid").addEventListener("click", function (sy_event) {
+            var sy_target = sy_event.target.closest(".sy_box_empty");
+            if (!sy_target) {
+                return;
+            }
+            sy_target.classList.toggle("sy_box_open");
+            if (sy_target.classList.contains("sy_box_open")) {
+                sy_target.textContent = sy_target.getAttribute("data-sy_reason");
+            } else {
+                sy_target.textContent = "";
+            }
+        });
+
+        // 显示全部空盒的原因
+        document.getElementById("sy_btn_reveal").addEventListener("click", function () {
+            var sy_boxes = document.querySelectorAll(".sy_box_empty");
+            for (var sy_i = 0; sy_i < sy_boxes.length; sy_i++) {
+                sy_boxes[sy_i].classList.add("sy_box_open");
+                sy_boxes[sy_i].textContent = sy_boxes[sy_i].getAttribute("data-sy_reason");
+            }
+        });
+
+        // 隐藏全部空盒的原因
+        document.getElementById("sy_btn_hide").addEventListener("click", function () {
+            var sy_boxes = document.querySelectorAll(".sy_box_empty");
+            for (var sy_i = 0; sy_i < sy_boxes.length; sy_i++) {
+                sy_boxes[sy_i].classList.remove("sy_box_open");
+                sy_boxes[sy_i].textContent = "";
+            }
+        });
+    </script>
+</body>
+</html>
