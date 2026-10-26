@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-10-26
+    使用模型：GLM-5.3-Flash
+    功能名称：JavaScript 程序结构演示（条件与循环）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：程序结构演示，条件分支与循环">
+    <title>15-2 JavaScript 程序结构 · 条件与循环</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1000px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: #2457a6;
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 680px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        /* 章节标题 */
+        .sy_section { margin-top: 34px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.45rem;
+        }
+
+        /* 演示卡片 */
+        .sy_demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .sy_card {
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card_wide { grid-column: 1 / -1; }
+
+        .sy_card h3 {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+        }
+
+        .sy_desc {
+            margin: 0 0 14px;
+            color: #61708a;
+            font-size: 0.92rem;
+        }
+
+        .sy_code {
+            margin: 0 0 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sy_input {
+            padding: 8px 12px;
+            border: 1px solid #c9d5ea;
+            border-radius: 10px;
+            background: #fff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.92rem;
+            color: #202b45;
+        }
+
+        .sy_input:focus {
+            outline: none;
+            border-color: #2457a6;
+            box-shadow: 0 0 0 3px rgb(36 87 166 / 12%);
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+
+        .sy_output {
+            display: none;
+            margin: 14px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid #ef775e;
+            border-radius: 8px;
+            background: #fdf3f0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* 九九乘法表 */
+        .sy_table-box { display: none; margin-top: 14px; }
+
+        .sy_mrow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .sy_mcell {
+            padding: 4px 9px;
+            border-radius: 8px;
+            background: #eef3f8;
+            color: #15376d;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        /* 汇总表格 */
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            overflow-x: auto;
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid #e3e8f2;
+            text-align: left;
+        }
+
+        th { background: #f6f8fc; color: #15376d; }
+
+        td code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_note {
+            margin: 14px 0 0;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 15 · JavaScript 综合练习</p>
+            <h1>程序结构：条件与循环</h1>
+            <p class="sy_intro">
+                程序有三种基本结构：<b>顺序</b>（从上到下依次执行）、<b>条件</b>（按判断选择路径）、<b>循环</b>（重复执行代码块）。
+                本页通过可交互的演示，展示 <code>if...else</code>、<code>switch</code> 条件语句与
+                <code>for</code>、<code>while</code> 循环语句的用法。
+            </p>
+        </header>
+
+        <!-- 一、条件结构 -->
+        <section class="sy_section">
+            <h2>一、条件结构（分支结构）</h2>
+            <div class="sy_demo-grid">
+                <article class="sy_card">
+                    <h3>if...else 多分支 · 成绩等级判断</h3>
+                    <p class="sy_desc">从上到下依次判断条件，命中一个分支后其余分支全部跳过。</p>
+                    <pre class="sy_code">if (sy_score >= 90)      { sy_grade = "优秀"; }
+else if (sy_score >= 80) { sy_grade = "良好"; }
+else if (sy_score >= 70) { sy_grade = "中等"; }
+else if (sy_score >= 60) { sy_grade = "及格"; }
+else                     { sy_grade = "不及格"; }</pre>
+                    <div class="sy_ctrl-row">
+                        <input type="number" class="sy_input" id="sy_score_input" min="0" max="100" value="85" placeholder="0~100">
+                        <button class="sy_btn" type="button" onclick="sy_judgeScore()">判断等级</button>
+                    </div>
+                    <output class="sy_output" id="sy_out_score"></output>
+                </article>
+
+                <article class="sy_card">
+                    <h3>switch 语句 · 星期查询</h3>
+                    <p class="sy_desc">对同一个变量的多个离散取值做精确匹配，记得用 break 结束分支。</p>
+                    <pre class="sy_code">switch (sy_day) {
+    case 1: sy_name = "星期一"; break;
+    ...
+    case 7: sy_name = "星期日"; break;
+    default: sy_name = "无效数字";
+}</pre>
+                    <div class="sy_ctrl-row">
+                        <select class="sy_input" id="sy_day_select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </select>
+                        <button class="sy_btn" type="button" onclick="sy_queryDay()">查询星期</button>
+                    </div>
+                    <output class="sy_output" id="sy_out_day"></output>
+                </article>
+            </div>
+        </section>
+
+        <!-- 二、循环结构 -->
+        <section class="sy_section">
+            <h2>二、循环结构</h2>
+            <div class="sy_demo-grid">
+                <article class="sy_card">
+                    <h3>for 循环 · 九九乘法表</h3>
+                    <p class="sy_desc">双层 for 循环：外层控制行（sy_i），内层控制列（sy_j），列数不超过行号。</p>
+                    <pre class="sy_code">for (var sy_i = 1; sy_i <= 9; sy_i++) {
+    for (var sy_j = 1; sy_j <= sy_i; sy_j++) {
+        // 输出 sy_j × sy_i = 积
+    }
+}</pre>
+                    <button class="sy_btn" type="button" onclick="sy_renderTable()">生成乘法表</button>
+                    <div class="sy_table-box" id="sy_table_box"></div>
+                </article>
+
+                <article class="sy_card">
+                    <h3>while 循环 · 1~100 求和</h3>
+                    <p class="sy_desc">先判断条件再执行循环体；循环体内必须改变条件变量，否则会死循环。</p>
+                    <pre class="sy_code">var sy_sum = 0, sy_n = 1;
+while (sy_n <= 100) {
+    sy_sum += sy_n;   // 累加
+    sy_n++;           // 别忘了 sy_n++，否则死循环
+}</pre>
+                    <button class="sy_btn" type="button" onclick="sy_sumWhile()">开始求和</button>
+                    <output class="sy_output" id="sy_out_sum"></output>
+                </article>
+
+                <article class="sy_card sy_card_wide">
+                    <h3>循环 + 条件：break 与 continue</h3>
+                    <p class="sy_desc">在 1~20 中输出所有偶数：奇数被 <code>continue</code> 跳过；当数字大于 14 时用 <code>break</code> 提前终止循环。</p>
+                    <pre class="sy_code">for (var sy_i = 1; sy_i <= 20; sy_i++) {
+    if (sy_i % 2 !== 0) { continue; }  // 跳过奇数，直接进入下一轮
+    if (sy_i > 14)      { break; }     // 终止整个循环
+    sy_list.push(sy_i);                // 只有偶数会执行到这里
+}</pre>
+                    <button class="sy_btn" type="button" onclick="sy_demoBreak()">运行演示</button>
+                    <output class="sy_output" id="sy_out_break"></output>
+                </article>
+            </div>
+        </section>
+
+        <!-- 汇总 -->
+        <section class="sy_summary">
+            <h2>三种程序结构汇总</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>结构</th>
+                        <th>关键语句</th>
+                        <th>特点</th>
+                        <th>适用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>顺序结构</td>
+                        <td><code>—</code></td>
+                        <td>从上到下依次执行</td>
+                        <td>一切程序的基础</td>
+                    </tr>
+                    <tr>
+                        <td>条件结构</td>
+                        <td><code>if...else</code>、<code>switch</code></td>
+                        <td>按条件选择执行路径</td>
+                        <td>等级判断、菜单选择</td>
+                    </tr>
+                    <tr>
+                        <td>循环结构</td>
+                        <td><code>for</code>、<code>while</code>、<code>do...while</code></td>
+                        <td>重复执行，用 break / continue 控制流程</td>
+                        <td>累加求和、遍历生成内容</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="sy_note">提示：<code>do...while</code> 与 <code>while</code> 的区别是前者先执行一次再判断，循环体至少会执行一次。</p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // 通用输出函数：把演示结果写入指定的输出区域
+        function sy_showOutput(sy_targetId, sy_lines) {
+            var sy_box = document.getElementById(sy_targetId);
+            sy_box.textContent = sy_lines.join("\n");
+            sy_box.style.display = "block";
+        }
+
+        // ============ 条件结构演示 ============
+
+        // if...else 多分支：成绩等级判断
+        function sy_judgeScore() {
+            var sy_input = document.getElementById("sy_score_input");
+            var sy_score = Number(sy_input.value);
+            var sy_lines = [];
+            if (isNaN(sy_score) || sy_score < 0 || sy_score > 100) {
+                sy_lines.push("输入无效：" + sy_input.value + "，请输入 0~100 之间的数字");
+                sy_showOutput("sy_out_score", sy_lines);
+                return;
+            }
+            sy_lines.push("输入成绩：" + sy_score);
+            var sy_grade;
+            if (sy_score >= 90) {
+                sy_lines.push("sy_score >= 90 → 是");
+                sy_grade = "优秀";
+            } else if (sy_score >= 80) {
+                sy_lines.push("sy_score >= 90 → 否，sy_score >= 80 → 是");
+                sy_grade = "良好";
+            } else if (sy_score >= 70) {
+                sy_lines.push("sy_score >= 80 → 否，sy_score >= 70 → 是");
+                sy_grade = "中等";
+            } else if (sy_score >= 60) {
+                sy_lines.push("sy_score >= 70 → 否，sy_score >= 60 → 是");
+                sy_grade = "及格";
+            } else {
+                sy_lines.push("以上条件均为否 → 执行 else 分支");
+                sy_grade = "不及格";
+            }
+            sy_lines.push("判断结束，输出等级：" + sy_grade);
+            sy_showOutput("sy_out_score", sy_lines);
+        }
+
+        // switch：星期查询
+        function sy_queryDay() {
+            var sy_day = Number(document.getElementById("sy_day_select").value);
+            var sy_lines = ["switch (sy_day)，sy_day = " + sy_day];
+            var sy_name;
+            switch (sy_day) {
+                case 1: sy_name = "星期一"; break;
+                case 2: sy_name = "星期二"; break;
+                case 3: sy_name = "星期三"; break;
+                case 4: sy_name = "星期四"; break;
+                case 5: sy_name = "星期五"; break;
+                case 6: sy_name = "星期六"; break;
+                case 7: sy_name = "星期日"; break;
+                default: sy_name = "无效的数字";
+            }
+            sy_lines.push("匹配 case " + sy_day + " → 输出：" + sy_name);
+            if (sy_day === 6 || sy_day === 7) {
+                sy_lines.push("嵌套 if 判断：今天是周末，好好休息！");
+            }
+            sy_showOutput("sy_out_day", sy_lines);
+        }
+
+        // ============ 循环结构演示 ============
+
+        // 双层 for 循环：九九乘法表
+        function sy_renderTable() {
+            var sy_box = document.getElementById("sy_table_box");
+            sy_box.innerHTML = "";
+            for (var sy_i = 1; sy_i <= 9; sy_i++) {
+                var sy_row = document.createElement("div");
+                sy_row.className = "sy_mrow";
+                for (var sy_j = 1; sy_j <= sy_i; sy_j++) {
+                    var sy_cell = document.createElement("span");
+                    sy_cell.className = "sy_mcell";
+                    sy_cell.textContent = sy_j + "×" + sy_i + "=" + (sy_i * sy_j);
+                    sy_row.appendChild(sy_cell);
+                }
+                sy_box.appendChild(sy_row);
+            }
+            sy_box.style.display = "block";
+        }
+
+        // while 循环：1~100 求和
+        function sy_sumWhile() {
+            var sy_sum = 0;
+            var sy_n = 1;
+            var sy_count = 0;
+            while (sy_n <= 100) {
+                sy_sum += sy_n;
+                sy_n++;
+                sy_count++;
+            }
+            sy_showOutput("sy_out_sum", [
+                "while (sy_n <= 100) 循环体共执行了 " + sy_count + " 次",
+                "1 + 2 + 3 + ... + 100 = " + sy_sum
+            ]);
+        }
+
+        // 循环 + 条件：break 与 continue
+        function sy_demoBreak() {
+            var sy_list = [];
+            var sy_lines = [];
+            for (var sy_i = 1; sy_i <= 20; sy_i++) {
+                if (sy_i % 2 !== 0) {
+                    continue;   // 跳过奇数
+                }
+                if (sy_i > 14) {
+                    sy_lines.push("sy_i = " + sy_i + "，满足 sy_i > 14 → 执行 break，循环提前终止");
+                    break;
+                }
+                sy_list.push(sy_i);
+            }
+            sy_lines.push("被输出的偶数：" + sy_list.join("、"));
+            sy_lines.push("（1~20 中所有奇数都被 continue 跳过，没有执行输出语句）");
+            sy_showOutput("sy_out_break", sy_lines);
+        }
+    </script>
+</body>
+</html>
