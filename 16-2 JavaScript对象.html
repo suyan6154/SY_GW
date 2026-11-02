@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-10-29
+    使用模型：GLM-5.3-Flash
+    功能名称：JavaScript 对象演示（键值对、属性操作、遍历、this 与引用）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：对象属性、遍历、方法与引用">
+    <title>16-2 JavaScript 对象</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1040px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: #2457a6;
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 30px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 700px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        /* 章节标题 */
+        .sy_section { margin-top: 34px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.45rem;
+        }
+
+        /* 卡片 */
+        .sy_card {
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.15rem; }
+
+        .sy_desc {
+            margin: 0 0 14px;
+            color: #61708a;
+            font-size: 0.92rem;
+        }
+
+        .sy_grid2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .sy_grid2 .sy_card { margin-bottom: 0; }
+
+        /* 代码块 */
+        .sy_code {
+            margin: 0 0 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        /* 对象档案卡 */
+        .sy_obj {
+            padding: 6px 0;
+            border: 2px dashed #c9d5ea;
+            border-radius: 14px;
+            background: #fafcff;
+        }
+
+        .sy_obj_head {
+            padding: 4px 16px 8px;
+            color: #8a97b1;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.8rem;
+        }
+
+        .sy_obj_row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 7px 16px;
+            border-top: 1px solid #eef1f7;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.9rem;
+        }
+
+        .sy_obj_row:first-of-type { border-top: none; }
+
+        .sy_obj_row_new { animation: sy_flash 1.1s ease; }
+
+        @keyframes sy_flash {
+            0%   { background: #ffe9c9; }
+            100% { background: transparent; }
+        }
+
+        .sy_obj_key {
+            min-width: 96px;
+            padding: 1px 8px;
+            border-radius: 6px;
+            background: #e7eefb;
+            color: #2457a6;
+            font-weight: 700;
+        }
+
+        .sy_obj_colon { color: #b3bccb; }
+
+        .sy_obj_val { color: #202b45; word-break: break-all; }
+
+        .sy_val_string  { color: #3d9a6c; }
+        .sy_val_number  { color: #d9822b; }
+        .sy_val_boolean { color: #8a5cd6; }
+        .sy_val_object  { color: #2457a6; }
+        .sy_val_function{ color: #ef775e; font-style: italic; }
+
+        /* 输入与按钮 */
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .sy_field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: #61708a;
+        }
+
+        .sy_input {
+            width: 110px;
+            padding: 7px 10px;
+            border: 1px solid #c9d5ea;
+            border-radius: 10px;
+            background: #fff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.9rem;
+            color: #202b45;
+        }
+
+        .sy_input:focus {
+            outline: none;
+            border-color: #2457a6;
+            box-shadow: 0 0 0 3px rgb(36 87 166 / 12%);
+        }
+
+        .sy_groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .sy_group {
+            padding: 14px;
+            border: 1px solid #e3e8f2;
+            border-radius: 14px;
+            background: #fafcff;
+        }
+
+        .sy_group h4 {
+            margin: 0 0 10px;
+            color: #15376d;
+            font-size: 0.92rem;
+        }
+
+        .sy_mbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+        .sy_mbtn {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1px;
+            padding: 7px 12px;
+            border: 1px solid #c9d5ea;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.2s, background 0.2s, transform 0.1s;
+        }
+
+        .sy_mbtn:hover { border-color: #2457a6; background: #f0f5fc; }
+        .sy_mbtn:active { transform: scale(0.95); }
+
+        .sy_mbtn code {
+            padding: 0;
+            background: none;
+            color: #2457a6;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .sy_mbtn span { color: #8a97b1; font-size: 0.72rem; }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+
+        .sy_btn_ghost {
+            background: #fff;
+            border: 1px solid #c9d5ea;
+            color: #2457a6;
+        }
+
+        .sy_btn_ghost:hover { background: #f0f5fc; color: #15376d; }
+
+        /* 输出区 */
+        .sy_output {
+            display: none;
+            margin: 12px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid #ef775e;
+            border-radius: 8px;
+            background: #fdf3f0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_tag {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 1px 9px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.72rem;
+            vertical-align: 1px;
+        }
+
+        .sy_tag_yes { background: #ef775e; }
+        .sy_tag_no  { background: #3d9a6c; }
+
+        /* 引用演示 */
+        .sy_refs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 6px;
+        }
+
+        .sy_ref_card {
+            flex: 1 1 180px;
+            padding: 14px 16px;
+            border: 2px solid #c9d5ea;
+            border-radius: 14px;
+            background: #fafcff;
+            transition: border-color 0.25s;
+        }
+
+        .sy_ref_card_active {
+            border-color: #ef775e;
+            background: #fff8f5;
+        }
+
+        .sy_ref_name {
+            color: #8a97b1;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.78rem;
+        }
+
+        .sy_ref_val {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-top: 4px;
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        .sy_ref_score {
+            color: #d9822b;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sy_arrow_line {
+            align-self: center;
+            color: #ef775e;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        /* 嵌套对象树 */
+        .sy_tree {
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #fafcff;
+            border: 1px solid #e3e8f2;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+            line-height: 1.9;
+        }
+
+        .sy_tree_item { padding-left: 18px; border-left: 1px dashed #d7e2f0; }
+        .sy_tree_key { color: #2457a6; font-weight: 700; }
+        .sy_tree_lv { color: #b3bccb; }
+
+        /* 汇总表格 */
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            overflow-x: auto;
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 9px 12px;
+            border: 1px solid #e3e8f2;
+            text-align: left;
+        }
+
+        th { background: #f6f8fc; color: #15376d; }
+
+        td code { font-size: 0.84em; }
+
+        .sy_note {
+            margin: 14px 0 0;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #2457a6; }
+
+        @media (max-width: 520px) {
+            body { padding: 26px 14px 40px; }
+            .sy_obj_key { min-width: 72px; }
+            .sy_input { width: 92px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 16 · JavaScript 对象</p>
+            <h1>JavaScript 对象</h1>
+            <p class="sy_intro">
+                对象是一组<b>键值对</b>（key: value）的集合，就像一张贴了标签的档案卡：
+                标签是属性名，内容是属性值。下面把对象画成档案卡，并交互演示
+                <b>属性的读取、新增、修改、删除、遍历</b>以及 <code>this</code> 与引用的特点。
+            </p>
+        </header>
+
+        <!-- 一、认识对象 -->
+        <section class="sy_section">
+            <h2>一、认识对象：键值对档案卡</h2>
+            <div class="sy_grid2">
+                <article class="sy_card">
+                    <h3>对象字面量写法</h3>
+                    <p class="sy_desc">用一对花括号 <code>{ }</code> 包住若干"键: 值"，键与值之间用冒号，条目之间用逗号。</p>
+                    <pre class="sy_code">var sy_student = {
+    name: "苏妍",        <i>// 字符串</i>
+    age: 20,             <i>// 数字</i>
+    isMember: true,      <i>// 布尔值</i>
+    courses: ["HTML", "CSS"],   <i>// 值可以是数组</i>
+    sayHi: function () {        <i>// 值可以是函数（方法）</i>
+        return "你好，我是" + this.name;
+    }
+};</pre>
+                </article>
+
+                <article class="sy_card">
+                    <h3>另一种写法：先建空对象再挂属性</h3>
+                    <p class="sy_desc">对象创建后属性可以随时增加，所以对象是"活的"，结构并不固定。</p>
+                    <pre class="sy_code">var sy_student = {};          <i>// 或 new Object()</i>
+sy_student.name = "苏妍";      <i>// 新增属性</i>
+sy_student["age"] = 20;       <i>// 方括号也能新增</i>
+
+<i>// 读取：两种写法结果相同</i>
+sy_student.name;              <i>// "苏妍"</i>
+sy_student["name"];           <i>// "苏妍"</i></pre>
+                </article>
+            </div>
+        </section>
+
+        <!-- 二、对象工作台 -->
+        <section class="sy_section">
+            <h2>二、对象工作台（交互演示）</h2>
+            <div class="sy_card">
+                <h3>当前对象 sy_student</h3>
+                <p class="sy_desc">每一行就是一个属性；黄色闪一下表示这一行刚刚被新增或修改。</p>
+                <div class="sy_obj" id="sy_obj_view"></div>
+
+                <div class="sy_ctrl-row">
+                    <span class="sy_field">属性名 <input class="sy_input" id="sy_key_input" type="text" value="name"></span>
+                    <span class="sy_field">属性值 <input class="sy_input" id="sy_value_input" type="text" value="苏妍"></span>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_resetObj()">重置对象</button>
+                </div>
+
+                <div class="sy_groups">
+                    <div class="sy_group">
+                        <h4>读取属性</h4>
+                        <div class="sy_mbtns">
+                            <button class="sy_mbtn" type="button" onclick="sy_doDot()"><code>sy_student.name</code><span>点语法</span></button>
+                            <button class="sy_mbtn" type="button" onclick="sy_doBracket()"><code>sy_student["name"]</code><span>方括号</span></button>
+                        </div>
+                    </div>
+                    <div class="sy_group">
+                        <h4>增 / 改 / 删</h4>
+                        <div class="sy_mbtns">
+                            <button class="sy_mbtn" type="button" onclick="sy_doSet()"><code>sy_student[key] = 值</code><span>新增或修改</span></button>
+                            <button class="sy_mbtn" type="button" onclick="sy_doDelete()"><code>delete sy_student[key]</code><span>删除属性</span></button>
+                        </div>
+                    </div>
+                    <div class="sy_group">
+                        <h4>整体查看</h4>
+                        <div class="sy_mbtns">
+                            <button class="sy_mbtn" type="button" onclick="sy_doKeys()"><code>Object.keys()</code><span>所有属性名</span></button>
+                            <button class="sy_mbtn" type="button" onclick="sy_doValues()"><code>Object.values()</code><span>所有属性值</span></button>
+                            <button class="sy_mbtn" type="button" onclick="sy_doJSON()"><code>JSON.stringify()</code><span>转成文本</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <pre class="sy_code" id="sy_obj_code">点击上方按钮，这里会显示执行的代码与结果。</pre>
+                <output class="sy_output" id="sy_obj_out"></output>
+            </div>
+        </section>
+
+        <!-- 三、遍历对象 -->
+        <section class="sy_section">
+            <h2>三、遍历对象：把属性一个个取出来</h2>
+            <div class="sy_card">
+                <h3>三种常用遍历方式</h3>
+                <p class="sy_desc">
+                    <code>for...in</code> 拿到的是<b>键</b>；<code>Object.keys / values / entries</code>
+                    分别拿到键数组、值数组、键值对数组。
+                </p>
+                <pre class="sy_code"><i>// 1. for...in：遍历键</i>
+for (var sy_k in sy_student) {
+    console.log(sy_k, sy_student[sy_k]);
+}
+
+<i>// 2. 三个静态方法（返回数组，更安全）</i>
+Object.keys(sy_student);      <i>// ["name", "age", ...]</i>
+Object.values(sy_student);    <i>// ["苏妍", 20, ...]</i>
+Object.entries(sy_student);   <i>// [["name","苏妍"], ...]</i></pre>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_eachForIn()">for...in 演示</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_eachKeys()">Object.keys()</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_eachValues()">Object.values()</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_eachEntries()">Object.entries()</button>
+                </div>
+                <output class="sy_output" id="sy_each_out"></output>
+            </div>
+        </section>
+
+        <!-- 四、方法与 this -->
+        <section class="sy_section">
+            <h2>四、对象方法：属性值可以是函数</h2>
+            <div class="sy_card">
+                <h3>方法与 this：谁调用，this 就指向谁</h3>
+                <p class="sy_desc">
+                    对象里定义的函数叫<b>方法</b>。方法内部用 <code>this</code> 指向"调用它的那个对象"，
+                    所以 <code>sy_counter.add()</code> 里的 <code>this</code> 就是 <code>sy_counter</code>。
+                </p>
+                <pre class="sy_code">var sy_counter = {
+    count: 0,
+    add: function () {
+        this.count = this.count + 1;   <i>// this 就是 sy_counter</i>
+        return this.count;
+    },
+    info: function () {
+        return "当前计数：" + this.count;
+    }
+};</pre>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_callAdd()">调用 sy_counter.add()</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_callInfo()">调用 sy_counter.info()</button>
+                    <span class="sy_field">计数器当前值：<b id="sy_counter_view" style="color:#ef775e;font-size:1.3rem;">0</b></span>
+                </div>
+                <output class="sy_output" id="sy_this_out"></output>
+            </div>
+        </section>
+
+        <!-- 五、引用与拷贝 -->
+        <section class="sy_section">
+            <h2>五、对象是引用类型：赋值不复制内容</h2>
+            <div class="sy_card">
+                <h3>sy_b = sy_a：两个名字，同一张卡片</h3>
+                <p class="sy_desc">
+                    基本类型赋值是"复制内容"，对象赋值只是"复制了一个指向同一对象的地址"。
+                    所以改 <code>sy_b</code> 其实就是改 <code>sy_a</code>。想要独立副本要用
+                    <code>Object.assign({}, 源对象)</code> 或展开语法 <code>{...源对象}</code>。
+                </p>
+                <pre class="sy_code">var sy_a = { score: 90 };
+var sy_b = sy_a;                <i>// 别名：指向同一个对象</i>
+sy_b.score = 100;               <i>// sy_a.score 也变成 100</i>
+
+var sy_c = Object.assign({}, sy_a);  <i>// 浅拷贝：独立的新对象</i>
+sy_c.score = 60;                <i>// sy_a.score 仍然是 100</i></pre>
+
+                <div class="sy_refs" id="sy_ref_wrap"></div>
+
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_doAlias()">sy_b = sy_a，再改 sy_b.score = 100</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_doCopy()">拷贝一份再改 copy.score = 60</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_resetRefs()">重置</button>
+                </div>
+                <output class="sy_output" id="sy_ref_out"></output>
+            </div>
+        </section>
+
+        <!-- 六、嵌套对象 -->
+        <section class="sy_section">
+            <h2>六、嵌套：对象里还能放对象和数组</h2>
+            <div class="sy_card">
+                <h3>多层结构：用"点"一路点下去</h3>
+                <p class="sy_desc">
+                    嵌套访问像走地址：<code>sy_class.teacher.name</code> 表示"班级 → 老师 → 姓名"。
+                    数组元素用下标访问，例如 <code>sy_class.courses[0]</code>。
+                </p>
+                <div class="sy_tree" id="sy_tree_view"></div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_showNestedPath()">读取深层属性</button>
+                </div>
+                <output class="sy_output" id="sy_nested_out"></output>
+            </div>
+        </section>
+
+        <!-- 速查表 -->
+        <section class="sy_summary">
+            <h2>对象操作速查表</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>操作</th>
+                        <th>语法</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>创建对象</td><td><code>var sy_o = { k: 1 };</code></td><td>字面量最常用，也可 <code>new Object()</code></td></tr>
+                    <tr><td>读取（点）</td><td><code>sy_o.k</code></td><td>键名是合法标识符时使用，最直观</td></tr>
+                    <tr><td>读取（方括号）</td><td><code>sy_o["k"]</code></td><td>键名有空格、含变量时使用</td></tr>
+                    <tr><td>新增 / 修改</td><td><code>sy_o.k = 2;</code></td><td>键已存在就是改，不存在就是新增</td></tr>
+                    <tr><td>删除属性</td><td><code>delete sy_o.k;</code></td><td>删除后该键不再存在</td></tr>
+                    <tr><td>判断属性存在</td><td><code>"k" in sy_o</code></td><td>值为 undefined 时也能判断准确</td></tr>
+                    <tr><td>遍历键</td><td><code>for (var k in sy_o)</code></td><td>拿到键，用 <code>sy_o[k]</code> 取值</td></tr>
+                    <tr><td>键 / 值 / 键值对</td><td><code>Object.keys / values / entries</code></td><td>都返回数组，方便配合数组方法</td></tr>
+                    <tr><td>转成 JSON 文本</td><td><code>JSON.stringify(sy_o)</code></td><td>用于存储或网络传输</td></tr>
+                    <tr><td>从 JSON 解析</td><td><code>JSON.parse(文本)</code></td><td>把文本还原成对象</td></tr>
+                    <tr><td>浅拷贝</td><td><code>Object.assign({}, sy_o)</code></td><td>嵌套对象仍然是共享引用</td></tr>
+                </tbody>
+            </table>
+            <p class="sy_note">
+                提示：<code>sy_o</code> 里没有的属性读取得到 <code>undefined</code> 而不是报错；
+                但继续往下点（如 <code>sy_o.a.b</code>）会报错，所以面试常问"如何安全访问深层属性"。
+            </p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ================= 通用工具 =================
+        // 取值的类型名称（区分数组和 null）
+        function sy_typeOf(sy_v) {
+            if (sy_v === null) { return "null"; }
+            if (Array.isArray(sy_v)) { return "array"; }
+            return typeof sy_v;
+        }
+
+        // 让值显示得像代码：字符串加引号，数组显示 [...]
+        function sy_fmt(sy_v) {
+            if (sy_v === null) { return "null"; }
+            if (Array.isArray(sy_v)) { return "[" + sy_v.map(sy_fmt).join(", ") + "]"; }
+            if (typeof sy_v === "object") { return "{...}"; }
+            if (typeof sy_v === "function") { return "function () {...}"; }
+            if (typeof sy_v === "string") { return '"' + sy_v + '"'; }
+            return String(sy_v);
+        }
+
+        // 值对应的颜色样式类
+        function sy_valClass(sy_v) {
+            var sy_t = sy_typeOf(sy_v);
+            if (sy_t === "string")  { return "sy_val_string"; }
+            if (sy_t === "number")  { return "sy_val_number"; }
+            if (sy_t === "boolean") { return "sy_val_boolean"; }
+            if (sy_t === "array" || sy_t === "object") { return "sy_val_object"; }
+            if (sy_t === "function") { return "sy_val_function"; }
+            return "";
+        }
+
+        // ================= 一、对象工作台 =================
+        function sy_newStudent() {
+            return {
+                name: "苏妍",
+                age: 20,
+                major: "数字媒体技术",
+                isMember: true,
+                courses: ["HTML", "CSS"],
+                sayHi: function () { return "你好，我是" + this.name; }
+            };
+        }
+
+        var sy_student = sy_newStudent();
+
+        // 渲染档案卡（sy_hlKey 指定要高亮的那一行）
+        function sy_renderObj(sy_hlKey) {
+            var sy_box = document.getElementById("sy_obj_view");
+            sy_box.innerHTML = "";
+            var sy_head = document.createElement("div");
+            sy_head.className = "sy_obj_head";
+            sy_head.textContent = "sy_student = {";
+            sy_box.appendChild(sy_head);
+
+            Object.keys(sy_student).forEach(function (sy_k) {
+                var sy_row = document.createElement("div");
+                sy_row.className = "sy_obj_row" + (sy_k === sy_hlKey ? " sy_obj_row_new" : "");
+
+                var sy_key = document.createElement("span");
+                sy_key.className = "sy_obj_key";
+                sy_key.textContent = sy_k;
+
+                var sy_colon = document.createElement("span");
+                sy_colon.className = "sy_obj_colon";
+                sy_colon.textContent = ":";
+
+                var sy_val = document.createElement("span");
+                sy_val.className = "sy_obj_val " + sy_valClass(sy_student[sy_k]);
+                sy_val.textContent = sy_fmt(sy_student[sy_k]);
+
+                sy_row.appendChild(sy_key);
+                sy_row.appendChild(sy_colon);
+                sy_row.appendChild(sy_val);
+                sy_box.appendChild(sy_row);
+            });
+
+            var sy_tail = document.createElement("div");
+            sy_tail.className = "sy_obj_head";
+            sy_tail.textContent = "}，" + Object.keys(sy_student).length + " 个属性";
+            sy_box.appendChild(sy_tail);
+        }
+
+        function sy_showObjResult(sy_codeText, sy_lines) {
+            document.getElementById("sy_obj_code").innerHTML = sy_codeText;
+            var sy_out = document.getElementById("sy_obj_out");
+            sy_out.innerHTML = sy_lines.join("\n");
+            sy_out.style.display = "block";
+        }
+
+        function sy_key() { return document.getElementById("sy_key_input").value.trim(); }
+        function sy_rawValue() { return document.getElementById("sy_value_input").value; }
+
+        // 读取：点语法
+        function sy_doDot() {
+            var sy_k = sy_key();
+            var sy_has = Object.prototype.hasOwnProperty.call(sy_student, sy_k);
+            sy_renderObj(sy_k);
+            sy_showObjResult(
+                "<b>sy_student</b>." + sy_k,
+                [sy_has
+                    ? "结果：" + sy_fmt(sy_student[sy_k]) + "（类型 " + sy_typeOf(sy_student[sy_k]) + "）"
+                    : "结果：undefined —— 对象里没有这个属性，读取不存在的属性不会报错"]
+            );
+        }
+
+        // 读取：方括号
+        function sy_doBracket() {
+            var sy_k = sy_key();
+            var sy_has = Object.prototype.hasOwnProperty.call(sy_student, sy_k);
+            sy_renderObj(sy_k);
+            sy_showObjResult(
+                "<b>sy_student</b>[" + sy_fmt(sy_k) + "]",
+                [sy_has
+                    ? "结果：" + sy_fmt(sy_student[sy_k]) + "（类型 " + sy_typeOf(sy_student[sy_k]) + "）"
+                    : "结果：undefined —— 属性不存在"]
+            );
+        }
+
+        // 新增或修改
+        function sy_doSet() {
+            var sy_k = sy_key();
+            var sy_v = sy_rawValue();
+            if (sy_k === "") {
+                sy_showObjResult("sy_student[ ] = ...", ["属性名不能为空，请先填写属性名"]);
+                return;
+            }
+            var sy_exists = Object.prototype.hasOwnProperty.call(sy_student, sy_k);
+            // 输入的是纯数字就转成数字类型，否则保持字符串
+            var sy_value = /^-?\d+(\.\d+)?$/.test(sy_v) ? Number(sy_v) : sy_v;
+            sy_student[sy_k] = sy_value;
+            sy_renderObj(sy_k);
+            sy_showObjResult(
+                "<b>sy_student</b>[" + sy_fmt(sy_k) + "] = " + sy_fmt(sy_value),
+                [(sy_exists ? "属性已存在 → 执行修改" : "属性不存在 → 执行新增") +
+                 "，现在 " + sy_k + " = " + sy_fmt(sy_value) +
+                 "（类型 " + sy_typeOf(sy_value) + "）"]
+            );
+        }
+
+        // 删除属性
+        function sy_doDelete() {
+            var sy_k = sy_key();
+            if (!Object.prototype.hasOwnProperty.call(sy_student, sy_k)) {
+                sy_showObjResult("<b>delete</b> sy_student." + sy_k,
+                    ["对象里没有属性 " + sy_k + "，删除无效果"]);
+                return;
+            }
+            delete sy_student[sy_k];
+            sy_renderObj("-1");
+            sy_showObjResult("<b>delete</b> sy_student." + sy_k,
+                ["已删除属性 " + sy_k + "，剩余属性：" + Object.keys(sy_student).join("、")]);
+        }
+
+        // Object.keys / values / JSON
+        function sy_doKeys() {
+            var sy_keys = Object.keys(sy_student);
+            sy_renderObj("-1");
+            sy_showObjResult("<b>Object.keys</b>(sy_student)",
+                ["返回数组：" + sy_fmt(sy_keys),
+                 "共 " + sy_keys.length + " 个属性名，可以直接交给数组方法处理"]);
+        }
+
+        function sy_doValues() {
+            var sy_vals = Object.values(sy_student);
+            sy_renderObj("-1");
+            sy_showObjResult("<b>Object.values</b>(sy_student)",
+                ["返回数组：" + sy_vals.map(function (sy_v) {
+                    return typeof sy_v === "function" ? "function () {...}" : sy_fmt(sy_v);
+                }).join(", ")]);
+        }
+
+        function sy_doJSON() {
+            var sy_json = JSON.stringify(sy_student, function (sy_k, sy_v) {
+                return typeof sy_v === "function" ? undefined : sy_v;
+            }, 2);
+            sy_renderObj("-1");
+            sy_showObjResult("<b>JSON.stringify</b>(sy_student, null, 2)",
+                ["函数类型的属性不会出现在 JSON 里：",
+                 sy_json]);
+        }
+
+        function sy_resetObj() {
+            sy_student = sy_newStudent();
+            sy_renderObj("-1");
+            sy_showObjResult("sy_student = { ... }", ["对象已重置为最初的 6 个属性"]);
+        }
+
+        // ================= 二、遍历 =================
+        function sy_showEach(sy_lines) {
+            var sy_out = document.getElementById("sy_each_out");
+            sy_out.innerHTML = sy_lines.join("\n");
+            sy_out.style.display = "block";
+        }
+
+        function sy_eachForIn() {
+            var sy_lines = ["for (var sy_k in sy_student) 依次输出："];
+            var sy_n = 0;
+            for (var sy_k in sy_student) {
+                sy_n++;
+                sy_lines.push("  " + sy_n + ". " + sy_k + " → " +
+                    (typeof sy_student[sy_k] === "function" ? "function () {...}" : sy_fmt(sy_student[sy_k])));
+            }
+            sy_lines.push("说明：for...in 拿到的是“键”，要用 sy_student[sy_k] 才能取值。");
+            sy_showEach(sy_lines);
+        }
+
+        function sy_eachKeys() {
+            sy_showEach([
+                "Object.keys(sy_student)",
+                "→ " + sy_fmt(Object.keys(sy_student)),
+                "得到的是属性名数组，之后就能用数组的 forEach / map / filter。"
+            ]);
+        }
+
+        function sy_eachValues() {
+            sy_showEach([
+                "Object.values(sy_student)",
+                "→ [" + Object.values(sy_student).map(function (sy_v) {
+                    return typeof sy_v === "function" ? "function () {...}" : sy_fmt(sy_v);
+                }).join(", ") + "]",
+                "得到的是属性值数组，不包含键名。"
+            ]);
+        }
+
+        function sy_eachEntries() {
+            var sy_lines = ["Object.entries(sy_student) 得到键值对数组："];
+            Object.entries(sy_student).forEach(function (sy_pair) {
+                sy_lines.push("  [" + sy_fmt(sy_pair[0]) + ", " +
+                    (typeof sy_pair[1] === "function" ? "function () {...}" : sy_fmt(sy_pair[1])) + "]");
+            });
+            sy_lines.push("每一对都是 [键, 值]，最适合配合解构写法 var [k, v] = pair。");
+            sy_showEach(sy_lines);
+        }
+
+        // ================= 三、方法与 this =================
+        var sy_counter = {
+            count: 0,
+            add: function () {
+                this.count = this.count + 1;
+                return this.count;
+            },
+            info: function () {
+                return "当前计数：" + this.count;
+            }
+        };
+
+        function sy_callAdd() {
+            var sy_ret = sy_counter.add();
+            document.getElementById("sy_counter_view").textContent = sy_counter.count;
+            var sy_out = document.getElementById("sy_this_out");
+            sy_out.innerHTML = [
+                "执行 sy_counter.add() → this 指向 sy_counter",
+                "this.count = this.count + 1 → " + sy_ret,
+                "返回：" + sy_ret + "，sy_counter.count 现在是 " + sy_counter.count
+            ].join("\n");
+            sy_out.style.display = "block";
+        }
+
+        function sy_callInfo() {
+            var sy_ret = sy_counter.info();
+            var sy_out = document.getElementById("sy_this_out");
+            sy_out.innerHTML = [
+                "执行 sy_counter.info() → this 指向 sy_counter",
+                "返回字符串：" + sy_ret,
+                "如果把方法取出来单独调用（var f = sy_counter.info; f()），this 就不再指向 sy_counter 了。"
+            ].join("\n");
+            sy_out.style.display = "block";
+        }
+
+        // ================= 四、引用与拷贝 =================
+        var sy_a = { score: 90 };
+        var sy_b = null;
+        var sy_c = null;
+
+        function sy_renderRefs() {
+            var sy_wrap = document.getElementById("sy_ref_wrap");
+            var sy_cards = [
+                { sy_name: "sy_a", sy_obj: sy_a, sy_note: "原始对象", sy_active: true },
+                { sy_name: "sy_b", sy_obj: sy_b, sy_note: "sy_b = sy_a（引用）", sy_active: false },
+                { sy_name: "sy_copy", sy_obj: sy_c, sy_note: "Object.assign 浅拷贝", sy_active: false }
+            ];
+            sy_wrap.innerHTML = "";
+            sy_cards.forEach(function (sy_item, sy_i) {
+                if (sy_i > 0) {
+                    var sy_line = document.createElement("span");
+                    sy_line.className = "sy_arrow_line";
+                    sy_line.textContent = "⟶";
+                    sy_wrap.appendChild(sy_line);
+                }
+                var sy_card = document.createElement("div");
+                sy_card.className = "sy_ref_card" + (sy_item.sy_obj && sy_item.sy_active ? " sy_ref_card_active" : "");
+
+                var sy_name = document.createElement("div");
+                sy_name.className = "sy_ref_name";
+                sy_name.textContent = sy_item.sy_name;
+
+                var sy_val = document.createElement("div");
+                sy_val.className = "sy_ref_val";
+                var sy_score = document.createElement("span");
+                sy_score.className = "sy_ref_score";
+                sy_score.textContent = sy_item.sy_obj === null ? "—" : sy_item.sy_obj.score;
+                var sy_k = document.createElement("span");
+                sy_k.style.color = "#8a97b1";
+                sy_k.style.fontSize = "0.75rem";
+                sy_k.textContent = ".score";
+                sy_val.appendChild(sy_score);
+                sy_val.appendChild(sy_k);
+
+                var sy_note = document.createElement("div");
+                sy_note.className = "sy_ref_name";
+                sy_note.style.marginTop = "4px";
+                sy_note.textContent = sy_item.sy_note;
+
+                sy_card.appendChild(sy_name);
+                sy_card.appendChild(sy_val);
+                sy_card.appendChild(sy_note);
+                sy_wrap.appendChild(sy_card);
+            });
+        }
+
+        function sy_refOut(sy_lines) {
+            var sy_out = document.getElementById("sy_ref_out");
+            sy_out.innerHTML = sy_lines.join("\n");
+            sy_out.style.display = "block";
+        }
+
+        function sy_doAlias() {
+            sy_b = sy_a;
+            sy_b.score = 100;
+            sy_renderRefs();
+            sy_refOut([
+                "var sy_b = sy_a;      // 只是多了一个名字，指向同一个对象",
+                "sy_b.score = 100;",
+                "结果：sy_a.score = " + sy_a.score + "，sy_b.score = " + sy_b.score + " —— 两个变量同步变化",
+                "结论：对象赋值不复制内容，只复制“地址”。"
+            ]);
+        }
+
+        function sy_doCopy() {
+            sy_c = Object.assign({}, sy_a);
+            sy_c.score = 60;
+            sy_renderRefs();
+            sy_refOut([
+                "var sy_copy = Object.assign({}, sy_a);   // 浅拷贝出新对象",
+                "sy_copy.score = 60;",
+                "结果：sy_a.score = " + sy_a.score + "，sy_copy.score = " + sy_c.score + " —— 互不影响",
+                "注意：浅拷贝只复制第一层，嵌套对象仍是共享引用。"
+            ]);
+        }
+
+        function sy_resetRefs() {
+            sy_a = { score: 90 };
+            sy_b = null;
+            sy_c = null;
+            sy_renderRefs();
+            sy_refOut(["已重置：sy_a.score = 90，sy_b 与 sy_copy 还没创建。", "先点“sy_b = sy_a”，再点“拷贝一份”，对比两者的差别。"]);
+        }
+
+        // ================= 五、嵌套对象 =================
+        var sy_class = {
+            name: "网页设计班",
+            members: 32,
+            teacher: { name: "袁老师", office: "A302" },
+            courses: ["HTML", "CSS", "JavaScript"]
+        };
+
+        function sy_renderTree() {
+            var sy_box = document.getElementById("sy_tree_view");
+            sy_box.innerHTML = "";
+
+            function sy_walk(sy_obj, sy_depth) {
+                Object.keys(sy_obj).forEach(function (sy_k) {
+                    var sy_v = sy_obj[sy_k];
+                    var sy_row = document.createElement("div");
+                    sy_row.className = "sy_tree_item";
+                    sy_row.style.marginLeft = (sy_depth * 18) + "px";
+
+                    var sy_key = document.createElement("span");
+                    sy_key.className = "sy_tree_key";
+                    sy_key.textContent = sy_k;
+                    sy_row.appendChild(sy_key);
+
+                    var sy_sep = document.createElement("span");
+                    sy_sep.style.color = "#b3bccb";
+                    sy_sep.textContent = " : ";
+                    sy_row.appendChild(sy_sep);
+
+                    var sy_val = document.createElement("span");
+                    if (sy_v !== null && typeof sy_v === "object" && !Array.isArray(sy_v)) {
+                        sy_val.textContent = "{ }";
+                        sy_box.appendChild(sy_row);
+                        sy_walk(sy_v, sy_depth + 1);
+                        return;
+                    }
+                    if (Array.isArray(sy_v)) {
+                        sy_val.textContent = "[" + sy_v.map(function (sy_x, sy_i) {
+                            return sy_i + ": " + sy_x;
+                        }).join(", ") + "]";
+                    } else {
+                        sy_val.textContent = sy_fmt(sy_v);
+                    }
+                    sy_val.className = sy_valClass(sy_v);
+                    sy_row.appendChild(sy_val);
+                    sy_box.appendChild(sy_row);
+                });
+            }
+
+            var sy_head = document.createElement("div");
+            sy_head.style.color = "#8a97b1";
+            sy_head.style.marginBottom = "6px";
+            sy_head.textContent = "sy_class";
+            sy_box.appendChild(sy_head);
+            sy_walk(sy_class, 0);
+        }
+
+        function sy_showNestedPath() {
+            var sy_out = document.getElementById("sy_nested_out");
+            sy_out.innerHTML = [
+                "sy_class.teacher          → " + sy_fmt(sy_class.teacher),
+                "sy_class.teacher.name     → " + sy_fmt(sy_class.teacher.name),
+                "sy_class.teacher.office   → " + sy_fmt(sy_class.teacher.office),
+                "sy_class.courses[0]       → " + sy_fmt(sy_class.courses[0]),
+                "sy_class[" + sy_fmt("courses") + "][2] → " + sy_fmt(sy_class.courses[2]) + "（方括号同样可以逐层访问）"
+            ].join("\n");
+            sy_out.style.display = "block";
+        }
+
+        // ================= 初始化 =================
+        sy_renderObj("-1");
+        sy_renderRefs();
+        sy_renderTree();
+    </script>
+</body>
+</html>

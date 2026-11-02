@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-10-29
+    使用模型：GLM-5.3-Flash
+    功能名称：财经新闻列表页（左图右新闻列表，iconfont 图标）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的网页练习：左图右文的新闻列表页，图标来自 font 目录 iconfont">
+    <title>16-3 财经新闻列表</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #222;
+            background: #f2f3f5;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1080px);
+            margin: 0 auto;
+        }
+
+        /* 顶部返回条 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #2457a6;
+            text-decoration: none;
+        }
+
+        .sy_topbar a:hover { text-decoration: underline; }
+
+        .sy_author { color: #999; letter-spacing: 0.05em; }
+
+        /* 新闻面板 */
+        .sy_news-panel {
+            display: flex;
+            gap: 34px;
+            padding: 26px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 4px 18px rgb(0 0 0 / 5%);
+        }
+
+        /* 左侧大图新闻 */
+        .sy_news-figure {
+            position: relative;
+            flex: 0 0 52%;
+            margin: 0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .sy_news-figure img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 330px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .sy_news-figure:hover img { transform: scale(1.04); }
+
+        /* 图片底部的标题说明（深色渐变遮罩 + 白字） */
+        .sy_fig-caption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 44px 18px 16px;
+            background: linear-gradient(180deg, transparent, rgb(0 0 0 / 72%));
+            color: #fff;
+            font-size: 1.02rem;
+            font-weight: 700;
+            line-height: 1.6;
+            letter-spacing: 0.02em;
+        }
+
+        /* 右侧新闻列表 */
+        .sy_news-list {
+            flex: 1 1 auto;
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sy_news-list li { padding: 6px 0; }
+
+        .sy_news-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: #26292c;
+            font-size: 1.02rem;
+            font-weight: 600;
+            line-height: 1.75;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        /* iconfont 图标作为新闻圆点 */
+        .sy_news-item .iconfont {
+            flex: 0 0 auto;
+            margin-top: 6px;
+            color: #c2c6cc;
+            font-size: 12px;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .sy_news-item:hover { color: #c8102e; }
+        .sy_news-item:hover .iconfont { color: #c8102e; transform: scale(1.25); }
+
+        /* 移动端上下排列 */
+        @media (max-width: 760px) {
+            body { padding: 24px 14px 40px; }
+
+            .sy_news-panel { flex-direction: column; gap: 18px; padding: 16px; }
+
+            .sy_news-figure { flex: none; }
+
+            .sy_news-figure img { min-height: 220px; }
+
+            .sy_news-item { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html"><i class="iconfont icon-fanhui"></i>返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <!-- 新闻面板：左大图 + 右列表 -->
+        <section class="sy_news-panel">
+            <!-- 左侧焦点新闻 -->
+            <figure class="sy_news-figure">
+                <img src="Images/%E8%B4%B8%E6%98%93%E2%80%9C%E9%93%BE%E2%80%9D%E6%8E%A5.jpg" alt="海南自贸港封关红利释放，海口与东盟经贸合作">
+                <figcaption class="sy_fig-caption">
+                    海南自贸港封关红利释放 海口与东盟经贸合作加速<br>
+                    “链”接
+                </figcaption>
+            </figure>
+
+            <!-- 右侧新闻标题列表 -->
+            <ul class="sy_news-list">
+                <li>
+                    <a class="sy_news-item" href="#n1">
+                        <i class="iconfont icon-faxian"></i>
+                        中国持续扩大进口 与世界共享发展机遇
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n2">
+                        <i class="iconfont icon-faxian"></i>
+                        中部农博会打通农产品出海通道 搭建农业合作新桥梁
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n3">
+                        <i class="iconfont icon-faxian"></i>
+                        从即时需求到临时社交需求，地铁商业“卖”的是什么？
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n4">
+                        <i class="iconfont icon-faxian"></i>
+                        全球经济版图下的中国角色之变
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n5">
+                        <i class="iconfont icon-faxian"></i>
+                        10月29日央行开展1150亿元7天期逆回购操作
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n6">
+                        <i class="iconfont icon-faxian"></i>
+                        10月29日人民币对美元中间价报6.7147 上调18个基点
+                    </a>
+                </li>
+                <li>
+                    <a class="sy_news-item" href="#n7">
+                        <i class="iconfont icon-faxian"></i>
+                        五年累计近30万亿元 黄河流域外贸规模稳步攀升
+                    </a>
+                </li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-02
+    使用模型：GLM-5.3-Flash
+    功能名称：fetch 获取接口数据并展示（商品列表与详情）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：使用 fetch 获取接口数据并展示">
+    <title>17-2 fetch 获取接口数据演示</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1040px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: #2457a6;
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 30px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 700px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+            word-break: break-all;
+        }
+
+        /* 章节标题 */
+        .sy_section { margin-top: 34px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.45rem;
+        }
+
+        /* 卡片 */
+        .sy_card {
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            margin-bottom: 20px;
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.15rem; }
+
+        .sy_desc {
+            margin: 0 0 14px;
+            color: #61708a;
+            font-size: 0.92rem;
+        }
+
+        /* 接口信息 */
+        .sy_api {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+        }
+
+        .sy_method {
+            padding: 2px 12px;
+            border-radius: 8px;
+            background: #3d9a6c;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .sy_url {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: #eef3f8;
+            color: #15376d;
+            word-break: break-all;
+        }
+
+        .sy_code {
+            margin: 14px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        /* 按钮 */
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+        .sy_btn:disabled { background: #8a97b1; cursor: wait; }
+
+        /* 状态提示 */
+        .sy_status {
+            display: none;
+            margin: 14px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid #2457a6;
+            border-radius: 8px;
+            background: #eef4fc;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+        }
+
+        .sy_status_err {
+            border-left-color: #ef775e;
+            background: #fdf3f0;
+        }
+
+        .sy_tag {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 1px 9px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.72rem;
+            vertical-align: 1px;
+        }
+
+        .sy_tag_ok  { background: #3d9a6c; }
+        .sy_tag_bad { background: #ef775e; }
+
+        /* 商品网格 */
+        .sy_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .sy_item {
+            display: flex;
+            flex-direction: column;
+            padding: 14px;
+            border: 1px solid #e3e8f2;
+            border-radius: 14px;
+            background: #fafcff;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s;
+            animation: sy_fadein 0.4s ease;
+        }
+
+        .sy_item:hover {
+            border-color: #2457a6;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgb(37 52 87 / 12%);
+        }
+
+        .sy_item_active {
+            border-color: #2457a6;
+            box-shadow: 0 0 0 2px rgb(36 87 166 / 25%);
+        }
+
+        .sy_thumb {
+            width: 100%;
+            height: 130px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .sy_item_title {
+            margin: 10px 0 4px;
+            color: #202b45;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .sy_item_meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8a97b1;
+            font-size: 0.78rem;
+        }
+
+        .sy_price { color: #b3423a; font-weight: 800; font-size: 1rem; }
+
+        /* 详情面板 */
+        .sy_detail {
+            display: none;
+            margin-top: 20px;
+            padding: 22px;
+            border: 2px solid #2457a6;
+            border-radius: 16px;
+            background: #fff;
+            animation: sy_fadein 0.35s ease;
+        }
+
+        .sy_detail_top {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .sy_detail_img {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            border: 1px solid #e3e8f2;
+            border-radius: 14px;
+            background: #fafcff;
+            padding: 8px;
+        }
+
+        .sy_detail_info { flex: 1 1 260px; min-width: 0; }
+
+        .sy_detail_info h3 { margin: 0 0 6px; font-size: 1.25rem; }
+
+        .sy_detail_desc { color: #61708a; font-size: 0.9rem; margin: 8px 0 12px; }
+
+        .sy_props {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .sy_props th,
+        .sy_props td {
+            padding: 7px 12px;
+            border: 1px solid #e3e8f2;
+            text-align: left;
+        }
+
+        .sy_props th { background: #f6f8fc; color: #15376d; white-space: nowrap; }
+
+        .sy_props td { color: #42536f; }
+
+        @keyframes sy_fadein {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 说明列表 */
+        .sy_steps {
+            margin: 0;
+            padding-left: 20px;
+            color: #42536f;
+            font-size: 0.92rem;
+        }
+
+        .sy_steps li { margin-bottom: 6px; }
+
+        .sy_note {
+            margin: 14px 0 0;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #2457a6; }
+
+        @media (max-width: 520px) {
+            body { padding: 26px 14px 40px; }
+            .sy_detail_img { width: 100%; height: auto; max-height: 220px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 17 · fetch 与接口数据</p>
+            <h1>fetch 获取接口数据</h1>
+            <p class="sy_intro">
+                使用原生 <code>fetch</code> 从跨域接口 <code>dummyjson.com</code> 获取真实商品数据：
+                先加载 <b>8 条商品列表</b>，再点击任意商品，通过 <b>详情接口</b> 按 ID 查询完整信息。
+                该接口服务器已开启 CORS，允许浏览器跨域访问。
+            </p>
+        </header>
+
+        <!-- 一、接口说明 -->
+        <section class="sy_section">
+            <h2>一、接口信息</h2>
+            <div class="sy_card">
+                <h3>列表接口</h3>
+                <div class="sy_api">
+                    <span class="sy_method">GET</span>
+                    <span class="sy_url">https://dummyjson.com/products?limit=8</span>
+                </div>
+                <h3 style="margin-top:16px;">详情接口</h3>
+                <div class="sy_api">
+                    <span class="sy_method">GET</span>
+                    <span class="sy_url">https://dummyjson.com/products/{id}</span>
+                </div>
+                <pre class="sy_code"><b>fetch</b>(sy_url)                    <i>// 1. 发起请求，返回 Promise</i>
+    .then(function (sy_res) {
+        if (!sy_res.ok) {            <i>// 2. 检查 HTTP 状态码（fetch 不会自动报错）</i>
+            throw new Error("HTTP " + sy_res.status);
+        }
+        return sy_res.json();        <i>// 3. 把响应体解析成 JS 对象（也是 Promise）</i>
+    })
+    .then(function (sy_data) {       <i>// 4. 拿到数据，渲染页面</i>
+        console.log(sy_data.products);
+    })
+    .catch(function (sy_e) {         <i>// 5. 网络错误、解析错误都在这里捕获</i>
+        console.error(sy_e);
+    });</pre>
+            </div>
+        </section>
+
+        <!-- 二、商品列表 -->
+        <section class="sy_section">
+            <h2>二、商品列表（进入页面自动加载）</h2>
+            <div class="sy_card">
+                <div class="sy_ctrl-row" style="margin-top:0;">
+                    <button class="sy_btn" type="button" id="sy_reload_btn" onclick="sy_loadProducts()">重新获取列表</button>
+                    <span class="sy_desc" style="margin:0;">点击商品卡片查看详情 ↓</span>
+                </div>
+                <output class="sy_status" id="sy_list_status"></output>
+                <div class="sy_grid" id="sy_list_grid"></div>
+
+                <!-- 详情面板 -->
+                <div class="sy_detail" id="sy_detail_panel"></div>
+            </div>
+        </section>
+
+        <!-- 三、要点 -->
+        <section class="sy_section">
+            <h2>三、本例要点</h2>
+            <div class="sy_card">
+                <ol class="sy_steps">
+                    <li><b>fetch 是原生方法</b>，基于 Promise，不用引入任何库就能发 HTTP 请求。</li>
+                    <li><code>fetch()</code> 返回的 Promise 在收到<b>响应头</b>时就完成，所以必须用 <code>sy_res.ok</code> / <code>sy_res.status</code> 手动判断 404、500 等状态。</li>
+                    <li><code>sy_res.json()</code> 负责把响应文本按 JSON 解析成对象，对应第 17-1 页学到的 <code>JSON.parse()</code>。</li>
+                    <li><b>跨域（CORS）</b>：浏览器默认阻止跨域读取响应，本例接口响应头带有 <code>Access-Control-Allow-Origin: *</code>，所以可以直接访问。</li>
+                    <li>所有网络操作都要用 <code>catch</code> 兜底：断网、超时、接口出错时页面给出提示，而不是崩溃。</li>
+                </ol>
+                <p class="sy_note">
+                    数据来源：<a href="https://dummyjson.com/docs/products" target="_blank" rel="noopener">DummyJSON 官方文档</a> ·
+                    仅供课堂练习使用。
+                </p>
+            </div>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== 接口地址 =====
+        var sy_apiList   = "https://dummyjson.com/products?limit=8";
+        var sy_apiDetail = "https://dummyjson.com/products/";   // 后面拼接商品 id
+
+        // ===== 通用：HTML 转义 =====
+        function sy_esc(sy_s) {
+            return String(sy_s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        // ===== 通用：显示状态提示（sy_isErr 为真时显示错误样式） =====
+        function sy_showStatus(sy_id, sy_html, sy_isErr) {
+            var sy_box = document.getElementById(sy_id);
+            sy_box.innerHTML = sy_html;
+            sy_box.className = "sy_status" + (sy_isErr ? " sy_status_err" : "");
+            sy_box.style.display = "block";
+        }
+
+        function sy_hideStatus(sy_id) {
+            var sy_box = document.getElementById(sy_id);
+            sy_box.style.display = "none";
+        }
+
+        // ===== 一、加载商品列表 =====
+        function sy_loadProducts() {
+            var sy_btn = document.getElementById("sy_reload_btn");
+            sy_btn.disabled = true;
+            sy_btn.textContent = "加载中...";
+            sy_showStatus("sy_list_status", '<span class="sy_tag sy_tag_ok">请求中</span>GET ' + sy_esc(sy_apiList), false);
+
+            fetch(sy_apiList)
+                .then(function (sy_res) {
+                    if (!sy_res.ok) {
+                        throw new Error("HTTP 状态码 " + sy_res.status);
+                    }
+                    return sy_res.json();
+                })
+                .then(function (sy_data) {
+                    sy_renderList(sy_data.products);
+                    sy_showStatus("sy_list_status",
+                        '<span class="sy_tag sy_tag_ok">成功</span>'
+                        + "共获取 " + sy_data.products.length + " 条商品数据（总计 " + sy_data.total + " 条）", false);
+                })
+                .catch(function (sy_e) {
+                    sy_showStatus("sy_list_status",
+                        '<span class="sy_tag sy_tag_bad">失败</span>' + sy_esc(sy_e.message)
+                        + "（请检查网络连接后重试）", true);
+                })
+                .finally(function () {
+                    sy_btn.disabled = false;
+                    sy_btn.textContent = "重新获取列表";
+                });
+        }
+
+        // ===== 渲染商品列表 =====
+        function sy_renderList(sy_products) {
+            var sy_grid = document.getElementById("sy_list_grid");
+            sy_grid.innerHTML = "";
+            sy_products.forEach(function (sy_p) {
+                var sy_item = document.createElement("button");
+                sy_item.type = "button";
+                sy_item.className = "sy_item";
+                sy_item.setAttribute("data-id", sy_p.id);
+                sy_item.innerHTML =
+                    '<img class="sy_thumb" src="' + sy_esc(sy_p.thumbnail) + '" alt="' + sy_esc(sy_p.title) + '">'
+                    + '<div class="sy_item_title">' + sy_esc(sy_p.title) + '</div>'
+                    + '<div class="sy_item_meta">'
+                    +     '<span>' + sy_esc(sy_p.category) + '</span>'
+                    +     '<span class="sy_price">$' + sy_p.price + '</span>'
+                    + '</div>';
+                sy_item.onclick = function () { sy_showDetail(sy_p.id, sy_item); };
+                sy_grid.appendChild(sy_item);
+            });
+        }
+
+        // ===== 二、加载并显示商品详情 =====
+        function sy_showDetail(sy_id, sy_itemEl) {
+            var sy_panel = document.getElementById("sy_detail_panel");
+            // 高亮当前选中的商品卡片
+            var sy_items = document.querySelectorAll(".sy_item");
+            for (var sy_i = 0; sy_i < sy_items.length; sy_i++) {
+                sy_items[sy_i].classList.remove("sy_item_active");
+            }
+            if (sy_itemEl) { sy_itemEl.classList.add("sy_item_active"); }
+
+            // 先显示加载占位
+            sy_panel.style.display = "block";
+            sy_panel.innerHTML = '<p class="sy_desc">详情加载中... GET ' + sy_esc(sy_apiDetail + sy_id) + '</p>';
+
+            fetch(sy_apiDetail + sy_id)
+                .then(function (sy_res) {
+                    if (!sy_res.ok) {
+                        throw new Error("HTTP 状态码 " + sy_res.status);
+                    }
+                    return sy_res.json();
+                })
+                .then(function (sy_p) {
+                    sy_renderDetail(sy_p);
+                })
+                .catch(function (sy_e) {
+                    sy_panel.innerHTML = '<p class="sy_desc" style="color:#b3423a;">详情获取失败：' + sy_esc(sy_e.message) + '</p>';
+                });
+        }
+
+        // ===== 渲染详情面板 =====
+        function sy_renderDetail(sy_p) {
+            var sy_panel = document.getElementById("sy_detail_panel");
+            sy_panel.innerHTML =
+                '<div class="sy_detail_top">'
+                +     '<img class="sy_detail_img" src="' + sy_esc(sy_p.thumbnail) + '" alt="' + sy_esc(sy_p.title) + '">'
+                +     '<div class="sy_detail_info">'
+                +         '<h3>' + sy_esc(sy_p.title) + '</h3>'
+                +         '<div class="sy_desc">品牌：' + sy_esc(sy_p.brand || "—") + ' · 分类：' + sy_esc(sy_p.category) + '</div>'
+                +         '<p class="sy_detail_desc">' + sy_esc(sy_p.description) + '</p>'
+                +         '<table class="sy_props">'
+                +             '<tr><th>价格</th><td>$' + sy_p.price + '（原价 $' + (sy_p.price / (1 - sy_p.discountPercentage / 100)).toFixed(2) + '）</td></tr>'
+                +             '<tr><th>折扣</th><td>' + sy_p.discountPercentage + '%</td></tr>'
+                +             '<tr><th>评分</th><td>' + sy_p.rating + ' / 5</td></tr>'
+                +             '<tr><th>库存</th><td>' + sy_p.stock + ' 件</td></tr>'
+                +         '</table>'
+                +     '</div>'
+                + '</div>';
+        }
+
+        // 页面加载完成后自动获取列表
+        sy_loadProducts();
+    </script>
+</body>
+</html>

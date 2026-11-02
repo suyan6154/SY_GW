@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-02
+    使用模型：DeepSeek-V4.1-Flash
+    功能名称：商品列表页（fetch 获取列表，点击跳转详情页）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：fetch 获取商品列表并跳转详情页">
+    <title>17-3 商品列表</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1080px); margin: 0 auto; }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 680px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+            word-break: break-all;
+        }
+
+        /* 工具条 */
+        .sy_toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 20px;
+            margin-bottom: 18px;
+            border: 1px solid #e3e8f2;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .sy_api { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: Consolas, "Courier New", monospace; font-size: 0.82rem; }
+
+        .sy_method { padding: 2px 10px; border-radius: 8px; background: #3d9a6c; color: #fff; font-weight: 700; }
+        .sy_url { color: #15376d; word-break: break-all; }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+        .sy_btn:disabled { background: #8a97b1; cursor: wait; }
+
+        /* 状态提示 */
+        .sy_status {
+            display: none;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-left: 4px solid #2457a6;
+            border-radius: 8px;
+            background: #eef4fc;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+        }
+
+        .sy_status_err { border-left-color: #ef775e; background: #fdf3f0; }
+
+        .sy_tag {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 1px 9px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.72rem;
+            vertical-align: 1px;
+        }
+
+        .sy_tag_ok  { background: #3d9a6c; }
+        .sy_tag_bad { background: #ef775e; }
+
+        /* 商品卡片网格 */
+        .sy_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .sy_item {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e3e8f2;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+        }
+
+        .sy_item:hover {
+            border-color: #2457a6;
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgb(37 52 87 / 14%);
+        }
+
+        .sy_thumb_box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 170px;
+            padding: 12px;
+            background: #fafcff;
+        }
+
+        .sy_thumb { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .sy_item_body { padding: 14px 16px 16px; }
+
+        .sy_item_title {
+            margin: 0 0 6px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .sy_item_meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8a97b1;
+            font-size: 0.78rem;
+        }
+
+        .sy_price { color: #b3423a; font-weight: 800; font-size: 1.05rem; }
+
+        .sy_item_stars { color: #f0a93b; letter-spacing: 0.08em; }
+
+        .sy_more {
+            display: inline-block;
+            margin-top: 10px;
+            color: #2457a6;
+            font-size: 0.8rem;
+        }
+
+        .sy_note { margin: 22px 0 0; color: #61708a; font-size: 0.85rem; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+
+        @media (max-width: 520px) {
+            body { padding: 26px 14px 40px; }
+            .sy_grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+            .sy_thumb_box { height: 130px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 17 · 商品列表页</p>
+            <h1>商品列表</h1>
+            <p class="sy_intro">
+                本页用 <code>fetch</code> 请求 <b>列表接口</b> 获取 8 条商品；
+                点击任意商品卡片，会把商品 <b>id</b> 拼到详情页地址后面，
+                跳转到 <code>17-3 商品详情.html?id=xxx</code> 再由详情页按 ID 请求完整数据。
+            </p>
+        </header>
+
+        <div class="sy_toolbar">
+            <div class="sy_api">
+                <span class="sy_method">GET</span>
+                <span class="sy_url">https://dummyjson.com/products?limit=8</span>
+            </div>
+            <button class="sy_btn" type="button" id="sy_reload_btn" onclick="sy_loadList()">刷新列表</button>
+        </div>
+
+        <output class="sy_status" id="sy_list_status"></output>
+
+        <div class="sy_grid" id="sy_list_grid"></div>
+
+        <p class="sy_note">
+            数据来源：DummyJSON 商品接口（服务器已配置 CORS，可跨域访问）。
+            列表页只拿到概要字段，图片、描述等完整信息由详情页二次请求获取。
+        </p>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== 接口地址 =====
+        var sy_apiList = "https://dummyjson.com/products?limit=8";
+
+        // ===== HTML 转义 =====
+        function sy_esc(sy_s) {
+            return String(sy_s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        // ===== 状态提示 =====
+        function sy_showStatus(sy_html, sy_isErr) {
+            var sy_box = document.getElementById("sy_list_status");
+            sy_box.innerHTML = sy_html;
+            sy_box.className = "sy_status" + (sy_isErr ? " sy_status_err" : "");
+            sy_box.style.display = "block";
+        }
+
+        // ===== 加载列表 =====
+        function sy_loadList() {
+            var sy_btn = document.getElementById("sy_reload_btn");
+            sy_btn.disabled = true;
+            sy_btn.textContent = "加载中...";
+            sy_showStatus('<span class="sy_tag sy_tag_ok">请求中</span>GET ' + sy_esc(sy_apiList), false);
+
+            fetch(sy_apiList)
+                .then(function (sy_res) {
+                    if (!sy_res.ok) {
+                        throw new Error("HTTP 状态码 " + sy_res.status);
+                    }
+                    return sy_res.json();
+                })
+                .then(function (sy_data) {
+                    sy_renderList(sy_data.products);
+                    sy_showStatus(
+                        '<span class="sy_tag sy_tag_ok">成功</span>'
+                        + "已获取 " + sy_data.products.length + " 条商品（接口共 " + sy_data.total + " 条）",
+                        false);
+                })
+                .catch(function (sy_e) {
+                    sy_showStatus(
+                        '<span class="sy_tag sy_tag_bad">失败</span>' + sy_esc(sy_e.message)
+                        + "，请检查网络后点击「刷新列表」重试",
+                        true);
+                })
+                .finally(function () {
+                    sy_btn.disabled = false;
+                    sy_btn.textContent = "刷新列表";
+                });
+        }
+
+        // ===== 生成星级 ★ =====
+        function sy_stars(sy_rating) {
+            var sy_full = Math.round(sy_rating);
+            var sy_s = "";
+            for (var sy_i = 1; sy_i <= 5; sy_i++) {
+                sy_s += (sy_i <= sy_full) ? "★" : "☆";
+            }
+            return sy_s;
+        }
+
+        // ===== 渲染列表 =====
+        function sy_renderList(sy_products) {
+            var sy_grid = document.getElementById("sy_list_grid");
+            sy_grid.innerHTML = "";
+            sy_products.forEach(function (sy_p) {
+                // 关键：把 id 拼进详情页的查询参数
+                var sy_link = document.createElement("a");
+                sy_link.className = "sy_item";
+                sy_link.href = "17-3%20商品详情.html?id=" + sy_p.id;
+                sy_link.innerHTML =
+                    '<div class="sy_thumb_box">'
+                    +   '<img class="sy_thumb" src="' + sy_esc(sy_p.thumbnail) + '" alt="' + sy_esc(sy_p.title) + '">'
+                    + '</div>'
+                    + '<div class="sy_item_body">'
+                    +   '<h3 class="sy_item_title">' + sy_esc(sy_p.title) + '</h3>'
+                    +   '<div class="sy_item_meta">'
+                    +     '<span>' + sy_esc(sy_p.category) + '</span>'
+                    +     '<span class="sy_price">$' + sy_p.price + '</span>'
+                    +   '</div>'
+                    +   '<div class="sy_item_meta" style="margin-top:6px;">'
+                    +     '<span class="sy_item_stars">' + sy_stars(sy_p.rating) + '</span>'
+                    +     '<span>' + sy_p.rating + '</span>'
+                    +   '</div>'
+                    +   '<span class="sy_more">查看详情 →</span>'
+                    + '</div>';
+                sy_grid.appendChild(sy_link);
+            });
+        }
+
+        // 页面加载完成后自动请求
+        sy_loadList();
+    </script>
+</body>
+</html>

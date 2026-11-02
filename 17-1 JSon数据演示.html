@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-02
+    使用模型：GLM-5.3-Flash
+    功能名称：JavaScript JSON 数据格式演示
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：JSON 数据格式演示">
+    <title>17-1 JavaScript JSON 数据格式演示</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main {
+            width: min(100%, 1040px);
+            margin: 0 auto;
+        }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a {
+            color: #2457a6;
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+        }
+
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 30px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 3.25rem);
+            line-height: 1.2;
+        }
+
+        .sy_intro {
+            max-width: 700px;
+            margin: 14px auto 0;
+            color: #61708a;
+        }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        /* 章节标题 */
+        .sy_section { margin-top: 34px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.45rem;
+        }
+
+        /* 卡片 */
+        .sy_card {
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            margin-bottom: 20px;
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.15rem; }
+
+        .sy_desc {
+            margin: 0 0 14px;
+            color: #61708a;
+            font-size: 0.92rem;
+        }
+
+        /* JSON 类型网格 */
+        .sy_type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .sy_type {
+            padding: 14px;
+            border: 1px solid #e3e8f2;
+            border-radius: 12px;
+            background: #fafcff;
+            text-align: center;
+        }
+
+        .sy_type-name {
+            color: #2457a6;
+            font-family: Consolas, "Courier New", monospace;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .sy_type-example {
+            margin-top: 6px;
+            color: #8a97b1;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.78rem;
+            word-break: break-all;
+        }
+
+        /* 规则列表 */
+        .sy_rules {
+            margin: 0;
+            padding-left: 20px;
+            color: #42536f;
+            font-size: 0.92rem;
+        }
+
+        .sy_rules li { margin-bottom: 6px; }
+
+        .sy_rules b { color: #b3423a; }
+
+        /* 输入与按钮 */
+        .sy_input,
+        .sy_textarea {
+            padding: 9px 12px;
+            border: 1px solid #c9d5ea;
+            border-radius: 10px;
+            background: #fff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.9rem;
+            color: #202b45;
+        }
+
+        .sy_textarea {
+            width: 100%;
+            min-height: 110px;
+            resize: vertical;
+            white-space: pre;
+        }
+
+        .sy_input:focus,
+        .sy_textarea:focus {
+            outline: none;
+            border-color: #2457a6;
+            box-shadow: 0 0 0 3px rgb(36 87 166 / 12%);
+        }
+
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover { background: #15376d; }
+        .sy_btn:active { transform: scale(0.96); }
+
+        .sy_btn_ghost {
+            background: #fff;
+            color: #2457a6;
+            border: 1px solid #c9d5ea;
+        }
+
+        .sy_btn_ghost:hover { background: #f0f5fc; }
+
+        /* 代码与输出 */
+        .sy_code {
+            margin: 14px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        .sy_output {
+            display: none;
+            margin: 12px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid #2457a6;
+            border-radius: 8px;
+            background: #eef4fc;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_output_err {
+            border-left-color: #ef775e;
+            background: #fdf3f0;
+        }
+
+        .sy_tag {
+            display: inline-block;
+            margin-right: 8px;
+            padding: 1px 9px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.72rem;
+            vertical-align: 1px;
+        }
+
+        .sy_tag_ok  { background: #3d9a6c; }
+        .sy_tag_bad { background: #ef775e; }
+
+        /* 键值结果表 */
+        .sy_kv {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-top: 12px;
+        }
+
+        .sy_kv th,
+        .sy_kv td {
+            padding: 8px 12px;
+            border: 1px solid #e3e8f2;
+            text-align: left;
+        }
+
+        .sy_kv th { background: #f6f8fc; color: #15376d; }
+        .sy_kv td:first-child { color: #515fd0; font-family: Consolas, "Courier New", monospace; }
+
+        /* 对比表 */
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            overflow-x: auto;
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 9px 12px;
+            border: 1px solid #e3e8f2;
+            text-align: left;
+        }
+
+        th { background: #f6f8fc; color: #15376d; }
+
+        .sy_ok  { color: #3d9a6c; font-weight: 700; }
+        .sy_bad { color: #b3423a; font-weight: 700; }
+
+        .sy_note {
+            margin: 14px 0 0;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 36px;
+            text-align: center;
+            color: #61708a;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #2457a6; }
+
+        @media (max-width: 520px) {
+            body { padding: 26px 14px 40px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 17 · JavaScript JSON</p>
+            <h1>JSON 数据格式演示</h1>
+            <p class="sy_intro">
+                JSON（JavaScript Object Notation）是一种<b>轻量级的数据交换格式</b>，
+                长得像 JS 对象，但是一种<b>纯文本</b>。前端和服务器之间传数据，
+                基本都用 JSON。本页演示它的语法规则，以及两个核心方法：
+                <code>JSON.parse()</code>（字符串 → 对象）和
+                <code>JSON.stringify()</code>（对象 → 字符串）。
+            </p>
+        </header>
+
+        <!-- 一、JSON 语法 -->
+        <section class="sy_section">
+            <h2>一、JSON 的六种数据类型</h2>
+            <div class="sy_card">
+                <p class="sy_desc">一个 JSON 的值只能是下面六种之一：</p>
+                <div class="sy_type-grid">
+                    <div class="sy_type">
+                        <div class="sy_type-name">string</div>
+                        <div class="sy_type-example">"苏妍"</div>
+                    </div>
+                    <div class="sy_type">
+                        <div class="sy_type-name">number</div>
+                        <div class="sy_type-example">20 / 3.14 / -7</div>
+                    </div>
+                    <div class="sy_type">
+                        <div class="sy_type-name">boolean</div>
+                        <div class="sy_type-example">true / false</div>
+                    </div>
+                    <div class="sy_type">
+                        <div class="sy_type-name">null</div>
+                        <div class="sy_type-example">null</div>
+                    </div>
+                    <div class="sy_type">
+                        <div class="sy_type-name">object</div>
+                        <div class="sy_type-example">{ "key": 值 }</div>
+                    </div>
+                    <div class="sy_type">
+                        <div class="sy_type-name">array</div>
+                        <div class="sy_type-example">[ 值1, 值2 ]</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sy_card">
+                <h3>JSON 的语法规则（比 JS 对象严格）</h3>
+                <ol class="sy_rules">
+                    <li><b>键必须用双引号</b>包起来：<code>{ "name": "苏妍" }</code>，写成 <code>{ name: "苏妍" }</code> 是非法的。</li>
+                    <li>字符串值也<b>只能用双引号</b>，不能像 JS 一样用单引号或反引号。</li>
+                    <li><b>不能写注释</b>、不能有多余的逗号（最后一个键值对后面不能带 <code>,</code>）。</li>
+                    <li>不能出现 <code>undefined</code>、<code>function</code>，也不支持变量。</li>
+                    <li>整个文件的最外层通常是 <code>{ }</code>（对象）或 <code>[ ]</code>（数组）。</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- 二、JSON.parse 演示 -->
+        <section class="sy_section">
+            <h2>二、JSON.parse()：字符串 → 对象</h2>
+            <div class="sy_card">
+                <h3>解析学生数据</h3>
+                <p class="sy_desc">
+                    把下面这段 JSON 文本交给 <code>JSON.parse()</code>，它会变成真正的 JS 对象，
+                    之后就能用 <code>sy_student.name</code> 这样访问了。
+                    故意改错试试，会看到错误提示。
+                </p>
+                <pre class="sy_code"><b>JSON.parse</b>(sy_jsonText);   <i>// 解析失败会抛出 SyntaxError，必须 try...catch</i></pre>
+                <textarea class="sy_textarea" id="sy_parse_input" spellcheck="false">{
+  "name": "苏妍",
+  "age": 20,
+  "isStudent": true,
+  "hobbies": ["网页设计", "JavaScript"],
+  "address": { "city": "上海", "zip": null }
+}</textarea>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_doParse()">解析 JSON</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_setParseExample(true)">填入错误示例</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_setParseExample(false)">恢复正确示例</button>
+                </div>
+                <output class="sy_output" id="sy_parse_out"></output>
+            </div>
+        </section>
+
+        <!-- 三、JSON.stringify 演示 -->
+        <section class="sy_section">
+            <h2>三、JSON.stringify()：对象 → 字符串</h2>
+            <div class="sy_card">
+                <h3>把对象变成可传输的文本</h3>
+                <p class="sy_desc">
+                    发请求前要把 JS 对象转成字符串。<b>注意</b>：
+                    <code>undefined</code> 和 <code>function</code> 会被自动<b>丢掉</b>，
+                    <code>null</code> 会保留为 <code>null</code>。
+                </p>
+                <pre class="sy_code">var sy_student = {
+    name: "苏妍", age: 20,
+    score: undefined,          <i>// 会被丢弃</i>
+    sayHi: function () { }     <i>// 会被丢弃</i>
+};
+<b>JSON.stringify</b>(sy_student, null, 2);   <i>// 第3个参数：缩进美化</i></pre>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_doStringify(true)">美化输出（缩进 2 空格）</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_doStringify(false)">紧凑输出</button>
+                </div>
+                <output class="sy_output" id="sy_stringify_out"></output>
+            </div>
+        </section>
+
+        <!-- 四、往返演示 -->
+        <section class="sy_section">
+            <h2>四、往返转换（round-trip）</h2>
+            <div class="sy_card">
+                <h3>parse → stringify，数据不变</h3>
+                <p class="sy_desc">先 parse 成对象，再 stringify 回字符串 —— 只要格式合法，数据能完整还原，这就是 JSON 适合做数据交换的原因。</p>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" onclick="sy_doRoundTrip()">执行往返转换</button>
+                </div>
+                <output class="sy_output" id="sy_round_out"></output>
+            </div>
+        </section>
+
+        <!-- 五、对比表 -->
+        <section class="sy_summary">
+            <h2>JSON 与 JS 对象字面量的区别</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>对比项</th>
+                        <th>JS 对象字面量</th>
+                        <th>JSON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>键（属性名）</td><td>引号可省略</td><td>必须用双引号</td></tr>
+                    <tr><td>字符串值</td><td>单引号 / 双引号 / 反引号</td><td class="sy_bad">只能双引号</td></tr>
+                    <tr><td>注释</td><td class="sy_ok">可以写</td><td class="sy_bad">不允许</td></tr>
+                    <tr><td>结尾多余逗号</td><td class="sy_ok">允许</td><td class="sy_bad">不允许</td></tr>
+                    <tr><td>undefined / 函数</td><td class="sy_ok">可以出现</td><td class="sy_bad">不允许</td></tr>
+                    <tr><td>本质</td><td>内存中的数据结构</td><td>纯文本字符串</td></tr>
+                    <tr><td>用途</td><td>程序内部处理数据</td><td>跨语言、跨网络传输数据</td></tr>
+                </tbody>
+            </table>
+            <p class="sy_note">
+                提示：fetch 从服务器拿到数据后，若响应头是 <code>application/json</code>，
+                用 <code>response.json()</code> 一步完成读取 + parse；普通文本则手动 <code>JSON.parse(text)</code>。
+            </p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== 示例数据 =====
+        var sy_parseOk = '{\n  "name": "苏妍",\n  "age": 20,\n  "isStudent": true,\n  "hobbies": ["网页设计", "JavaScript"],\n  "address": { "city": "上海", "zip": null }\n}';
+        var sy_parseBad = '{\n  name: "苏妍",          // 错误1：键没有双引号\n  "hobby": "网页设计",   // 错误2：JSON 不允许注释\n}';                      // 错误3：结尾多余逗号
+
+        // ===== 通用输出 =====
+        function sy_showOut(sy_id, sy_text, sy_isErr) {
+            var sy_box = document.getElementById(sy_id);
+            sy_box.innerHTML = sy_text;
+            sy_box.className = "sy_output" + (sy_isErr ? " sy_output_err" : "");
+            sy_box.style.display = "block";
+        }
+
+        // ===== 一、JSON.parse 演示 =====
+        function sy_setParseExample(sy_bad) {
+            document.getElementById("sy_parse_input").value = sy_bad ? sy_parseBad : sy_parseOk;
+        }
+
+        function sy_doParse() {
+            var sy_text = document.getElementById("sy_parse_input").value;
+            try {
+                var sy_obj = JSON.parse(sy_text);   // 解析失败会抛 SyntaxError
+                var sy_html = '<span class="sy_tag sy_tag_ok">解析成功</span>'
+                    + "typeof 结果：<b>" + (typeof sy_obj) + "</b>\n"
+                    + "格式化结果：\n" + sy_esc(JSON.stringify(sy_obj, null, 2));
+                sy_html += "\n" + sy_kvTable(sy_obj);
+                sy_showOut("sy_parse_out", sy_html, false);
+            } catch (sy_e) {
+                sy_showOut("sy_parse_out",
+                    '<span class="sy_tag sy_tag_bad">解析失败</span>SyntaxError：' + sy_esc(sy_e.message),
+                    true);
+            }
+        }
+
+        // 把解析出的对象渲染成 键 : 类型 : 值 小表格
+        function sy_kvTable(sy_obj) {
+            if (typeof sy_obj !== "object" || sy_obj === null || Array.isArray(sy_obj)) {
+                return "";
+            }
+            var sy_rows = "<tr><th>键</th><th>值的类型</th><th>值</th></tr>";
+            for (var sy_key in sy_obj) {
+                if (!sy_obj.hasOwnProperty(sy_key)) { continue; }
+                var sy_v = sy_obj[sy_key];
+                var sy_show = (typeof sy_v === "object" && sy_v !== null)
+                    ? sy_esc(JSON.stringify(sy_v))
+                    : sy_esc(String(sy_v));
+                sy_rows += "<tr><td>" + sy_esc(sy_key) + "</td><td>" + (typeof sy_v) + "</td><td>" + sy_show + "</td></tr>";
+            }
+            return '<table class="sy_kv">' + sy_rows + "</table>";
+        }
+
+        // HTML 转义，防止内容破坏标签
+        function sy_esc(sy_s) {
+            return String(sy_s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        // ===== 二、JSON.stringify 演示 =====
+        var sy_student = {
+            name: "苏妍",
+            age: 20,
+            score: undefined,                // stringify 时被丢弃
+            sayHi: function () { return "hi"; },   // stringify 时被丢弃
+            hobbies: ["网页设计", "JavaScript"],
+            club: null                       // null 保留
+        };
+
+        function sy_doStringify(sy_pretty) {
+            var sy_text = sy_pretty ? JSON.stringify(sy_student, null, 2) : JSON.stringify(sy_student);
+            var sy_html = '<span class="sy_tag sy_tag_ok">转换成功</span>'
+                + "typeof 结果：<b>" + (typeof sy_text) + "</b>（JSON 本质是字符串）\n"
+                + sy_esc(sy_text)
+                + "\n\n注意：score（undefined）和 sayHi（function）没有出现在结果里，club 的 null 被保留。";
+            sy_showOut("sy_stringify_out", sy_html, false);
+        }
+
+        // ===== 三、往返转换 =====
+        function sy_doRoundTrip() {
+            var sy_src = { "课程": "高级网页设计", "学期": "2026 秋", "满分": 100, "要点": ["语法", "parse", "stringify"] };
+            var sy_text = JSON.stringify(sy_src);          // 对象 → 字符串
+            var sy_back = JSON.parse(sy_text);             // 字符串 → 对象
+            var sy_same = JSON.stringify(sy_back) === sy_text;
+            var sy_html = '<span class="sy_tag sy_tag_ok">往返成功</span>'
+                + "原始对象 stringify →\n" + sy_esc(sy_text)
+                + "\n\n再 parse 回来再 stringify →\n" + sy_esc(JSON.stringify(sy_back))
+                + "\n\n两次结果一致：" + sy_same;
+            sy_showOut("sy_round_out", sy_html, false);
+        }
+    </script>
+</body>
+</html>

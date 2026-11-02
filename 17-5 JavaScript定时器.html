@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-02
+    使用模型：GLM-5.3-Flash
+    功能名称：JavaScript 两种定时器演示（setTimeout 与 setInterval）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：setTimeout 与 setInterval 两种定时器演示">
+    <title>17-5 JavaScript 定时器</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1040px); margin: 0 auto; }
+
+        /* 顶部区域 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 30px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.25rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 700px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        /* 章节标题 */
+        .sy_section { margin-top: 34px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.45rem;
+        }
+
+        /* 卡片 */
+        .sy_card {
+            padding: 24px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            margin-bottom: 20px;
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.15rem; }
+
+        .sy_desc { margin: 0 0 14px; color: #61708a; font-size: 0.92rem; }
+
+        /* 代码块 */
+        .sy_code {
+            margin: 14px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.84rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        /* 控制行 */
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .sy_btn {
+            padding: 9px 24px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover:not(:disabled) { background: #15376d; }
+        .sy_btn:active:not(:disabled) { transform: scale(0.96); }
+        .sy_btn:disabled { background: #c3cede; color: #fff; cursor: not-allowed; }
+
+        .sy_btn_danger { background: #b3423a; }
+        .sy_btn_danger:hover:not(:disabled) { background: #8d342d; }
+
+        .sy_btn_ghost { background: #fff; color: #2457a6; border: 1px solid #c9d5ea; }
+        .sy_btn_ghost:hover:not(:disabled) { background: #f0f5fc; }
+
+        /* 状态输出区 */
+        .sy_output {
+            display: none;
+            margin: 14px 0 0;
+            padding: 12px 16px;
+            border-left: 4px solid #2457a6;
+            border-radius: 8px;
+            background: #eef4fc;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+        }
+
+        .sy_output_done { border-left-color: #3d9a6c; background: #eef8f2; }
+
+        /* 大数字展示 */
+        .sy_stage {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 16px;
+            padding: 26px 16px;
+            border: 2px dashed #c9d5ea;
+            border-radius: 14px;
+            background: #fafcff;
+            text-align: center;
+        }
+
+        .sy_big {
+            min-width: 150px;
+            color: #15376d;
+            font-family: Consolas, "Courier New", monospace;
+            font-weight: 800;
+            font-size: 2.6rem;
+            line-height: 1.2;
+        }
+
+        .sy_big_label { color: #8a97b1; font-size: 0.8rem; font-family: inherit; font-weight: 400; }
+
+        .sy_blink {
+            display: inline-block;
+            animation: sy_blink_anim 1s steps(2, start) infinite;
+        }
+
+        @keyframes sy_blink_anim { to { visibility: hidden; } }
+
+        /* 进度条 */
+        .sy_bar_wrap {
+            width: 100%;
+            height: 26px;
+            border-radius: 999px;
+            background: #e8edf6;
+            overflow: hidden;
+        }
+
+        .sy_bar {
+            width: 0%;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #2457a6, #5b8ad6);
+            transition: width 0.25s linear;
+        }
+
+        /* 时钟 */
+        .sy_clock {
+            color: #15376d;
+            font-family: Consolas, "Courier New", monospace;
+            font-weight: 800;
+            font-size: clamp(2.2rem, 7vw, 3.4rem);
+            letter-spacing: 0.06em;
+        }
+
+        .sy_clock_date { color: #8a97b1; font-size: 0.9rem; }
+
+        /* 汇总表 */
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            overflow-x: auto;
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+
+        th, td { padding: 9px 12px; border: 1px solid #e3e8f2; text-align: left; }
+
+        th { background: #f6f8fc; color: #15376d; }
+
+        td code { background: #eef1f8; }
+
+        .sy_note { margin: 14px 0 0; color: #61708a; font-size: 0.85rem; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+
+        @media (max-width: 520px) {
+            body { padding: 26px 14px 40px; }
+            .sy_big { font-size: 2rem; min-width: 110px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 17 · JavaScript 定时器</p>
+            <h1>JavaScript 的两种定时器</h1>
+            <p class="sy_intro">
+                JavaScript 提供两种定时器：<b>延时定时器</b> <code>setTimeout</code>（到时间只执行<b>一次</b>）
+                和 <b>间歇定时器</b> <code>setInterval</code>（每隔一段时间<b>重复</b>执行）。
+                它们都返回一个<b>定时器编号</b>，用 <code>clearTimeout</code> / <code>clearInterval</code> 可以随时取消。
+            </p>
+        </header>
+
+        <!-- 一、setTimeout -->
+        <section class="sy_section">
+            <h2>一、setTimeout · 延时定时器（只执行一次）</h2>
+            <div class="sy_card">
+                <h3>3 秒倒计时炸弹：到点爆炸，中途可以拆除</h3>
+                <p class="sy_desc">
+                    点击「点燃引线」后，<code>setTimeout</code> 在 3000 毫秒后执行回调；
+                    引燃期间点「拆除」（<code>clearTimeout</code>）可以取消它 —— 这是延时定时器最重要的配套操作。
+                </p>
+                <pre class="sy_code"><b>var sy_timerId = setTimeout</b>(函数, 延时毫秒数);   <i>// 返回定时器编号</i>
+<b>clearTimeout</b>(sy_timerId);                        <i>// 取消还没执行的定时器</i></pre>
+                <div class="sy_stage">
+                    <div class="sy_big" id="sy_bomb_display">💣<span class="sy_big_label" style="display:block;">待命</span></div>
+                </div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn sy_btn_danger" type="button" id="sy_bomb_start" onclick="sy_bombStart()">点燃引线（3 秒）</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" id="sy_bomb_stop" onclick="sy_bombCancel()" disabled>拆除引线（clearTimeout）</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_bombLogClear()">清空记录</button>
+                </div>
+                <output class="sy_output" id="sy_bomb_out"></output>
+            </div>
+        </section>
+
+        <!-- 二、setInterval -->
+        <section class="sy_section">
+            <h2>二、setInterval · 间歇定时器（重复执行）</h2>
+            <div class="sy_card">
+                <h3>秒表：每 1 秒滴答一次，随时可以停</h3>
+                <p class="sy_desc">
+                    点击「启动秒表」后，<code>setInterval</code> 每 1000 毫秒执行一次回调，计数器不断 +1；
+                    点「停止」（<code>clearInterval</code>）结束重复执行。
+                </p>
+                <pre class="sy_code"><b>var sy_timerId = setInterval</b>(函数, 间隔毫秒数);   <i>// 每隔一段时间执行一次</i>
+<b>clearInterval</b>(sy_timerId);                        <i>// 停止重复执行</i></pre>
+                <div class="sy_stage">
+                    <div class="sy_big" id="sy_tick_display">0<span class="sy_big_label" style="display:block;">滴答次数</span></div>
+                    <div class="sy_big" id="sy_tick_seconds">0.0<span class="sy_big_label" style="display:block;">经过秒数</span></div>
+                </div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" id="sy_tick_start" onclick="sy_tickStart()">启动秒表（每 1 秒）</button>
+                    <button class="sy_btn sy_btn_danger" type="button" id="sy_tick_stop" onclick="sy_tickStop()" disabled>停止（clearInterval）</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_tickReset()">归零</button>
+                </div>
+                <output class="sy_output" id="sy_tick_out"></output>
+            </div>
+        </section>
+
+        <!-- 三、综合应用 -->
+        <section class="sy_section">
+            <h2>三、综合应用</h2>
+            <div class="sy_card">
+                <h3>应用 1 · 数字时钟（setInterval 每秒刷新）</h3>
+                <p class="sy_desc">定时器最常见的用途之一：每隔 1 秒重新读取系统时间并刷新显示。</p>
+                <div class="sy_stage">
+                    <div>
+                        <div class="sy_clock" id="sy_clock_time">--:--:--</div>
+                        <div class="sy_clock_date" id="sy_clock_date">点击启动后开始走时</div>
+                    </div>
+                </div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" id="sy_clock_start" onclick="sy_clockStart()">启动时钟</button>
+                    <button class="sy_btn sy_btn_danger" type="button" id="sy_clock_stop" onclick="sy_clockStop()" disabled>停止时钟</button>
+                </div>
+            </div>
+
+            <div class="sy_card">
+                <h3>应用 2 · 进度条（定时器自己给自己上发条）</h3>
+                <p class="sy_desc">
+                    进度走满后<b>在回调内部调用 clearInterval</b> 结束自己 —— 这是间歇定时器的常见结束方式，不需要额外按钮。
+                </p>
+                <div class="sy_stage">
+                    <div class="sy_bar_wrap"><div class="sy_bar" id="sy_bar_fill"></div></div>
+                    <div class="sy_big" id="sy_bar_percent" style="min-width:100px;font-size:1.6rem;">0%</div>
+                </div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" id="sy_bar_start" onclick="sy_barStart()">开始加载</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 汇总表 -->
+        <section class="sy_summary">
+            <h2>两种定时器对比</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>对比项</th>
+                        <th>setTimeout 延时定时器</th>
+                        <th>setInterval 间歇定时器</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>执行次数</td><td>到时间后执行 <b>1 次</b></td><td>每隔指定时间执行，<b>无限重复</b></td></tr>
+                    <tr><td>返回值</td><td>定时器编号（数字）</td><td>定时器编号（数字）</td></tr>
+                    <tr><td>取消方法</td><td><code>clearTimeout(编号)</code></td><td><code>clearInterval(编号)</code></td></tr>
+                    <tr><td>典型用途</td><td>延迟提示、防抖、动画补间</td><td>时钟、轮播图、倒计时、轮询</td></tr>
+                    <tr><td>共同点</td><td colspan="2">回调不是立刻执行，而是排入任务队列等主线程空闲；延时参数只是“最早执行时间”</td></tr>
+                </tbody>
+            </table>
+            <p class="sy_note">
+                提示：<code>setTimeout(函数, 0)</code> 也不会立即执行，它只是把回调排到当前代码执行完之后；
+                给回调传参可以写在延时参数后面：<code>setTimeout(sy_fn, 1000, "参数1", "参数2")</code>。
+                页面卸载或组件销毁时记得 <code>clear</code>，否则定时器会一直占用资源。
+            </p>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== 通用：HTML 转义 / 输出 =====
+        function sy_esc(sy_s) {
+            return String(sy_s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function sy_log(sy_id, sy_text, sy_done) {
+            var sy_box = document.getElementById(sy_id);
+            sy_box.innerHTML = sy_text;
+            sy_box.className = "sy_output" + (sy_done ? " sy_output_done" : "");
+            sy_box.style.display = "block";
+        }
+
+        // ============================================================
+        // 一、setTimeout 炸弹演示
+        // ============================================================
+        var sy_bombId = null;             // 保存 setTimeout 返回的定时器编号
+        var sy_bombCountdownId = null;    // 显示倒计时用的间歇定时器编号
+
+        function sy_bombStart() {
+            if (sy_bombId !== null) { return; }   // 防止重复点燃
+            var sy_left = 3;
+            var sy_display = document.getElementById("sy_bomb_display");
+
+            document.getElementById("sy_bomb_start").disabled = true;
+            document.getElementById("sy_bomb_stop").disabled = false;
+            sy_display.innerHTML = sy_left + '<span class="sy_big_label" style="display:block;">秒后爆炸…</span>';
+            sy_log("sy_bomb_out",
+                "已调用 setTimeout(爆炸, 3000)，定时器编号 = " + "（待分配）\n引线点燃，还剩 " + sy_left + " 秒…");
+
+            // 每秒刷新剩余秒数（用间歇定时器做倒计时显示）
+            sy_bombCountdownId = setInterval(function () {
+                sy_left--;
+                if (sy_left > 0) {
+                    sy_display.innerHTML = sy_left + '<span class="sy_big_label" style="display:block;">秒后爆炸…</span>';
+                }
+            }, 1000);
+
+            // 核心：3000 毫秒后只执行一次
+            sy_bombId = setTimeout(function () {
+                clearInterval(sy_bombCountdownId);      // 停掉显示用的倒计时
+                sy_bombCountdownId = null;
+                sy_bombId = null;
+                sy_display.innerHTML = '💥<span class="sy_big_label" style="display:block;">爆炸！回调执行了</span>';
+                document.getElementById("sy_bomb_start").disabled = false;
+                document.getElementById("sy_bomb_stop").disabled = true;
+                sy_log("sy_bomb_out",
+                    '<span class="sy_blink">💥</span> 时间到！setTimeout 的回调函数执行了（只执行这一次）。\n'
+                    + "从点燃到爆炸正好约 3000 毫秒。", true);
+            }, 3000);
+
+            sy_log("sy_bomb_out",
+                "已调用 setTimeout(爆炸, 3000)，定时器编号 = " + sy_bombId + "\n引线点燃，还剩 " + sy_left + " 秒…");
+        }
+
+        function sy_bombCancel() {
+            if (sy_bombId === null) { return; }
+            var sy_cancelledId = sy_bombId;
+            clearTimeout(sy_bombId);    // 核心：取消还没执行的定时器
+            sy_bombId = null;
+            if (sy_bombCountdownId !== null) { clearInterval(sy_bombCountdownId); sy_bombCountdownId = null; }
+            document.getElementById("sy_bomb_display").innerHTML = '🧯<span class="sy_big_label" style="display:block;">已拆除</span>';
+            document.getElementById("sy_bomb_start").disabled = false;
+            document.getElementById("sy_bomb_stop").disabled = true;
+            sy_log("sy_bomb_out", "🧯 已调用 clearTimeout(" + sy_cancelledId + ")，炸弹被成功拆除，回调永远不会再执行。");
+        }
+
+        // ============================================================
+        // 二、setInterval 秒表演示
+        // ============================================================
+        var sy_tickId = null;      // setInterval 编号
+        var sy_tickCount = 0;      // 滴答次数
+        var sy_tickStartAt = 0;    // 启动时刻
+
+        function sy_tickStart() {
+            if (sy_tickId !== null) { return; }
+            sy_tickStartAt = Date.now();
+            document.getElementById("sy_tick_start").disabled = true;
+            document.getElementById("sy_tick_stop").disabled = false;
+            sy_tickId = setInterval(function () {
+                sy_tickCount++;
+                var sy_secs = ((Date.now() - sy_tickStartAt) / 1000).toFixed(1);
+                document.getElementById("sy_tick_display").innerHTML =
+                    sy_tickCount + '<span class="sy_big_label" style="display:block;">滴答次数</span>';
+                document.getElementById("sy_tick_seconds").innerHTML =
+                    sy_secs + '<span class="sy_big_label" style="display:block;">经过秒数</span>';
+                if (sy_tickCount === 5) {
+                    sy_log("sy_tick_out", "已经滴答 5 次了… setInterval 会一直重复执行，直到调用 clearInterval。");
+                }
+            }, 1000);
+            sy_log("sy_tick_out", "已调用 setInterval(滴答, 1000)，定时器编号 = " + sy_tickId + "，每 1 秒执行一次。");
+        }
+
+        function sy_tickStop() {
+            if (sy_tickId === null) { return; }
+            clearInterval(sy_tickId);   // 核心：停止重复执行
+            sy_tickId = null;
+            document.getElementById("sy_tick_start").disabled = false;
+            document.getElementById("sy_tick_stop").disabled = true;
+            var sy_secs = ((Date.now() - sy_tickStartAt) / 1000).toFixed(1);
+            sy_log("sy_tick_out",
+                "⏹ 已调用 clearInterval，共滴答 " + sy_tickCount + " 次，历时 " + sy_secs + " 秒。\n"
+                + "停止后回调不再执行，但计数结果保留在页面上。", true);
+        }
+
+        function sy_tickReset() {
+            sy_tickStop();   // 如果还在跑，先停
+            sy_tickCount = 0;
+            document.getElementById("sy_tick_display").innerHTML = '0<span class="sy_big_label" style="display:block;">滴答次数</span>';
+            document.getElementById("sy_tick_seconds").innerHTML = '0.0<span class="sy_big_label" style="display:block;">经过秒数</span>';
+            sy_log("sy_tick_out", "秒表已归零。");
+        }
+
+        // ============================================================
+        // 三、综合应用 1：数字时钟
+        // ============================================================
+        var sy_clockId = null;
+
+        function sy_pad(sy_n) { return (sy_n < 10 ? "0" : "") + sy_n; }
+
+        function sy_clockRender() {
+            var sy_now = new Date();
+            document.getElementById("sy_clock_time").textContent =
+                sy_pad(sy_now.getHours()) + ":" + sy_pad(sy_now.getMinutes()) + ":" + sy_pad(sy_now.getSeconds());
+            document.getElementById("sy_clock_date").textContent =
+                sy_now.getFullYear() + " 年 " + (sy_now.getMonth() + 1) + " 月 " + sy_now.getDate() + " 日 · 星期" + "日一二三四五六".charAt(sy_now.getDay());
+        }
+
+        function sy_clockStart() {
+            if (sy_clockId !== null) { return; }
+            sy_clockRender();   // 先立即渲染一次，不用等 1 秒
+            sy_clockId = setInterval(sy_clockRender, 1000);
+            document.getElementById("sy_clock_start").disabled = true;
+            document.getElementById("sy_clock_stop").disabled = false;
+        }
+
+        function sy_clockStop() {
+            if (sy_clockId === null) { return; }
+            clearInterval(sy_clockId);
+            sy_clockId = null;
+            document.getElementById("sy_clock_start").disabled = false;
+            document.getElementById("sy_clock_stop").disabled = true;
+            document.getElementById("sy_clock_date").textContent = "时钟已暂停";
+        }
+
+        // ============================================================
+        // 三、综合应用 2：进度条
+        // ============================================================
+        var sy_barId = null;
+        var sy_barVal = 0;
+
+        function sy_barStart() {
+            if (sy_barId !== null) { return; }
+            sy_barVal = 0;
+            document.getElementById("sy_bar_start").disabled = true;
+            sy_barId = setInterval(function () {
+                sy_barVal += 5;
+                if (sy_barVal >= 100) {
+                    sy_barVal = 100;
+                    clearInterval(sy_barId);   // 核心：走满后在回调里清除自己
+                    sy_barId = null;
+                    document.getElementById("sy_bar_start").disabled = false;
+                }
+                document.getElementById("sy_bar_fill").style.width = sy_barVal + "%";
+                document.getElementById("sy_bar_percent").textContent = sy_barVal + "%";
+            }, 100);
+        }
+    </script>
+</body>
+</html>

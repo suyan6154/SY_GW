@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-10-29
+    使用模型：GLM-5.3-Flash
+    功能名称：模仿股票涨跌排行榜（沪涨/沪跌/深涨/深跌 Tab 切换）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的网页练习：高保真还原股票涨跌排行组件，含 Tab 切换">
+    <title>16-4 股票涨跌排行</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #222;
+            background: #f2f3f5;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        main {
+            width: min(100%, 420px);
+            margin: 0 auto;
+        }
+
+        /* 顶部返回条 */
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            font-size: 0.85rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; }
+        .sy_topbar a:hover { text-decoration: underline; }
+        .sy_author { color: #999; letter-spacing: 0.05em; }
+
+        /* ===== 排行组件 ===== */
+        .sy_widget {
+            background: #fff;
+            border: 1px solid #ececec;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Tab 栏：四个等宽格子 */
+        .sy_tabs {
+            display: flex;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .sy_tab {
+            flex: 1 1 25%;
+            padding: 11px 0;
+            border: none;
+            background: #f2f4f7;
+            color: #2a5db0;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+            position: relative;
+        }
+
+        /* 相邻格子间的分隔线 */
+        .sy_tab + .sy_tab { border-left: 1px solid #e6e9ee; }
+
+        .sy_tab:hover { background: #e8edf4; color: #1e4f9c; }
+
+        /* 选中态：白底黑字（与内容区连成一片） */
+        .sy_tab_active,
+        .sy_tab_active:hover {
+            background: #fff;
+            color: #111;
+            font-weight: 700;
+        }
+
+        /* ===== 排行列表 ===== */
+        .sy_list {
+            margin: 0;
+            padding: 2px 0 6px;
+            list-style: none;
+            animation: sy_fadein 0.28s ease;
+        }
+
+        @keyframes sy_fadein {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 行：4 等分网格，与 Tab 栏逐列对应
+           名称对齐“沪涨”，最新价对齐“沪跌”，
+           涨跌额对齐“深涨”，涨跌幅对齐“深跌” */
+        .sy_row {
+            display: grid;
+            grid-template-columns: 25% 25% 25% 25%;
+            align-items: baseline;
+            padding: 11px 0;
+            border-bottom: 1px dotted #ddd;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .sy_row:last-child { border-bottom: none; }
+
+        /* 名次：红色 */
+        .sy_rank {
+            color: #e03434;
+            font-weight: 700;
+            margin-right: 3px;
+        }
+
+        /* 名称列：对齐“沪涨”题头 */
+        .sy_name {
+            padding-left: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #222;
+            font-weight: 700;
+        }
+
+        /* 数字三列：在各自 25% 格内居中，正好对齐下方题头，
+           并用等宽数字保证竖向成列 */
+        .sy_price, .sy_chg, .sy_pct {
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        .sy_price { color: #333; }
+
+        .sy_chg, .sy_pct { font-weight: 700; }
+
+        /* 涨：红；跌：绿（A股习惯） */
+        .sy_up   { color: #e03434; }
+        .sy_down { color: #12a04b; }
+
+        @media (max-width: 420px) {
+            body { padding: 24px 12px 40px; }
+
+            .sy_row { font-size: 13px; padding: 9px 0; }
+
+            .sy_name { padding-left: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <section class="sy_widget">
+            <!-- Tab 栏 -->
+            <div class="sy_tabs" id="sy_tabs">
+                <button class="sy_tab sy_tab_active" type="button" onclick="sy_switchTab('沪涨', this)">沪涨</button>
+                <button class="sy_tab" type="button" onclick="sy_switchTab('沪跌', this)">沪跌</button>
+                <button class="sy_tab" type="button" onclick="sy_switchTab('深涨', this)">深涨</button>
+                <button class="sy_tab" type="button" onclick="sy_switchTab('深跌', this)">深跌</button>
+            </div>
+            <!-- 排行列表 -->
+            <ul class="sy_list" id="sy_list"></ul>
+        </section>
+    </main>
+
+    <script>
+        // ===== 数据：与截图一致的 沪涨 / 深涨，另补 沪跌 / 深跌 两组 =====
+        var sy_data = {
+            "沪涨": [
+                { sy_name: "N浙能", sy_price: 8.88,  sy_chg: 3.35, sy_pct: 60.58 },
+                { sy_name: "天津松江", sy_price: 8.16,  sy_chg: 0.65, sy_pct: 8.66 },
+                { sy_name: "金瑞科技", sy_price: 8.79,  sy_chg: 0.42, sy_pct: 5.02 },
+                { sy_name: "宏发股份", sy_price: 17.22, sy_chg: 0.82, sy_pct: 5.00 },
+                { sy_name: "杭齿前进", sy_price: 7.23,  sy_chg: 0.34, sy_pct: 4.93 }
+            ],
+            "沪跌": [
+                { sy_name: "亚虹股份", sy_price: 12.05, sy_chg: 1.34, sy_pct: 10.01 },
+                { sy_name: "上海凤凰", sy_price: 9.87,  sy_chg: 0.90, sy_pct: 8.36 },
+                { sy_name: "云赛智联", sy_price: 11.42, sy_chg: 0.78, sy_pct: 6.39 },
+                { sy_name: "张江高科", sy_price: 14.20, sy_chg: 0.85, sy_pct: 5.65 },
+                { sy_name: "陆家嘴",   sy_price: 10.66, sy_chg: 0.52, sy_pct: 4.65 }
+            ],
+            "深涨": [
+                { sy_name: "天顺风能", sy_price: 10.52, sy_chg: 0.96, sy_pct: 10.04 },
+                { sy_name: "兴源过滤", sy_price: 16.02, sy_chg: 1.46, sy_pct: 10.03 },
+                { sy_name: "北京君正", sy_price: 36.92, sy_chg: 3.36, sy_pct: 10.01 },
+                { sy_name: "美盛文化", sy_price: 32.87, sy_chg: 2.99, sy_pct: 10.01 },
+                { sy_name: "骅威股份", sy_price: 15.16, sy_chg: 1.38, sy_pct: 10.01 }
+            ],
+            "深跌": [
+                { sy_name: "全志科技", sy_price: 22.31, sy_chg: 2.48, sy_pct: 10.00 },
+                { sy_name: "汉宇集团", sy_price: 8.94,  sy_chg: 0.99, sy_pct: 9.97 },
+                { sy_name: "恒宝股份", sy_price: 7.66,  sy_chg: 0.75, sy_pct: 8.91 },
+                { sy_name: "中来股份", sy_price: 9.12,  sy_chg: 0.83, sy_pct: 8.34 },
+                { sy_name: "海伦哲",   sy_price: 5.28,  sy_chg: 0.42, sy_pct: 7.37 }
+            ]
+        };
+
+        // 当前选中的 Tab 键
+        var sy_current = "沪涨";
+
+        // 保留两位小数
+        function sy_fix(sy_n) { return sy_n.toFixed(2); }
+
+        // 渲染指定 Tab 的排行列表
+        function sy_renderList(sy_key) {
+            var sy_items = sy_data[sy_key];
+            var sy_isUp = sy_key.indexOf("涨") > -1;   // 涨为红，跌为绿
+            var sy_sign = sy_isUp ? "+" : "-";
+            var sy_cls = sy_isUp ? "sy_up" : "sy_down";
+
+            var sy_rows = sy_items.map(function (sy_it, sy_i) {
+                return '<li class="sy_row">' +
+                    '<span class="sy_name"><span class="sy_rank">' + (sy_i + 1) + '.</span>' + sy_it.sy_name + '</span>' +
+                    '<span class="sy_price">' + sy_fix(sy_it.sy_price) + '</span>' +
+                    '<span class="sy_chg ' + sy_cls + '">' + sy_sign + sy_fix(sy_it.sy_chg) + '</span>' +
+                    '<span class="sy_pct ' + sy_cls + '">' + sy_sign + sy_fix(sy_it.sy_pct) + '%</span>' +
+                '</li>';
+            });
+
+            var sy_list = document.getElementById("sy_list");
+            sy_list.innerHTML = sy_rows.join("");
+
+            // 重新触发淡入动画
+            sy_list.style.animation = "none";
+            void sy_list.offsetWidth;   // 强制回流，重置动画
+            sy_list.style.animation = "";
+        }
+
+        // Tab 切换：更新选中态并渲染对应数据
+        function sy_switchTab(sy_key, sy_btn) {
+            if (sy_key === sy_current) { return; }
+            sy_current = sy_key;
+
+            var sy_all = document.querySelectorAll("#sy_tabs .sy_tab");
+            for (var sy_i = 0; sy_i < sy_all.length; sy_i++) {
+                sy_all[sy_i].classList.remove("sy_tab_active");
+            }
+            sy_btn.classList.add("sy_tab_active");
+
+            sy_renderList(sy_key);
+        }
+
+        // 初始渲染：默认选中“沪涨”
+        sy_renderList(sy_current);
+    </script>
+</body>
+</html>
