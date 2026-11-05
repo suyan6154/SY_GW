@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：智慧商城数据大屏（三列布局 · 中部上方中国地图）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：基于 ECharts 的三列数据大屏，中部上方为中国地图订单分布">
+    <title>18-7 智慧商城数据大屏</title>
+    <!-- 本地化 CDN 文件（项目规则：不用外链 CDN，库文件统一放 cdn 目录） -->
+    <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/china-geo.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #050d20;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+        }
+
+        /* 大屏固定设计尺寸 1920×1080，用 transform scale 适配任意窗口 */
+        #sy_screen {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 1920px;
+            height: 1080px;
+            transform: translate(-50%, -50%);
+            transform-origin: center;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(36, 120, 220, 0.18), transparent 55%),
+                linear-gradient(180deg, #071230 0%, #050d20 60%, #041022 100%);
+            color: #cfe3ff;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px 20px;
+        }
+
+        /* ===== 头部 ===== */
+        .sy_header {
+            position: relative;
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sy_header h1 {
+            font-size: 30px;
+            letter-spacing: 6px;
+            background: linear-gradient(180deg, #eaf6ff, #6db8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 26px rgba(80, 160, 255, 0.45);
+        }
+
+        .sy_author {
+            position: absolute;
+            left: 0;
+            font-size: 14px;
+            color: #6d87b5;
+        }
+
+        .sy_author a { color: #6db8ff; text-decoration: none; }
+
+        .sy_clock {
+            position: absolute;
+            right: 0;
+            text-align: right;
+            font-size: 15px;
+            color: #8fb3e8;
+        }
+
+        .sy_clock b {
+            display: block;
+            font-size: 22px;
+            color: #d8ecff;
+            font-family: Consolas, monospace;
+            letter-spacing: 2px;
+        }
+
+        /* ===== 三列主体 ===== */
+        .sy_body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 440px 1fr 440px;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .sy_col {
+            display: grid;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .sy_col_left, .sy_col_right { grid-template-rows: repeat(3, 1fr); }
+
+        .sy_col_mid { grid-template-rows: 620px 1fr; }
+
+        /* ===== 面板 ===== */
+        .sy_panel {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            border: 1px solid rgba(80, 150, 255, 0.22);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(18, 45, 90, 0.55), rgba(10, 25, 55, 0.35));
+            box-shadow: inset 0 0 26px rgba(40, 110, 220, 0.12);
+            padding: 10px 14px 12px;
+        }
+
+        .sy_panel_title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #d8ecff;
+            letter-spacing: 2px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(80, 150, 255, 0.18);
+            flex-shrink: 0;
+        }
+
+        .sy_panel_title::before {
+            content: "";
+            width: 6px;
+            height: 17px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #57c7ff, #2f6fd0);
+            box-shadow: 0 0 8px rgba(87, 199, 255, 0.8);
+        }
+
+        .sy_panel_title small {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 400;
+            color: #6d87b5;
+            letter-spacing: 0;
+        }
+
+        .sy_chart {
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* 排行榜 */
+        .sy_rank { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; padding: 4px 2px; }
+
+        .sy_rank_row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .sy_rank_no {
+            width: 26px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            border-radius: 4px;
+            background: #16305e;
+            color: #9db8e4;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .sy_rank_row:nth-child(1) .sy_rank_no { background: #d6543f; color: #fff; }
+        .sy_rank_row:nth-child(2) .sy_rank_no { background: #d08033; color: #fff; }
+        .sy_rank_row:nth-child(3) .sy_rank_no { background: #1e7fa8; color: #fff; }
+
+        .sy_rank_city { width: 64px; color: #cfe3ff; }
+
+        .sy_rank_bar_wrap {
+            flex: 1;
+            height: 12px;
+            border-radius: 6px;
+            background: #102348;
+            overflow: hidden;
+        }
+
+        .sy_rank_bar {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #1c5cc8, #57c7ff);
+            box-shadow: 0 0 8px rgba(87, 199, 255, 0.5);
+            transition: width 1s ease;
+        }
+
+        .sy_rank_val { width: 72px; text-align: right; color: #8fb3e8; font-family: Consolas, monospace; }
+    </style>
+</head>
+<body>
+    <div id="sy_screen">
+        <!-- 头部 -->
+        <header class="sy_header">
+            <p class="sy_author">苏妍 · 高级网页设计 · <a href="index.html">返回首页</a></p>
+            <h1>智慧商城数据监控大屏</h1>
+            <div class="sy_clock"><b id="sy_clock_time">--:--:--</b><span id="sy_clock_date">----年--月--日</span></div>
+        </header>
+
+        <div class="sy_body">
+            <!-- 左列 -->
+            <div class="sy_col sy_col_left">
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">类目销量 TOP6 <small>单位：万件</small></h2>
+                    <div class="sy_chart" id="sy_chart_bar"></div>
+                </section>
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">今日订单趋势 <small>近 24 小时</small></h2>
+                    <div class="sy_chart" id="sy_chart_line"></div>
+                </section>
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">销售渠道占比</h2>
+                    <div class="sy_chart" id="sy_chart_pie"></div>
+                </section>
+            </div>
+
+            <!-- 中列：上方地理信息图 -->
+            <div class="sy_col sy_col_mid">
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">全国订单分布 <small>颜色 = 订单量 · 光点 = 核心城市</small></h2>
+                    <div class="sy_chart" id="sy_chart_map"></div>
+                </section>
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">全年销售额走势 <small>渐变堆叠面积图</small></h2>
+                    <div class="sy_chart" id="sy_chart_area"></div>
+                </section>
+            </div>
+
+            <!-- 右列 -->
+            <div class="sy_col sy_col_right">
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">月度目标完成率</h2>
+                    <div class="sy_chart" id="sy_chart_gauge"></div>
+                </section>
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">用户满意度指标</h2>
+                    <div class="sy_chart" id="sy_chart_radar"></div>
+                </section>
+                <section class="sy_panel">
+                    <h2 class="sy_panel_title">城市订单排行 <small>TOP5</small></h2>
+                    <div class="sy_rank" id="sy_rank"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 0. 大屏等比缩放适配（设计稿 1920×1080）
+        // ============================================================
+        function sy_fitScreen() {
+            var sy_scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            document.getElementById("sy_screen").style.transform =
+                "translate(-50%, -50%) scale(" + sy_scale + ")";
+        }
+        sy_fitScreen();
+        window.addEventListener("resize", sy_fitScreen);
+
+        // ============================================================
+        // 1. 时钟
+        // ============================================================
+        function sy_updateClock() {
+            var sy_now = new Date();
+            var sy_pad = function (sy_n) { return sy_n < 10 ? "0" + sy_n : "" + sy_n; };
+            document.getElementById("sy_clock_time").textContent =
+                sy_pad(sy_now.getHours()) + ":" + sy_pad(sy_now.getMinutes()) + ":" + sy_pad(sy_now.getSeconds());
+            document.getElementById("sy_clock_date").textContent =
+                sy_now.getFullYear() + "年" + sy_pad(sy_now.getMonth() + 1) + "月" + sy_pad(sy_now.getDate()) + "日 星期" +
+                "日一二三四五六".charAt(sy_now.getDay());
+        }
+        sy_updateClock();
+        setInterval(sy_updateClock, 1000);
+
+        // ============================================================
+        // 公用深色主题配置
+        // ============================================================
+        var sy_darkText = "#9db8e4";
+        var sy_axisStyle = {
+            axisLine: { lineStyle: { color: "rgba(90,140,220,0.35)" } },
+            axisLabel: { color: sy_darkText, fontSize: 12 },
+            splitLine: { lineStyle: { color: "rgba(90,140,220,0.12)" } }
+        };
+
+        echarts.registerMap("sy_china", window.sy_chinaGeo);
+
+        // ============================================================
+        // 2. 左列：类目销量柱状图
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_bar")).setOption({
+            tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+            grid: { left: 44, right: 16, top: 24, bottom: 26 },
+            xAxis: Object.assign({ type: "category", data: ["手机", "电脑", "家电", "服饰", "食品", "图书"] }, sy_axisStyle),
+            yAxis: Object.assign({ type: "value" }, sy_axisStyle),
+            series: [{
+                type: "bar",
+                data: [96, 78, 72, 65, 58, 41],
+                barWidth: 18,
+                itemStyle: {
+                    borderRadius: [4, 4, 0, 0],
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: "#57c7ff" },
+                        { offset: 1, color: "#1c5cc8" }
+                    ])
+                },
+                label: { show: true, position: "top", color: "#8fb3e8", fontSize: 11 }
+            }]
+        });
+
+        // ============================================================
+        // 3. 左列：24 小时订单趋势折线
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_line")).setOption({
+            tooltip: { trigger: "axis" },
+            grid: { left: 44, right: 16, top: 24, bottom: 26 },
+            xAxis: Object.assign({
+                type: "category",
+                boundaryGap: false,
+                data: ["0时", "3时", "6时", "9时", "12时", "15时", "18时", "21时", "24时"]
+            }, sy_axisStyle),
+            yAxis: Object.assign({ type: "value" }, sy_axisStyle),
+            series: [{
+                name: "订单量",
+                type: "line",
+                smooth: true,
+                symbol: "circle",
+                symbolSize: 6,
+                data: [120, 60, 90, 420, 560, 510, 780, 640, 320],
+                lineStyle: { width: 3, color: "#57c7ff" },
+                itemStyle: { color: "#57c7ff" },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: "rgba(87,199,255,0.45)" },
+                        { offset: 1, color: "rgba(28,92,200,0.02)" }
+                    ])
+                }
+            }]
+        });
+
+        // ============================================================
+        // 4. 左列：销售渠道占比饼图
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_pie")).setOption({
+            tooltip: { trigger: "item", formatter: "{b}: {c}% ({d}%)" },
+            legend: {
+                orient: "vertical",
+                right: 8,
+                top: "center",
+                textStyle: { color: sy_darkText, fontSize: 12 },
+                itemWidth: 12,
+                itemHeight: 12
+            },
+            series: [{
+                type: "pie",
+                radius: ["42%", "68%"],
+                center: ["38%", "52%"],
+                data: [
+                    { name: "移动 App", value: 42 },
+                    { name: "微信小程序", value: 28 },
+                    { name: "PC 网页", value: 18 },
+                    { name: "线下门店", value: 12 }
+                ],
+                itemStyle: { borderColor: "#0a1a3a", borderWidth: 2 },
+                label: { show: false },
+                emphasis: {
+                    label: { show: true, color: "#d8ecff", fontSize: 14, formatter: "{b}\n{d}%" }
+                }
+            }],
+            color: ["#57c7ff", "#3d9a6c", "#f0a24a", "#7b4ca6"]
+        });
+
+        // ============================================================
+        // 5. 中列上方：中国地图（等值区划 + 涟漪散点）
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_map")).setOption({
+            tooltip: {
+                trigger: "item",
+                formatter: function (sy_p) {
+                    if (sy_p.seriesType === "effectScatter") {
+                        return "<b>" + sy_p.name + "</b><br/>订单量：" + sy_p.value[2] + " 单";
+                    }
+                    return sy_p.name + "　订单量：" + (sy_p.value ? sy_p.value : "—");
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 9000,
+                left: 20,
+                bottom: 14,
+                text: ["高", "低"],
+                textStyle: { color: sy_darkText, fontSize: 12 },
+                calculable: true,
+                inRange: { color: ["#123a7a", "#2f6fd0", "#57c7ff", "#9be6ff"] }
+            },
+            geo: {
+                map: "sy_china",
+                roam: false,
+                top: 42,
+                bottom: 14,
+                itemStyle: {
+                    areaColor: "#12306b",
+                    borderColor: "rgba(120,190,255,0.55)",
+                    borderWidth: 1
+                },
+                emphasis: {
+                    label: { color: "#fff", fontSize: 12 },
+                    itemStyle: { areaColor: "#2f6fd0" }
+                }
+            },
+            series: [
+                {
+                    type: "map",
+                    geoIndex: 0,
+                    data: [
+                        { name: "广东", value: 8923 },
+                        { name: "江苏", value: 7256 },
+                        { name: "浙江", value: 6890 },
+                        { name: "山东", value: 5342 },
+                        { name: "四川", value: 4521 },
+                        { name: "河南", value: 3987 },
+                        { name: "北京", value: 3765 },
+                        { name: "上海", value: 3654 },
+                        { name: "湖北", value: 3102 },
+                        { name: "福建", value: 2954 },
+                        { name: "湖南", value: 2718 },
+                        { name: "安徽", value: 2406 }
+                    ]
+                },
+                {
+                    type: "effectScatter",
+                    coordinateSystem: "geo",
+                    symbolSize: 9,
+                    rippleEffect: { scale: 3.2, brushType: "stroke" },
+                    label: {
+                        show: true,
+                        position: "right",
+                        formatter: "{b}",
+                        color: "#d8ecff",
+                        fontSize: 12
+                    },
+                    itemStyle: { color: "#ffd166", shadowBlur: 10, shadowColor: "#ffd166" },
+                    data: [
+                        { name: "北京", value: [116.40, 39.90, 3765] },
+                        { name: "上海", value: [121.47, 31.23, 3654] },
+                        { name: "广州", value: [113.26, 23.13, 3210] },
+                        { name: "深圳", value: [114.06, 22.55, 3548] },
+                        { name: "成都", value: [104.07, 30.67, 2860] },
+                        { name: "杭州", value: [120.15, 30.28, 2985] }
+                    ]
+                }
+            ]
+        });
+
+        // ============================================================
+        // 6. 中列下方：渐变堆叠面积图
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_area")).setOption({
+            tooltip: { trigger: "axis", axisPointer: { type: "cross", label: { backgroundColor: "#1c3a70" } } },
+            legend: {
+                top: 0,
+                textStyle: { color: sy_darkText, fontSize: 12 },
+                itemWidth: 12,
+                itemHeight: 8
+            },
+            grid: { left: 44, right: 16, top: 30, bottom: 24 },
+            xAxis: Object.assign({
+                type: "category",
+                boundaryGap: false,
+                data: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+            }, sy_axisStyle),
+            yAxis: Object.assign({ type: "value" }, sy_axisStyle),
+            series: [
+                {
+                    name: "线上零售", type: "line", stack: "总量", smooth: true,
+                    lineStyle: { width: 0 }, showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.85,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(87,199,255)" },
+                            { offset: 1, color: "rgb(28,92,200)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [420, 380, 460, 520, 610, 660, 720, 780, 705, 820, 905, 980]
+                },
+                {
+                    name: "线下门店", type: "line", stack: "总量", smooth: true,
+                    lineStyle: { width: 0 }, showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.85,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(61,154,108)" },
+                            { offset: 1, color: "rgb(20,70,60)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [260, 240, 290, 310, 330, 360, 340, 380, 402, 420, 460, 520]
+                },
+                {
+                    name: "团购批发", type: "line", stack: "总量", smooth: true,
+                    lineStyle: { width: 0 }, showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.85,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(240,162,74)" },
+                            { offset: 1, color: "rgb(120,60,20)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [120, 105, 140, 160, 180, 210, 195, 225, 240, 260, 290, 330]
+                }
+            ]
+        });
+
+        // ============================================================
+        // 7. 右列：月度目标完成率仪表盘
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_gauge")).setOption({
+            series: [{
+                type: "gauge",
+                startAngle: 210,
+                endAngle: -30,
+                min: 0,
+                max: 100,
+                radius: "88%",
+                center: ["50%", "58%"],
+                progress: {
+                    show: true,
+                    width: 16,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: "#1c5cc8" },
+                            { offset: 1, color: "#57c7ff" }
+                        ])
+                    }
+                },
+                axisLine: { lineStyle: { width: 16, color: [[1, "rgba(90,140,220,0.18)"]] } },
+                axisTick: { show: false },
+                splitLine: { length: 8, distance: -26, lineStyle: { color: "rgba(150,200,255,0.5)", width: 1 } },
+                axisLabel: { distance: -46, color: sy_darkText, fontSize: 11 },
+                pointer: { show: false },
+                anchor: { show: false },
+                detail: {
+                    valueAnimation: true,
+                    offsetCenter: [0, 0],
+                    fontSize: 34,
+                    fontWeight: 700,
+                    color: "#d8ecff",
+                    formatter: "{value}%",
+                    fontFamily: "Consolas"
+                },
+                title: { offsetCenter: [0, "42%"], color: sy_darkText, fontSize: 13 },
+                data: [{ value: 78.6, name: "本月目标 500 万" }]
+            }]
+        });
+
+        // ============================================================
+        // 8. 右列：用户满意度雷达图
+        // ============================================================
+        echarts.init(document.getElementById("sy_chart_radar")).setOption({
+            tooltip: {},
+            legend: {
+                bottom: 0,
+                textStyle: { color: sy_darkText, fontSize: 12 },
+                itemWidth: 12,
+                itemHeight: 8
+            },
+            radar: {
+                indicator: [
+                    { name: "物流速度", max: 100 },
+                    { name: "服务态度", max: 100 },
+                    { name: "商品质量", max: 100 },
+                    { name: "售后响应", max: 100 },
+                    { name: "价格满意", max: 100 }
+                ],
+                radius: "62%",
+                center: ["50%", "46%"],
+                axisName: { color: sy_darkText, fontSize: 12 },
+                splitLine: { lineStyle: { color: "rgba(90,140,220,0.25)" } },
+                splitArea: { areaStyle: { color: ["rgba(28,92,200,0.08)", "rgba(28,92,200,0.14)"] } },
+                axisLine: { lineStyle: { color: "rgba(90,140,220,0.3)" } }
+            },
+            series: [{
+                type: "radar",
+                data: [
+                    {
+                        name: "本月",
+                        value: [88, 92, 85, 79, 83],
+                        lineStyle: { color: "#57c7ff", width: 2 },
+                        itemStyle: { color: "#57c7ff" },
+                        areaStyle: { color: "rgba(87,199,255,0.25)" }
+                    },
+                    {
+                        name: "上月",
+                        value: [82, 86, 84, 72, 80],
+                        lineStyle: { color: "#f0a24a", width: 2 },
+                        itemStyle: { color: "#f0a24a" },
+                        areaStyle: { color: "rgba(240,162,74,0.12)" }
+                    }
+                ]
+            }]
+        });
+
+        // ============================================================
+        // 9. 右列：城市订单排行（原生 HTML 实现）
+        // ============================================================
+        var sy_rankData = [
+            { city: "广州", val: 8923 },
+            { city: "南京", val: 7256 },
+            { city: "杭州", val: 6890 },
+            { city: "青岛", val: 5342 },
+            { city: "成都", val: 4521 }
+        ];
+        var sy_rankBox = document.getElementById("sy_rank");
+        sy_rankData.forEach(function (sy_d, sy_i) {
+            var sy_row = document.createElement("div");
+            sy_row.className = "sy_rank_row";
+
+            var sy_no = document.createElement("span");
+            sy_no.className = "sy_rank_no";
+            sy_no.textContent = sy_i + 1;
+
+            var sy_city = document.createElement("span");
+            sy_city.className = "sy_rank_city";
+            sy_city.textContent = sy_d.city;
+
+            var sy_barWrap = document.createElement("span");
+            sy_barWrap.className = "sy_rank_bar_wrap";
+            var sy_bar = document.createElement("span");
+            sy_bar.className = "sy_rank_bar";
+            sy_bar.style.width = "0";
+            // 进入页面后动画展开，宽度与第一名归一化
+            setTimeout(function () {
+                sy_bar.style.width = (sy_d.val / sy_rankData[0].val * 100) + "%";
+            }, 100 + sy_i * 120);
+            sy_barWrap.appendChild(sy_bar);
+
+            var sy_val = document.createElement("span");
+            sy_val.className = "sy_rank_val";
+            sy_val.textContent = sy_d.val + " 单";
+
+            sy_row.appendChild(sy_no);
+            sy_row.appendChild(sy_city);
+            sy_row.appendChild(sy_barWrap);
+            sy_row.appendChild(sy_val);
+            sy_rankBox.appendChild(sy_row);
+        });
+    </script>
+</body>
+</html>

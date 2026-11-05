@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：Canvas 动画演示（弹跳小球 / 文字"苏妍"动画 / 粒子烟花）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：Canvas 动画演示，包含弹跳小球、文字与粒子动画">
+    <title>18-1 Canvas 动画</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1000px); margin: 0 auto; }
+
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.9rem, 5.6vw, 2.9rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 720px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_section { margin-top: 30px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.35rem;
+        }
+
+        .sy_card {
+            padding: 22px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 6px; font-size: 1.12rem; }
+
+        .sy_desc { margin: 0 0 12px; color: #61708a; font-size: 0.9rem; }
+
+        canvas {
+            display: block;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #e3e8f2;
+        }
+
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover:not(:disabled) { background: #15376d; }
+        .sy_btn:active:not(:disabled) { transform: scale(0.96); }
+        .sy_btn:disabled { background: #c3cede; cursor: not-allowed; }
+
+        .sy_btn_green { background: #3d9a6c; }
+        .sy_btn_green:hover:not(:disabled) { background: #2e7c54; }
+
+        .sy_btn_ghost { background: #fff; color: #2457a6; border: 1px solid #c9d5ea; }
+        .sy_btn_ghost:hover:not(:disabled) { background: #f0f5fc; }
+
+        .sy_hint { margin: 8px 0 0; color: #8a97b1; font-size: 0.8rem; }
+
+        .sy_code {
+            margin: 14px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.83rem;
+            line-height: 1.75;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        .sy_summary ul { margin: 0; padding-left: 22px; color: #42506b; font-size: 0.92rem; }
+        .sy_summary li { margin-bottom: 6px; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 18 · Canvas 动画</p>
+            <h1>Canvas 动画演示</h1>
+            <p class="sy_intro">
+                Canvas 通过 JavaScript 每一帧重绘画面来实现动画：先用
+                <code>fillRect</code> / <code>clearRect</code> 清屏，再画新内容，配合
+                <code>requestAnimationFrame</code> 循环即可流畅播放。
+                下面三个演示分别展示<b>小球物理运动</b>、<b>文字"苏妍"的彩色动画</b>和<b>可交互的粒子烟花</b>。
+            </p>
+        </header>
+
+        <!-- 演示一：弹跳小球 -->
+        <section class="sy_section">
+            <h2>一、弹跳小球</h2>
+            <div class="sy_card">
+                <h3>物理运动：位置更新 + 边界反弹</h3>
+                <p class="sy_desc">每帧给每个小球的坐标加上速度（vx, vy），碰到画布边缘就反转速度方向。</p>
+                <canvas id="sy_canvas_balls" width="940" height="240"></canvas>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" id="sy_ball_toggle" onclick="sy_ballToggle()">暂停</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_ballReset()">重新生成 14 个小球</button>
+                </div>
+                <pre class="sy_code">sy_ball.x += sy_ball.vx;                    <i>// 每帧更新位置</i>
+if (sy_ball.x > sy_w - sy_ball.r || sy_ball.x < sy_ball.r) {
+  sy_ball.vx = -sy_ball.vx;                 <i>// 碰到左右边缘，水平速度反向</i>
+}</pre>
+            </div>
+        </section>
+
+        <!-- 演示二：文字动画 -->
+        <section class="sy_section">
+            <h2>二、文字动画 · "苏妍"</h2>
+            <div class="sy_card">
+                <h3>弹跳文字 + 渐变色 + 拖影效果</h3>
+                <p class="sy_desc">
+                    "苏妍"两个字在画布中四处弹跳；每帧不完全清屏，而是盖上一层半透明背景，
+                    就留下了漂亮的运动拖影；文字颜色按帧号循环变化。
+                </p>
+                <canvas id="sy_canvas_text" width="940" height="260"></canvas>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn" type="button" id="sy_text_toggle" onclick="sy_textToggle()">暂停</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_textSpeed()">加速</button>
+                </div>
+                <pre class="sy_code">sy_ctx.fillStyle = "rgba(16,24,43,0.22)";   <i>// 半透明背景</i>
+sy_ctx.fillRect(0, 0, sy_w, sy_h);          <i>// 不完全清屏 → 产生拖影</i>
+var sy_grad = sy_ctx.createLinearGradient(sy_tx - 80, sy_ty - 60, sy_tx + 80, sy_ty);
+sy_grad.addColorStop(0, "hsl(" + sy_hue + ", 90%, 65%)");
+sy_ctx.fillStyle = sy_grad;
+sy_ctx.font = "900 110px 'Microsoft YaHei'";
+sy_ctx.fillText("苏妍", sy_tx, sy_ty);       <i>// 绘制文字</i></pre>
+            </div>
+        </section>
+
+        <!-- 演示三：粒子烟花 -->
+        <section class="sy_section">
+            <h2>三、粒子烟花（可交互）</h2>
+            <div class="sy_card">
+                <h3>点击画布任意位置，绽放一朵烟花</h3>
+                <p class="sy_desc">
+                    每个粒子有位置、速度、寿命：上升阶段受重力影响，寿命耗尽后透明度渐隐。
+                    点击画布在鼠标位置生成 60 个随机方向的粒子。
+                </p>
+                <canvas id="sy_canvas_fire" width="940" height="300"></canvas>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn sy_btn_green" type="button" onclick="sy_fireBurst(470, 150, true)">发射一朵</button>
+                    <button class="sy_btn" type="button" id="sy_fire_auto" onclick="sy_fireAutoToggle()">自动连发：关</button>
+                    <button class="sy_btn sy_btn_ghost" type="button" onclick="sy_fireClear()">清空粒子</button>
+                </div>
+                <p class="sy_hint">提示：直接在画布上点击 / 触摸也可以发射，位置跟随鼠标。</p>
+            </div>
+        </section>
+
+        <!-- 要点总结 -->
+        <section class="sy_summary">
+            <h2>Canvas 动画要点</h2>
+            <ul>
+                <li><b>动画三步曲</b>：清屏 → 更新物体状态（坐标、速度）→ 重绘，循环往复。</li>
+                <li><b>requestAnimationFrame</b>：让浏览器在下次重绘前调用回调（约 60 帧/秒），比 <code>setInterval</code> 更流畅省电；页面切到后台会自动暂停。返回的帧 ID 可用 <code>cancelAnimationFrame</code> 停止。</li>
+                <li><b>拖影效果</b>：用半透明颜色盖一层背景代替完全清屏，旧画面就会慢慢"淡出"。</li>
+                <li><b>渐变与发光</b>：<code>createLinearGradient</code> 制作填充渐变，<code>shadowColor</code> + <code>shadowBlur</code> 制作发光。</li>
+                <li><b>交互</b>：给 canvas 元素绑定 click / mousemove 事件，用 <code>offsetX / offsetY</code> 得到画布内坐标。</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ============================================================
+        // 公用：获取画布上下文
+        // ============================================================
+        function sy_getCtx(sy_id) {
+            return document.getElementById(sy_id).getContext("2d");
+        }
+
+        // ============================================================
+        // 演示一：弹跳小球
+        // ============================================================
+        var sy_ballCanvas = document.getElementById("sy_canvas_balls");
+        var sy_ballCtx = sy_ballCanvas.getContext("2d");
+        var sy_balls = [];
+        var sy_ballRaf = null;      // requestAnimationFrame 帧编号
+        var sy_ballRun = true;      // 是否运行中
+
+        function sy_ballReset() {
+            sy_balls = [];
+            for (var sy_i = 0; sy_i < 14; sy_i++) {
+                sy_balls.push({
+                    x: 40 + Math.random() * (sy_ballCanvas.width - 80),
+                    y: 40 + Math.random() * (sy_ballCanvas.height - 80),
+                    vx: (Math.random() * 3 + 1.2) * (Math.random() < 0.5 ? -1 : 1),
+                    vy: (Math.random() * 3 + 1.2) * (Math.random() < 0.5 ? -1 : 1),
+                    r: 9 + Math.random() * 15,
+                    hue: Math.floor(Math.random() * 360)
+                });
+            }
+        }
+
+        function sy_ballDraw() {
+            var sy_w = sy_ballCanvas.width;
+            var sy_h = sy_ballCanvas.height;
+            // 清屏
+            sy_ballCtx.fillStyle = "#fbfcff";
+            sy_ballCtx.fillRect(0, 0, sy_w, sy_h);
+            // 网格背景（辅助视觉）
+            sy_ballCtx.strokeStyle = "rgba(36,87,166,0.06)";
+            sy_ballCtx.lineWidth = 1;
+            for (var sy_gx = 0; sy_gx < sy_w; sy_gx += 47) {
+                sy_ballCtx.beginPath();
+                sy_ballCtx.moveTo(sy_gx, 0);
+                sy_ballCtx.lineTo(sy_gx, sy_h);
+                sy_ballCtx.stroke();
+            }
+            for (var sy_gy = 0; sy_gy < sy_h; sy_gy += 47) {
+                sy_ballCtx.beginPath();
+                sy_ballCtx.moveTo(0, sy_gy);
+                sy_ballCtx.lineTo(sy_w, sy_gy);
+                sy_ballCtx.stroke();
+            }
+            // 小球
+            for (var sy_i = 0; sy_i < sy_balls.length; sy_i++) {
+                var sy_b = sy_balls[sy_i];
+                sy_b.x += sy_b.vx;
+                sy_b.y += sy_b.vy;
+                if (sy_b.x - sy_b.r < 0 || sy_b.x + sy_b.r > sy_w) { sy_b.vx = -sy_b.vx; }
+                if (sy_b.y - sy_b.r < 0 || sy_b.y + sy_b.r > sy_h) { sy_b.vy = -sy_b.vy; }
+
+                var sy_grad = sy_ballCtx.createRadialGradient(
+                    sy_b.x - sy_b.r * 0.3, sy_b.y - sy_b.r * 0.3, 2,
+                    sy_b.x, sy_b.y, sy_b.r
+                );
+                sy_grad.addColorStop(0, "hsl(" + sy_b.hue + ", 85%, 72%)");
+                sy_grad.addColorStop(1, "hsl(" + sy_b.hue + ", 75%, 48%)");
+                sy_ballCtx.beginPath();
+                sy_ballCtx.arc(sy_b.x, sy_b.y, sy_b.r, 0, Math.PI * 2);
+                sy_ballCtx.fillStyle = sy_grad;
+                sy_ballCtx.fill();
+            }
+        }
+
+        function sy_ballLoop() {
+            sy_ballDraw();
+            sy_ballRaf = requestAnimationFrame(sy_ballLoop);
+        }
+
+        function sy_ballToggle() {
+            var sy_btn = document.getElementById("sy_ball_toggle");
+            if (sy_ballRun) {
+                cancelAnimationFrame(sy_ballRaf);
+                sy_ballRun = false;
+                sy_btn.textContent = "启动";
+            } else {
+                sy_ballLoop();
+                sy_ballRun = true;
+                sy_btn.textContent = "暂停";
+            }
+        }
+
+        sy_ballReset();
+        sy_ballLoop();
+
+        // ============================================================
+        // 演示二：文字"苏妍"动画
+        // ============================================================
+        var sy_textCanvas = document.getElementById("sy_canvas_text");
+        var sy_textCtx = sy_textCanvas.getContext("2d");
+        var sy_tx = 100;                       // 文字中心 x
+        var sy_ty = 175;                       // 文字基线 y
+        var sy_tvx = 2.6;
+        var sy_tvy = 1.9;
+        var sy_hue = 0;                        // 色相（随帧变化）
+        var sy_frame = 0;
+        var sy_textRaf = null;
+        var sy_textRun = true;
+
+        function sy_textLoop() {
+            var sy_w = sy_textCanvas.width;
+            var sy_h = sy_textCanvas.height;
+            sy_frame++;
+            sy_hue = (sy_hue + 1.4) % 360;
+
+            // 半透明覆盖 → 拖影
+            sy_textCtx.fillStyle = "rgba(16,24,43,0.22)";
+            sy_textCtx.fillRect(0, 0, sy_w, sy_h);
+
+            // 更新位置（文字宽度约 220，取 110 做半径近似）
+            sy_tx += sy_tvx;
+            sy_ty += sy_tvy;
+            if (sy_tx - 115 < 0 || sy_tx + 115 > sy_w) { sy_tvx = -sy_tvx; sy_tx += sy_tvx; }
+            if (sy_ty - 105 < 0 || sy_ty + 32 > sy_h) { sy_tvy = -sy_tvy; sy_ty += sy_tvy; }
+
+            // 渐变文字
+            var sy_grad = sy_textCtx.createLinearGradient(sy_tx - 110, sy_ty - 100, sy_tx + 110, sy_ty + 10);
+            sy_grad.addColorStop(0, "hsl(" + sy_hue + ", 92%, 68%)");
+            sy_grad.addColorStop(0.5, "hsl(" + ((sy_hue + 60) % 360) + ", 92%, 62%)");
+            sy_grad.addColorStop(1, "hsl(" + ((sy_hue + 140) % 360) + ", 92%, 70%)");
+
+            sy_textCtx.font = "900 110px 'Microsoft YaHei', sans-serif";
+            sy_textCtx.textAlign = "center";
+            sy_textCtx.shadowColor = "hsl(" + sy_hue + ", 92%, 60%)";
+            sy_textCtx.shadowBlur = 26;
+            sy_textCtx.fillStyle = sy_grad;
+            sy_textCtx.fillText("苏妍", sy_tx, sy_ty);
+            sy_textCtx.shadowBlur = 0;
+
+            // 角落水印
+            sy_textCtx.font = "12px Consolas, monospace";
+            sy_textCtx.textAlign = "left";
+            sy_textCtx.fillStyle = "rgba(219,228,243,0.4)";
+            sy_textCtx.fillText("frame " + sy_frame + "  hue " + Math.round(sy_hue), 10, 18);
+
+            sy_textRaf = requestAnimationFrame(sy_textLoop);
+        }
+
+        function sy_textToggle() {
+            var sy_btn = document.getElementById("sy_text_toggle");
+            if (sy_textRun) {
+                cancelAnimationFrame(sy_textRaf);
+                sy_textRun = false;
+                sy_btn.textContent = "启动";
+            } else {
+                sy_textLoop();
+                sy_textRun = true;
+                sy_btn.textContent = "暂停";
+            }
+        }
+
+        function sy_textSpeed() {
+            // 速度在 2.6~6 之间循环加速
+            var sy_sp = Math.hypot(sy_tvx, sy_tvy);
+            if (sy_sp >= 6) { sy_sp = 2.4; } else { sy_sp += 0.8; }
+            var sy_scale = sy_sp / Math.hypot(sy_tvx, sy_tvy);
+            sy_tvx *= sy_scale;
+            sy_tvy *= sy_scale;
+        }
+
+        // 文字初始位置居中
+        sy_tx = sy_textCanvas.width / 2;
+        sy_textLoop();
+
+        // ============================================================
+        // 演示三：粒子烟花
+        // ============================================================
+        var sy_fireCanvas = document.getElementById("sy_canvas_fire");
+        var sy_fireCtx = sy_fireCanvas.getContext("2d");
+        var sy_parts = [];          // 粒子数组
+        var sy_fireRaf = null;
+        var sy_fireRun = true;
+        var sy_autoId = null;       // 自动连发定时器
+
+        function sy_fireBurst(sy_x, sy_y, sy_randomHueBase) {
+            var sy_hueBase = sy_randomHueBase ? Math.floor(Math.random() * 360) : 45;
+            for (var sy_i = 0; sy_i < 60; sy_i++) {
+                var sy_angle = (Math.PI * 2 / 60) * sy_i;
+                var sy_speed = 2.2 + Math.random() * 3.6;
+                sy_parts.push({
+                    x: sy_x,
+                    y: sy_y,
+                    vx: Math.cos(sy_angle) * sy_speed,
+                    vy: Math.sin(sy_angle) * sy_speed - 1.2,
+                    life: 70 + Math.random() * 40,
+                    age: 0,
+                    hue: (sy_hueBase + Math.random() * 60) % 360,
+                    r: 1.6 + Math.random() * 2.2
+                });
+            }
+        }
+
+        function sy_fireLoop() {
+            var sy_w = sy_fireCanvas.width;
+            var sy_h = sy_fireCanvas.height;
+            // 拖影
+            sy_fireCtx.fillStyle = "rgba(13,19,34,0.2)";
+            sy_fireCtx.fillRect(0, 0, sy_w, sy_h);
+
+            for (var sy_i = sy_parts.length - 1; sy_i >= 0; sy_i--) {
+                var sy_p = sy_parts[sy_i];
+                sy_p.age++;
+                sy_p.x += sy_p.vx;
+                sy_p.y += sy_p.vy;
+                sy_p.vy += 0.07;                       // 重力
+                sy_p.vx *= 0.985;                      // 空气阻力
+                sy_p.vy *= 0.985;
+                var sy_alpha = 1 - sy_p.age / sy_p.life;
+                if (sy_alpha <= 0) {
+                    sy_parts.splice(sy_i, 1);          // 寿命耗尽，移除
+                    continue;
+                }
+                sy_fireCtx.beginPath();
+                sy_fireCtx.arc(sy_p.x, sy_p.y, sy_p.r, 0, Math.PI * 2);
+                sy_fireCtx.fillStyle = "hsla(" + sy_p.hue + ", 95%, 65%, " + sy_alpha.toFixed(2) + ")";
+                sy_fireCtx.fill();
+            }
+            sy_fireRaf = requestAnimationFrame(sy_fireLoop);
+        }
+
+        function sy_fireAutoToggle() {
+            var sy_btn = document.getElementById("sy_fire_auto");
+            if (sy_autoId === null) {
+                sy_fireBurst(sy_fireCanvas.width / 2, sy_fireCanvas.height / 2, true);
+                sy_autoId = setInterval(function () {
+                    sy_fireBurst(
+                        80 + Math.random() * (sy_fireCanvas.width - 160),
+                        60 + Math.random() * (sy_fireCanvas.height - 160),
+                        true
+                    );
+                }, 1600);
+                sy_btn.textContent = "自动连发：开";
+                sy_btn.style.background = "#3d9a6c";
+            } else {
+                clearInterval(sy_autoId);
+                sy_autoId = null;
+                sy_btn.textContent = "自动连发：关";
+                sy_btn.style.background = "";
+            }
+        }
+
+        function sy_fireClear() {
+            sy_parts = [];
+        }
+
+        // 点击画布发射
+        sy_fireCanvas.addEventListener("click", function (sy_e) {
+            sy_fireBurst(sy_e.offsetX, sy_e.offsetY, true);
+        });
+
+        sy_fireLoop();
+    </script>
+</body>
+</html>

@@ -22,7 +22,7 @@
 ## 技术栈约束
 - 前端使用原生的 HTML、CSS 和 JavaScript 实现
 - 图标使用 font 目录下的 iconfont 图标（iconfont.css 字体方式或 iconfont.js SVG 方式）
-- 不使用第三方库和 CDN
+- 不使用第三方库和 CDN；例外：用户明确要求时允许使用第三方库（如 ECharts），但库文件必须下载到本地 cdn 目录后以相对路径引入，禁止页面中外链远程 CDN
 - 获取服务器端数据使用 fetch
 
 ## 注意事项

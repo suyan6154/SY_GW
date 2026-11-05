@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：基于 Three.js 的 3D 柱状图与 3D 饼图
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：用 Three.js 绘制可交互的 3D 柱状图与 3D 饼图">
+    <title>18-6 Three.js 3D 图表</title>
+    <!-- 本地化 CDN 文件（项目规则：不用外链 CDN，库文件统一放 cdn 目录） -->
+    <script src="cdn/three.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1020px); margin: 0 auto; }
+
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.8rem, 5.2vw, 2.7rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 760px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_section { margin-top: 30px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.35rem;
+        }
+
+        .sy_card {
+            padding: 20px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+
+        .sy_desc { margin: 0 0 12px; color: #61708a; font-size: 0.88rem; }
+
+        /* 3D 画布容器 */
+        .sy_scene_wrap {
+            position: relative;
+            height: 480px;
+            border: 1px solid #edf0f6;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f2f6fd 0%, #e6edf8 100%);
+            overflow: hidden;
+        }
+
+        .sy_scene_wrap canvas { display: block; cursor: grab; }
+
+        .sy_scene_wrap canvas:active { cursor: grabbing; }
+
+        /* 3D 悬浮提示 */
+        .sy_tip3d {
+            position: absolute;
+            display: none;
+            padding: 7px 13px;
+            border-radius: 8px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-size: 0.8rem;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 5;
+            box-shadow: 0 6px 16px rgb(13 19 34 / 30%);
+        }
+
+        .sy_tip3d b { color: #ffc46b; }
+
+        .sy_ctrl-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .sy_btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #2457a6;
+            color: #fff;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .sy_btn:hover:not(:disabled) { background: #15376d; }
+        .sy_btn:active:not(:disabled) { transform: scale(0.96); }
+
+        .sy_btn_green { background: #3d9a6c; }
+        .sy_btn_green:hover { background: #2e7c54; }
+
+        /* 图例 */
+        .sy_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 10px;
+            font-size: 0.82rem;
+            color: #42506b;
+        }
+
+        .sy_legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+        .sy_legend i {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            font-style: normal;
+        }
+
+        .sy_hint { margin: 8px 0 0; color: #8a97b1; font-size: 0.8rem; }
+
+        .sy_code {
+            margin: 12px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            line-height: 1.75;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        .sy_summary ul { margin: 0; padding-left: 22px; color: #42506b; font-size: 0.92rem; }
+        .sy_summary li { margin-bottom: 7px; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 18 · Three.js 3D 可视化</p>
+            <h1>Three.js 3D 图表</h1>
+            <p class="sy_intro">
+                Three.js 是 WebGL 3D 引擎，配合"场景 → 相机 → 渲染器"三件套把数据画到立体空间里。
+                本页两个图表均<b>纯代码建模</b>（无外部模型文件）：
+                ① <b>3D 柱状图</b>——BoxGeometry 按数据缩放高度，拖拽旋转、滚轮缩放、
+                Raycaster 悬停显示数值；
+                ② <b>3D 饼图</b>——CylinderGeometry 按占比切片，悬停扇块自动"弹出"，可自动旋转。
+                库文件已按项目规则下载到本地 <code>cdn/</code> 目录。
+            </p>
+        </header>
+
+        <!-- 图一：3D 柱状图 -->
+        <section class="sy_section">
+            <h2>一、3D 柱状图（商城上半年销量）</h2>
+            <div class="sy_card">
+                <h3>拖拽旋转视角 · 滚轮缩放 · 悬停查看数值</h3>
+                <p class="sy_desc">
+                    每根柱子是一个 <code>BoxGeometry</code> 立方体，高度与销量成正比，
+                    颜色按数值深浅渐变（HSL）；底座平面 + <code>GridHelper</code> 网格辅助定位，
+                    轴标签用 Canvas 画的文字贴图（Sprite）始终朝向相机。
+                </p>
+                <div class="sy_scene_wrap" id="sy_bar_wrap">
+                    <div class="sy_tip3d" id="sy_bar_tip"></div>
+                </div>
+                <div class="sy_legend">
+                    <span><i style="background:#2f6fd0;"></i>数码</span>
+                    <span><i style="background:#3d9a6c;"></i>服饰</span>
+                    <span><i style="background:#ef775e;"></i>食品</span>
+                    <span>柱子颜色越亮 = 销量越高</span>
+                </div>
+                <p class="sy_hint">操作：按住鼠标左键拖拽旋转，滚轮缩放，悬停柱子查看数值。</p>
+                <pre class="sy_code"><i>// 三件套：场景、相机、渲染器</i>
+var sy_scene = new THREE.Scene();
+var sy_camera = new THREE.PerspectiveCamera(45, sy_w / sy_h, 0.1, 100);
+var sy_renderer = new THREE.WebGLRenderer({ antialias: true });
+sy_renderer.setSize(sy_w, sy_h);
+
+<i>// 数据 → 几何体：高度与数值成正比</i>
+var sy_h = sy_value / 100 * 4;
+var sy_mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(0.6, sy_h, 0.6),
+  new THREE.MeshLambertMaterial({ color: sy_color })
+);
+sy_mesh.position.set(sy_x, sy_h / 2, sy_z);   <i>// 底部对齐地面</i>
+
+<i>// Raycaster 拾取：鼠标位置 → 射线 → 命中的柱子</i>
+sy_raycaster.setFromCamera(sy_mouseNDC, sy_camera);
+var sy_hits = sy_raycaster.intersectObjects(sy_barGroup.children);</pre>
+            </div>
+        </section>
+
+        <!-- 图二：3D 饼图 -->
+        <section class="sy_section">
+            <h2>二、3D 饼图（商城类目销售占比）</h2>
+            <div class="sy_card">
+                <h3>悬停扇块弹出 · 自动旋转可开关</h3>
+                <p class="sy_desc">
+                    每个扇块用 <code>CylinderGeometry(顶半径, 底半径, 高, 分段, 1, false, 起始角, 弧度)</code>
+                    的扇形参数生成，弧度 = 占比 × 2π；悬停时扇块沿自身角平分线方向"弹出"，
+                    下方提示框显示占比。
+                </p>
+                <div class="sy_scene_wrap" id="sy_pie_wrap">
+                    <div class="sy_tip3d" id="sy_pie_tip"></div>
+                </div>
+                <div class="sy_legend" id="sy_pie_legend"></div>
+                <div class="sy_ctrl-row">
+                    <button class="sy_btn sy_btn_green" type="button" id="sy_pie_spin_btn" onclick="sy_pieSpinToggle()">自动旋转：开</button>
+                </div>
+                <pre class="sy_code"><i>// 扇形 = 圆柱体的一段弧，弧长由占比决定</i>
+var sy_angle = sy_value / sy_total * Math.PI * 2;
+new THREE.CylinderGeometry(
+  3, 3, 1.2, 64, 1, false,
+  sy_startAngle,       <i>// 起始角</i>
+  sy_angle             <i>// 本扇块的弧度</i>
+);
+
+<i>// 悬停弹出：沿角平分线方向平移 0.4</i>
+var sy_mid = sy_startAngle + sy_angle / 2;
+sy_mesh.position.set(Math.sin(sy_mid) * 0.4, 0, Math.cos(sy_mid) * 0.4);</pre>
+            </div>
+        </section>
+
+        <!-- 要点总结 -->
+        <section class="sy_summary">
+            <h2>Three.js 要点</h2>
+            <ul>
+                <li><b>三件套</b>：<code>Scene</code>（舞台）+ <code>PerspectiveCamera</code>（透视相机，视野角 45°）+ <code>WebGLRenderer</code>（渲染器），每帧调用 <code>renderer.render(scene, camera)</code>。</li>
+                <li><b>光照</b>：MeshLambertMaterial 受光影响，需要 <code>AmbientLight</code> 环境光 + <code>DirectionalLight</code> 方向光，否则物体全黑。</li>
+                <li><b>用数据建模</b>：柱高 = 数值 / 最大值 × 单位高度；饼图弧度 = 占比 × 2π —— 3D 图表的本质是"数据驱动几何体参数"。</li>
+                <li><b>交互拾取</b>：<code>Raycaster</code> 从相机向鼠标位置发射线，<code>intersectObjects</code> 返回命中物体，实现 3D 版的"悬停"。</li>
+                <li><b>文字贴图</b>：Three.js 没有文字节点，用 Canvas 画字 → <code>CanvasTexture</code> → <code>Sprite</code>，Sprite 永远面向相机，适合做轴标签。</li>
+                <li><b>自适应</b>：监听 <code>resize</code>，同步更新相机宽高比 <code>camera.aspect</code> 与 <code>renderer.setSize</code>。</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ============================================================
+        // 公用：创建 Canvas 文字贴图 Sprite（始终朝向相机的轴标签）
+        // ============================================================
+        function sy_makeTextSprite(sy_text, sy_color) {
+            var sy_cvs = document.createElement("canvas");
+            sy_cvs.width = 256;
+            sy_cvs.height = 64;
+            var sy_ctx = sy_cvs.getContext("2d");
+            sy_ctx.font = "bold 34px 'Microsoft YaHei', sans-serif";
+            sy_ctx.textAlign = "center";
+            sy_ctx.textBaseline = "middle";
+            sy_ctx.fillStyle = sy_color;
+            sy_ctx.fillText(sy_text, 128, 34);
+            var sy_texture = new THREE.CanvasTexture(sy_cvs);
+            var sy_sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: sy_texture, transparent: true }));
+            sy_sprite.scale.set(1.6, 0.4, 1);
+            return sy_sprite;
+        }
+
+        // ============================================================
+        // 图一：3D 柱状图
+        // ============================================================
+        var sy_barWrap = document.getElementById("sy_bar_wrap");
+        var sy_barTip = document.getElementById("sy_bar_tip");
+        var sy_barScene = new THREE.Scene();
+        var sy_barW = sy_barWrap.clientWidth;
+        var sy_barH = sy_barWrap.clientHeight;
+        var sy_barCamera = new THREE.PerspectiveCamera(45, sy_barW / sy_barH, 0.1, 100);
+        sy_barCamera.position.set(8, 9, 12);
+        sy_barCamera.lookAt(0, 1.5, 0);
+        var sy_barRenderer = new THREE.WebGLRenderer({ antialias: true });
+        sy_barRenderer.setPixelRatio(window.devicePixelRatio || 1);
+        sy_barRenderer.setSize(sy_barW, sy_barH);
+        sy_barWrap.appendChild(sy_barRenderer.domElement);
+
+        // 光照
+        sy_barScene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        var sy_barLight = new THREE.DirectionalLight(0xffffff, 0.75);
+        sy_barLight.position.set(6, 12, 8);
+        sy_barScene.add(sy_barLight);
+
+        // 旋转中枢（拖拽时旋转它，场景整体转动）
+        var sy_barPivot = new THREE.Group();
+        sy_barScene.add(sy_barPivot);
+
+        // 底座与网格
+        var sy_barBase = new THREE.Mesh(
+            new THREE.BoxGeometry(9, 0.2, 6),
+            new THREE.MeshLambertMaterial({ color: 0xdfe7f3 })
+        );
+        sy_barBase.position.y = -0.1;
+        sy_barPivot.add(sy_barBase);
+        var sy_grid = new THREE.GridHelper(9, 9, 0xb9c6dd, 0xd4dded);
+        sy_grid.position.y = 0.01;
+        sy_barPivot.add(sy_grid);
+
+        // 数据：6 个月 × 3 类目
+        var sy_months = ["1月", "2月", "3月", "4月", "5月", "6月"];
+        var sy_cats = ["数码", "服饰", "食品"];
+        var sy_catColors = [0x2f6fd0, 0x3d9a6c, 0xef775e];
+        var sy_sales = [
+            [62, 45, 58, 80, 74, 96],   // 数码
+            [50, 68, 40, 55, 88, 63],   // 服饰
+            [35, 52, 72, 47, 60, 78]    // 食品
+        ];
+
+        var sy_barGroup = new THREE.Group();
+        sy_barPivot.add(sy_barGroup);
+        var sy_barMeshes = [];
+
+        sy_sales.forEach(function (sy_row, sy_ci) {
+            sy_row.forEach(function (sy_val, sy_mi) {
+                var sy_h = sy_val / 100 * 4 + 0.15;
+                // 颜色亮度随数值变化（同色系 HSL）
+                var sy_l = 0.32 + sy_val / 100 * 0.18;
+                var sy_base = new THREE.Color(sy_catColors[sy_ci]);
+                var sy_color = new THREE.Color().setHSL(sy_base.getHSL({ h: 0, s: 0, l: 0 }).h, sy_base.getHSL({ h: 0, s: 0, l: 0 }).s, sy_l);
+                var sy_mesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.62, sy_h, 0.62),
+                    new THREE.MeshLambertMaterial({ color: sy_color })
+                );
+                sy_mesh.position.set((sy_mi - 2.5) * 1.35, sy_h / 2, (sy_ci - 1) * 1.6);
+                sy_mesh.userData = { month: sy_months[sy_mi], cat: sy_cats[sy_ci], val: sy_val };
+                sy_barGroup.add(sy_mesh);
+                sy_barMeshes.push(sy_mesh);
+            });
+        });
+
+        // 轴标签（Sprite 文字）
+        sy_months.forEach(function (sy_m, sy_i) {
+            var sy_sp = sy_makeTextSprite(sy_m, "#5a6a88");
+            sy_sp.position.set((sy_i - 2.5) * 1.35, 0.5, 3.6);
+            sy_barPivot.add(sy_sp);
+        });
+        sy_cats.forEach(function (sy_c, sy_i) {
+            var sy_sp = sy_makeTextSprite(sy_c, "#" + sy_catColors[sy_i].toString(16).padStart(6, "0"));
+            sy_sp.position.set(-5.4, 0.5, (sy_i - 1) * 1.6);
+            sy_barPivot.add(sy_sp);
+        });
+
+        // 交互：拖拽旋转 + 滚轮缩放 + Raycaster 悬停
+        var sy_barDrag = false;
+        var sy_barLastX = 0;
+        var sy_barLastY = 0;
+        var sy_barRay = new THREE.Raycaster();
+        var sy_barMouse = new THREE.Vector2();
+        var sy_barHover = null;
+
+        sy_barWrap.addEventListener("mousedown", function (sy_e) {
+            sy_barDrag = true;
+            sy_barLastX = sy_e.clientX;
+            sy_barLastY = sy_e.clientY;
+        });
+        window.addEventListener("mouseup", function () { sy_barDrag = false; });
+        window.addEventListener("mousemove", function (sy_e) {
+            if (sy_barDrag) {
+                sy_barPivot.rotation.y += (sy_e.clientX - sy_barLastX) * 0.008;
+                sy_barPivot.rotation.x += (sy_e.clientY - sy_barLastY) * 0.005;
+                sy_barPivot.rotation.x = Math.max(-0.4, Math.min(0.5, sy_barPivot.rotation.x));
+                sy_barLastX = sy_e.clientX;
+                sy_barLastY = sy_e.clientY;
+            }
+        });
+        sy_barWrap.addEventListener("wheel", function (sy_e) {
+            sy_e.preventDefault();
+            var sy_scale = sy_e.deltaY > 0 ? 1.08 : 0.92;
+            var sy_dist = sy_barCamera.position.multiplyScalar(sy_scale).length();
+            if (sy_dist > 26) { sy_barCamera.position.multiplyScalar(26 / sy_dist); }
+            if (sy_dist < 8) { sy_barCamera.position.multiplyScalar(8 / sy_dist); }
+        }, { passive: false });
+
+        sy_barWrap.addEventListener("mousemove", function (sy_e) {
+            var sy_rect = sy_barWrap.getBoundingClientRect();
+            sy_barMouse.x = ((sy_e.clientX - sy_rect.left) / sy_rect.width) * 2 - 1;
+            sy_barMouse.y = -((sy_e.clientY - sy_rect.top) / sy_rect.height) * 2 + 1;
+            sy_barRay.setFromCamera(sy_barMouse, sy_barCamera);
+            var sy_hits = sy_barRay.intersectObjects(sy_barMeshes);
+            if (sy_hits.length > 0) {
+                sy_barHover = sy_hits[0].object;
+                sy_barTip.innerHTML = "<b>" + sy_barHover.userData.month + " · " + sy_barHover.userData.cat + "</b>　销量 " + sy_barHover.userData.val + " 万件";
+                sy_barTip.style.display = "block";
+                sy_barTip.style.left = (sy_e.clientX - sy_rect.left + 14) + "px";
+                sy_barTip.style.top = (sy_e.clientY - sy_rect.top + 10) + "px";
+            } else {
+                sy_barHover = null;
+                sy_barTip.style.display = "none";
+            }
+        });
+        sy_barWrap.addEventListener("mouseleave", function () {
+            sy_barHover = null;
+            sy_barTip.style.display = "none";
+        });
+
+        // 渲染循环：悬停柱子轻微"呼吸"抬升
+        function sy_barLoop() {
+            sy_barMeshes.forEach(function (sy_m) {
+                var sy_target = (sy_m === sy_barHover) ? 1.06 : 1;
+                sy_m.scale.y += (sy_target - sy_m.scale.y) * 0.2;
+            });
+            sy_barRenderer.render(sy_barScene, sy_barCamera);
+            requestAnimationFrame(sy_barLoop);
+        }
+        sy_barLoop();
+
+        // ============================================================
+        // 图二：3D 饼图
+        // ============================================================
+        var sy_pieWrap = document.getElementById("sy_pie_wrap");
+        var sy_pieTip = document.getElementById("sy_pie_tip");
+        var sy_pieLegend = document.getElementById("sy_pie_legend");
+        var sy_pieScene = new THREE.Scene();
+        var sy_pieW = sy_pieWrap.clientWidth;
+        var sy_pieH = sy_pieWrap.clientHeight;
+        var sy_pieCamera = new THREE.PerspectiveCamera(45, sy_pieW / sy_pieH, 0.1, 100);
+        sy_pieCamera.position.set(0, 7.5, 7.5);
+        sy_pieCamera.lookAt(0, 0, 0);
+        var sy_pieRenderer = new THREE.WebGLRenderer({ antialias: true });
+        sy_pieRenderer.setPixelRatio(window.devicePixelRatio || 1);
+        sy_pieRenderer.setSize(sy_pieW, sy_pieH);
+        sy_pieWrap.appendChild(sy_pieRenderer.domElement);
+
+        sy_pieScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        var sy_pieLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        sy_pieLight.position.set(4, 10, 6);
+        sy_pieScene.add(sy_pieLight);
+
+        var sy_piePivot = new THREE.Group();
+        sy_pieScene.add(sy_piePivot);
+
+        // 数据：类目占比
+        var sy_pieData = [
+            { name: "数码", val: 35, color: 0x2f6fd0 },
+            { name: "服饰", val: 25, color: 0x3d9a6c },
+            { name: "食品", val: 20, color: 0xef775e },
+            { name: "家居", val: 12, color: 0x7b4ca6 },
+            { name: "其他", val: 8, color: 0xf0a24a }
+        ];
+        var sy_pieTotal = 100;
+
+        var sy_pieMeshes = [];
+        var sy_startAngle = 0;
+        sy_pieData.forEach(function (sy_d) {
+            var sy_angle = sy_d.val / sy_pieTotal * Math.PI * 2;
+            var sy_mesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(3, 3, 1.2, 64, 1, false, sy_startAngle, sy_angle),
+                new THREE.MeshLambertMaterial({ color: sy_d.color })
+            );
+            var sy_mid = sy_startAngle + sy_angle / 2;
+            sy_mesh.userData = {
+                name: sy_d.name,
+                val: sy_d.val,
+                outX: Math.sin(sy_mid) * 0.45,   // 弹出方向（角平分线）
+                outZ: Math.cos(sy_mid) * 0.45
+            };
+            sy_piePivot.add(sy_mesh);
+            sy_pieMeshes.push(sy_mesh);
+            sy_startAngle += sy_angle;
+        });
+
+        // HTML 图例
+        sy_pieData.forEach(function (sy_d) {
+            var sy_span = document.createElement("span");
+            var sy_dot = document.createElement("i");
+            sy_dot.style.background = "#" + sy_d.color.toString(16).padStart(6, "0");
+            sy_span.appendChild(sy_dot);
+            sy_span.appendChild(document.createTextNode(sy_d.name + " " + sy_d.val + "%"));
+            sy_pieLegend.appendChild(sy_span);
+        });
+
+        // 交互：Raycaster 悬停弹出
+        var sy_pieRay = new THREE.Raycaster();
+        var sy_pieMouse = new THREE.Vector2();
+        var sy_pieHover = null;
+
+        sy_pieWrap.addEventListener("mousemove", function (sy_e) {
+            var sy_rect = sy_pieWrap.getBoundingClientRect();
+            sy_pieMouse.x = ((sy_e.clientX - sy_rect.left) / sy_rect.width) * 2 - 1;
+            sy_pieMouse.y = -((sy_e.clientY - sy_rect.top) / sy_rect.height) * 2 + 1;
+            sy_pieRay.setFromCamera(sy_pieMouse, sy_pieCamera);
+            var sy_hits = sy_pieRay.intersectObjects(sy_pieMeshes);
+            sy_pieHover = sy_hits.length > 0 ? sy_hits[0].object : null;
+            if (sy_pieHover) {
+                sy_pieTip.innerHTML = "<b>" + sy_pieHover.userData.name + "</b>　占比 " + sy_pieHover.userData.val + "%";
+                sy_pieTip.style.display = "block";
+                sy_pieTip.style.left = (sy_e.clientX - sy_rect.left + 14) + "px";
+                sy_pieTip.style.top = (sy_e.clientY - sy_rect.top + 10) + "px";
+            } else {
+                sy_pieTip.style.display = "none";
+            }
+        });
+        sy_pieWrap.addEventListener("mouseleave", function () {
+            sy_pieHover = null;
+            sy_pieTip.style.display = "none";
+        });
+
+        // 自动旋转开关
+        var sy_pieSpinning = true;
+        function sy_pieSpinToggle() {
+            sy_pieSpinning = !sy_pieSpinning;
+            var sy_btn = document.getElementById("sy_pie_spin_btn");
+            sy_btn.textContent = sy_pieSpinning ? "自动旋转：开" : "自动旋转：关";
+        }
+
+        // 渲染循环：悬停扇块平滑弹出 / 收回
+        function sy_pieLoop() {
+            if (sy_pieSpinning) { sy_piePivot.rotation.y += 0.006; }
+            sy_pieMeshes.forEach(function (sy_m) {
+                var sy_isHover = sy_m === sy_pieHover;
+                sy_m.position.x += ((sy_isHover ? sy_m.userData.outX : 0) - sy_m.position.x) * 0.18;
+                sy_m.position.z += ((sy_isHover ? sy_m.userData.outZ : 0) - sy_m.position.z) * 0.18;
+            });
+            sy_pieRenderer.render(sy_pieScene, sy_pieCamera);
+            requestAnimationFrame(sy_pieLoop);
+        }
+        sy_pieLoop();
+
+        // ============================================================
+        // 窗口缩放自适应
+        // ============================================================
+        window.addEventListener("resize", function () {
+            var sy_bw = sy_barWrap.clientWidth;
+            sy_barCamera.aspect = sy_bw / sy_barH;
+            sy_barCamera.updateProjectionMatrix();
+            sy_barRenderer.setSize(sy_bw, sy_barH);
+
+            var sy_pw = sy_pieWrap.clientWidth;
+            sy_pieCamera.aspect = sy_pw / sy_pieH;
+            sy_pieCamera.updateProjectionMatrix();
+            sy_pieRenderer.setSize(sy_pw, sy_pieH);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：ECharts 图表演示（地理坐标系等值区划图 + 散点图 / 渐变堆叠面积图）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：ECharts 绘制冰岛地图等值区划 + 散点图与渐变堆叠面积图">
+    <title>18-4 ECharts 图表演示</title>
+    <!-- 本地化 CDN 文件（项目规则：不用外链 CDN，库文件统一放 cdn 目录） -->
+    <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/iceland-geo.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1020px); margin: 0 auto; }
+
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.8rem, 5.2vw, 2.7rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 740px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_section { margin-top: 30px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.35rem;
+        }
+
+        .sy_card {
+            padding: 20px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+
+        .sy_desc { margin: 0 0 10px; color: #61708a; font-size: 0.88rem; }
+
+        .sy_chart {
+            width: 100%;
+            height: 560px;
+            border: 1px solid #edf0f6;
+            border-radius: 12px;
+        }
+
+        .sy_chart_area { height: 460px; }
+
+        .sy_code {
+            margin: 12px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            line-height: 1.75;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        .sy_summary {
+            margin-top: 34px;
+            padding: 26px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_summary h2 {
+            margin: 0 0 14px;
+            padding-left: 14px;
+            border-left: 5px solid #2457a6;
+            font-size: 1.3rem;
+        }
+
+        .sy_summary ul { margin: 0; padding-left: 22px; color: #42506b; font-size: 0.92rem; }
+        .sy_summary li { margin-bottom: 7px; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 18 · ECharts 数据可视化</p>
+            <h1>ECharts 图表演示</h1>
+            <p class="sy_intro">
+                ECharts 是百度开源的图表库。本页演示两个官方经典案例：
+                ① <b>地理坐标系</b>上同时绘制冰岛<b>等值区划图（choropleth）</b>与<b>散点图</b>，
+                用两个 <code>visualMap</code> 分别映射区域颜色与散点大小；
+                ② 使用 <code>echarts.graphic.LinearGradient</code> 实现<b>渐变堆叠面积图</b>。
+                两个库文件已按项目规则下载到本地 <code>cdn/</code> 目录，无外链请求。
+            </p>
+        </header>
+
+        <!-- 图一：地理坐标系 -->
+        <section class="sy_section">
+            <h2>一、地理坐标系：等值区划图 + 散点图（冰岛）</h2>
+            <div class="sy_card">
+                <h3>map 系列渲染区域数值，scatter 系列渲染城市散点</h3>
+                <p class="sy_desc">
+                    拖动 / 滚轮可缩放地图；左下角视觉映射控制各区域颜色，右下角控制散点大小；
+                    悬停查看数值。关键点：<code>geo</code> 组件提供地图坐标系，
+                    <code>map</code> 与 <code>scatter</code> 两个系列都通过 <code>geoIndex: 0</code> 共享它。
+                </p>
+                <div id="sy_map_chart" class="sy_chart"></div>
+                <pre class="sy_code"><i>// 1. 注册地图：GeoJSON 已封装在 cdn/iceland-geo.js 中（window.sy_icelandGeo）</i>
+echarts.registerMap("sy_iceland", window.sy_icelandGeo);
+
+<i>// 2. aspectScale 按纬度修正墨卡托变形（冰岛约北纬 65°）</i>
+geo: {
+  map: "sy_iceland",
+  roam: true,
+  aspectScale: Math.cos((65 * Math.PI) / 180)
+}
+
+<i>// 3. 两个系列共享 geo 坐标系，避免重复创建</i>
+{ type: "scatter", coordinateSystem: "geo", geoIndex: 0, ... }
+{ type: "map",     geoIndex: 0, data: [{ name: "Austurland", value: 423 }, ...] }
+
+<i>// 4. visualMap 用 dimension 指定映射的数据维度</i>
+visualMap: { seriesIndex: 0, dimension: 2, inRange: { symbolSize: [5, 30] } }
+visualMap: { seriesIndex: 1, dimension: 0, inRange: { color: ["#deebf7", "#3182bd"] } }</pre>
+            </div>
+        </section>
+
+        <!-- 图二：渐变堆叠面积图 -->
+        <section class="sy_section">
+            <h2>二、渐变堆叠面积图</h2>
+            <div class="sy_card">
+                <h3>5 条 line 系列共用 stack: "Total" + 线性渐变填充</h3>
+                <p class="sy_desc">
+                    面积堆叠的秘密：<code>stack</code> 值相同的系列会逐层累加；
+                    把 <code>lineStyle.width</code> 设为 0、隐藏 symbol，就只剩渐变"色带"；
+                    渐变颜色由 <code>echarts.graphic.LinearGradient</code> 从上到下过渡。
+                    悬停可查看每层数值，右上角工具栏可保存为图片。
+                </p>
+                <div id="sy_area_chart" class="sy_chart sy_chart_area"></div>
+                <pre class="sy_code">areaStyle: {
+  opacity: 0.8,
+  color: <b>new echarts.graphic.LinearGradient</b>(0, 0, 0, 1, [
+    { offset: 0, color: "rgb(128, 255, 165)" },   <i>// 顶部颜色</i>
+    { offset: 1, color: "rgb(1, 191, 236)" }      <i>// 底部颜色</i>
+  ])
+},
+lineStyle: { width: 0 },    <i>// 隐藏描边线</i>
+showSymbol: false           <i>// 隐藏数据点</i></pre>
+            </div>
+        </section>
+
+        <!-- 要点总结 -->
+        <section class="sy_summary">
+            <h2>ECharts 要点</h2>
+            <ul>
+                <li><b>引入方式</b>：本项目不使用外链 CDN，库文件下载到 <code>cdn/echarts.min.js</code> 后用本地 <code>&lt;script&gt;</code> 引入。</li>
+                <li><b>初始化三步</b>：<code>echarts.init(dom)</code> → 编写 <code>option</code> 配置对象 → <code>setOption(option)</code>；数据变化时再次 <code>setOption</code> 即可增量更新。</li>
+                <li><b>registerMap</b>：地理数据本质是 GeoJSON（FeatureCollection），注册后即可被 <code>geo</code> / <code>map</code> 系列使用。</li>
+                <li><b>visualMap</b>：视觉映射组件，把数据维度映射为颜色 / 大小等视觉通道；多个 series 时用 <code>seriesIndex</code> 绑定。</li>
+                <li><b>encode</b>：声明"数据维度 → 视觉通道"的对应关系，如 <code>tooltip: 2</code> 表示第 3 维数据显示在提示框。</li>
+                <li><b>自适应</b>：监听 <code>window.onresize</code> 调用 <code>chart.resize()</code>，让图表跟随容器缩放。</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ============================================================
+        // 图一：冰岛地理坐标系（等值区划 + 散点）
+        // ============================================================
+        var sy_mapChart = echarts.init(document.getElementById("sy_map_chart"));
+
+        function sy_createMapChart() {
+            var sy_icelandRoughLatitude = 65;
+            sy_mapChart.setOption({
+                geo: {
+                    map: "sy_iceland",
+                    roam: true,
+                    aspectScale: Math.cos((sy_icelandRoughLatitude * Math.PI) / 180),
+                    label: {
+                        show: true,
+                        color: "#555"
+                    }
+                },
+                tooltip: {},
+                visualMap: [
+                    {
+                        orient: "horizontal",
+                        calculable: true,
+                        right: 0,
+                        bottom: 0,
+                        seriesIndex: 0,
+                        min: 0,
+                        max: 1e5,
+                        dimension: 2,
+                        inRange: {
+                            symbolSize: [5, 30]
+                        },
+                        controller: {
+                            inRange: {
+                                color: ["#66c2a5"]
+                            }
+                        }
+                    },
+                    {
+                        orient: "horizontal",
+                        calculable: true,
+                        left: 0,
+                        bottom: 0,
+                        seriesIndex: 1,
+                        min: 0,
+                        max: 1e3,
+                        dimension: 0,
+                        inRange: {
+                            color: ["#deebf7", "#3182bd"]
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        type: "scatter",
+                        coordinateSystem: "geo",
+                        geoIndex: 0,
+                        encode: {
+                            tooltip: 2,
+                            label: 2
+                        },
+                        data: [
+                            [-21.9348415, 64.1334671, 14523],
+                            [-19.028531, 63.710241, 45126],
+                            [-17.089925, 65.37887072, 12345],
+                            [-19.15936, 65.6218101, 56789],
+                            [-19.849175, 65.7287035, 67890],
+                            [-23.18326, 65.582939, 89012],
+                            [-14.9515, 64.475135, 34567],
+                            [-20.88389, 63.85321, 45678]
+                        ],
+                        itemStyle: {
+                            color: "#66c2a5",
+                            borderWidth: 1,
+                            borderColor: "#3c7865"
+                        }
+                    },
+                    {
+                        // 等值区划图（choropleth）
+                        type: "map",
+                        // 与上面的散点系列共享 geo 组件
+                        geoIndex: 0,
+                        map: "",
+                        data: [
+                            { name: "Austurland", value: 423 },
+                            { name: "Suðurland", value: 256 },
+                            { name: "Norðurland vestra", value: 489 },
+                            { name: "Norðurland eystra", value: 51 }
+                        ]
+                    }
+                ]
+            });
+        }
+
+        // 注册地图后渲染（GeoJSON 已由 cdn/iceland-geo.js 预先载入）
+        sy_mapChart.showLoading();
+        echarts.registerMap("sy_iceland", window.sy_icelandGeo);
+        sy_createMapChart();
+        sy_mapChart.hideLoading();
+
+        // ============================================================
+        // 图二：渐变堆叠面积图
+        // ============================================================
+        var sy_areaChart = echarts.init(document.getElementById("sy_area_chart"));
+
+        sy_areaChart.setOption({
+            color: ["#80FFA5", "#00DDFF", "#37A2FF", "#FF0087", "#FFBF00"],
+            title: {
+                text: "渐变堆叠面积图（Gradient Stacked Area）"
+            },
+            tooltip: {
+                trigger: "axis",
+                axisPointer: {
+                    type: "cross",
+                    label: {
+                        backgroundColor: "#6a7985"
+                    }
+                }
+            },
+            legend: {
+                data: ["Line 1", "Line 2", "Line 3", "Line 4", "Line 5"]
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            grid: {
+                left: "3%",
+                right: "4%",
+                bottom: "3%",
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: "category",
+                    boundaryGap: false,
+                    data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+                }
+            ],
+            yAxis: [
+                {
+                    type: "value"
+                }
+            ],
+            series: [
+                {
+                    name: "Line 1",
+                    type: "line",
+                    stack: "Total",
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(128, 255, 165)" },
+                            { offset: 1, color: "rgb(1, 191, 236)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [140, 232, 101, 264, 90, 340, 250]
+                },
+                {
+                    name: "Line 2",
+                    type: "line",
+                    stack: "Total",
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(0, 221, 255)" },
+                            { offset: 1, color: "rgb(77, 119, 255)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [120, 282, 111, 234, 220, 340, 310]
+                },
+                {
+                    name: "Line 3",
+                    type: "line",
+                    stack: "Total",
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(55, 162, 255)" },
+                            { offset: 1, color: "rgb(116, 21, 219)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [320, 132, 201, 334, 190, 130, 220]
+                },
+                {
+                    name: "Line 4",
+                    type: "line",
+                    stack: "Total",
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(255, 0, 135)" },
+                            { offset: 1, color: "rgb(135, 0, 157)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [220, 402, 231, 134, 190, 230, 120]
+                },
+                {
+                    name: "Line 5",
+                    type: "line",
+                    stack: "Total",
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    label: {
+                        show: true,
+                        position: "top"
+                    },
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: "rgb(255, 191, 0)" },
+                            { offset: 1, color: "rgb(224, 62, 76)" }
+                        ])
+                    },
+                    emphasis: { focus: "series" },
+                    data: [220, 302, 181, 234, 210, 290, 150]
+                }
+            ]
+        });
+
+        // ============================================================
+        // 窗口缩放自适应
+        // ============================================================
+        window.addEventListener("resize", function () {
+            sy_mapChart.resize();
+            sy_areaChart.resize();
+        });
+    </script>
+</body>
+</html>

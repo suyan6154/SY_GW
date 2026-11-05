@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：基于知识库的智能客服系统架构图（SVG 格式 · 科研方向）
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：用 SVG 绘制基于知识库的智能客服系统架构图，标注科研方向">
+    <title>18-3 SVG 系统架构图（智能客服 · 科研方向）</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1020px); margin: 0 auto; }
+
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.25; }
+
+        .sy_intro { max-width: 760px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_section { margin-top: 30px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.35rem;
+        }
+
+        /* SVG 容器 */
+        .sy_canvas_wrap {
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            padding: 14px;
+        }
+
+        svg { display: block; width: 100%; height: auto; }
+
+        /* SVG 节点交互 */
+        .sy_node { cursor: pointer; }
+
+        .sy_node_rect { transition: stroke-width 0.15s, filter 0.15s; }
+
+        .sy_node:hover .sy_node_rect {
+            stroke-width: 2.6;
+            filter: drop-shadow(0 3px 8px rgb(36 87 166 / 30%));
+        }
+
+        .sy_node.sy_active .sy_node_rect {
+            stroke-width: 3;
+            stroke-dasharray: 6 4;
+        }
+
+        /* 流动虚线箭头 */
+        .sy_flowline {
+            animation: sy_dashmove 1.1s linear infinite;
+        }
+
+        @keyframes sy_dashmove { to { stroke-dashoffset: -28; } }
+
+        /* 图例 */
+        .sy_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 12px;
+            font-size: 0.82rem;
+            color: #42506b;
+        }
+
+        .sy_legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+        .sy_legend i {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            font-style: normal;
+        }
+
+        .sy_hint { margin: 8px 0 0; color: #8a97b1; font-size: 0.82rem; }
+
+        /* 点击详情面板 */
+        .sy_info {
+            margin-top: 14px;
+            padding: 14px 18px;
+            border-left: 4px solid #2457a6;
+            border-radius: 10px;
+            background: #eef4fc;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .sy_info b { color: #15376d; }
+
+        /* 卡片 */
+        .sy_card {
+            padding: 22px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+
+        .sy_card ul, .sy_card ol { margin: 0; padding-left: 22px; color: #42506b; font-size: 0.9rem; }
+        .sy_card li { margin-bottom: 6px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+
+        th, td { padding: 8px 12px; border: 1px solid #e3e8f2; text-align: left; }
+
+        th { background: #f6f8fc; color: #15376d; }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 18 · SVG 应用</p>
+            <h1>基于知识库的智能客服系统架构图</h1>
+            <p class="sy_intro">
+                本图使用 <b>SVG（可缩放矢量图形）</b>绘制。与 Canvas 的"画完即忘"不同，
+                SVG 的每个图形都是 <b>DOM 节点</b>，可以用 CSS 设样式、用 JS 绑事件、无限缩放不失真。
+                图中带 <b>科研</b> 标签的模块是本课题的研究重点（RAG、知识图谱、多轮对话、自动评测等），
+                <b>点击任意模块</b>可查看说明。
+            </p>
+        </header>
+
+        <section class="sy_section">
+            <h2>架构总览（SVG）</h2>
+            <div class="sy_canvas_wrap">
+                <svg viewBox="0 0 960 520" role="img" aria-label="基于知识库的智能客服系统架构图">
+                    <defs>
+                        <marker id="sy_arrowhead" markerWidth="9" markerHeight="8" refX="4" refY="4" orient="auto">
+                            <path d="M0,0 L9,4 L0,8 Z" fill="rgba(36,87,166,0.6)"></path>
+                        </marker>
+                    </defs>
+
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="960" height="520" fill="#fbfcff"></rect>
+
+                    <!-- ===== 层背景 ===== -->
+                    <g>
+                        <rect x="12" y="14" width="936" height="72" rx="10" fill="rgb(36,87,166)" fill-opacity="0.08" stroke="rgb(36,87,166)" stroke-opacity="0.35"></rect>
+                        <rect x="12" y="114" width="936" height="72" rx="10" fill="rgb(47,124,120)" fill-opacity="0.08" stroke="rgb(47,124,120)" stroke-opacity="0.35"></rect>
+                        <rect x="12" y="214" width="936" height="72" rx="10" fill="rgb(179,101,47)" fill-opacity="0.08" stroke="rgb(179,101,47)" stroke-opacity="0.35"></rect>
+                        <rect x="12" y="314" width="936" height="86" rx="10" fill="rgb(123,76,166)" fill-opacity="0.08" stroke="rgb(123,76,166)" stroke-opacity="0.35"></rect>
+                        <rect x="12" y="428" width="936" height="76" rx="10" fill="rgb(153,55,60)" fill-opacity="0.08" stroke="rgb(153,55,60)" stroke-opacity="0.35"></rect>
+                    </g>
+
+                    <!-- ===== 层标题（左侧竖排） ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="700" text-anchor="middle">
+                        <text x="52" y="44" fill="rgb(36,87,166)">用户<tspan x="52" dy="18">渠道层</tspan></text>
+                        <text x="52" y="138" fill="rgb(47,124,120)">接入与<tspan x="52" dy="18">会话层</tspan></text>
+                        <text x="52" y="238" fill="rgb(179,101,47)">智能理解<tspan x="52" dy="18">层 NLU</tspan></text>
+                        <text x="52" y="345" fill="rgb(123,76,166)">知识与<tspan x="52" dy="18">检索层</tspan><tspan x="52" dy="18">(RAG)</tspan></text>
+                        <text x="52" y="456" fill="rgb(153,55,60)">生成与<tspan x="52" dy="18">反馈层</tspan></text>
+                    </g>
+
+                    <!-- ===== 流动箭头 ===== -->
+                    <g stroke="rgba(36,87,166,0.45)" stroke-width="2" fill="none" marker-end="url(#sy_arrowhead)">
+                        <line class="sy_flowline" x1="239" y1="88" x2="239" y2="110" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="379" y1="88" x2="379" y2="110" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="518" y1="88" x2="518" y2="110" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="658" y1="88" x2="658" y2="110" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="797" y1="88" x2="797" y2="110" stroke-dasharray="8 6"></line>
+
+                        <line class="sy_flowline" x1="239" y1="188" x2="239" y2="210" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="379" y1="188" x2="379" y2="210" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="518" y1="188" x2="518" y2="210" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="658" y1="188" x2="658" y2="210" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="797" y1="188" x2="797" y2="210" stroke-dasharray="8 6"></line>
+
+                        <line class="sy_flowline" x1="239" y1="288" x2="239" y2="310" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="379" y1="288" x2="379" y2="310" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="518" y1="288" x2="518" y2="310" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="658" y1="288" x2="658" y2="310" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="797" y1="288" x2="797" y2="310" stroke-dasharray="8 6"></line>
+
+                        <line class="sy_flowline" x1="239" y1="402" x2="239" y2="424" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="379" y1="402" x2="379" y2="424" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="518" y1="402" x2="518" y2="424" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="658" y1="402" x2="658" y2="424" stroke-dasharray="8 6"></line>
+                        <line class="sy_flowline" x1="797" y1="402" x2="797" y2="424" stroke-dasharray="8 6"></line>
+                    </g>
+
+                    <!-- ===== L1 用户渠道层 ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif">
+                        <g class="sy_node" data-title="网页聊天窗口" data-desc="商城 / 官网右下角的在线客服聊天组件，Web 前端接入入口，通过 WebSocket 与服务端保持长连接。">
+                            <title>网页聊天窗口</title>
+                            <rect class="sy_node_rect" x="100" y="28" width="200" height="44" rx="8" fill="rgb(36,87,166)" fill-opacity="0.16" stroke="rgb(36,87,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="200" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">网页聊天窗口</text>
+                        </g>
+                        <g class="sy_node" data-title="微信公众号 / 小程序" data-desc="微信生态接入：公众号客服消息接口与小程序内置客服会话，覆盖社交场景咨询。">
+                            <title>微信公众号 / 小程序</title>
+                            <rect class="sy_node_rect" x="312" y="28" width="200" height="44" rx="8" fill="rgb(36,87,166)" fill-opacity="0.16" stroke="rgb(36,87,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="412" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">微信公众号 / 小程序</text>
+                        </g>
+                        <g class="sy_node" data-title="移动 App 内嵌" data-desc="App 内原生聊天页面，支持图片 / 订单卡片等富媒体消息，通过 IM 长连接网关通信。">
+                            <title>移动 App 内嵌</title>
+                            <rect class="sy_node_rect" x="524" y="28" width="200" height="44" rx="8" fill="rgb(36,87,166)" fill-opacity="0.16" stroke="rgb(36,87,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="624" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">移动 App 内嵌</text>
+                        </g>
+                        <g class="sy_node" data-title="语音入口 (ASR / TTS)" data-desc="电话与智能音箱等语音入口：语音识别(ASR)转文字后进入问答流程，回复经语音合成(TTS)播报。">
+                            <title>语音入口 (ASR / TTS)</title>
+                            <rect class="sy_node_rect" x="736" y="28" width="200" height="44" rx="8" fill="rgb(36,87,166)" fill-opacity="0.16" stroke="rgb(36,87,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="836" y="55" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">语音入口 (ASR/TTS)</text>
+                        </g>
+                    </g>
+
+                    <!-- ===== L2 接入与会话层 ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif">
+                        <g class="sy_node" data-title="会话管理" data-desc="会话 ID 分配、上下文窗口存储、多轮对话超时控制与多终端会话同步。">
+                            <title>会话管理</title>
+                            <rect class="sy_node_rect" x="100" y="128" width="270" height="44" rx="8" fill="rgb(47,124,120)" fill-opacity="0.16" stroke="rgb(47,124,120)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="235" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">会话管理</text>
+                        </g>
+                        <g class="sy_node" data-title="消息预处理" data-desc="文本清洗、错别字纠正、繁简转换、分词与词性标注，为下游理解模型提供规范输入。">
+                            <title>消息预处理</title>
+                            <rect class="sy_node_rect" x="382" y="128" width="270" height="44" rx="8" fill="rgb(47,124,120)" fill-opacity="0.16" stroke="rgb(47,124,120)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="517" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">消息预处理</text>
+                        </g>
+                        <g class="sy_node" data-title="安全与合规过滤" data-desc="敏感词过滤、用户隐私脱敏、回答内容安全审核，保障客服输出合法合规。">
+                            <title>安全与合规过滤</title>
+                            <rect class="sy_node_rect" x="664" y="128" width="270" height="44" rx="8" fill="rgb(47,124,120)" fill-opacity="0.16" stroke="rgb(47,124,120)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="799" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">安全与合规过滤</text>
+                        </g>
+                    </g>
+
+                    <!-- ===== L3 智能理解层 ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif">
+                        <g class="sy_node" data-title="意图识别（科研）" data-desc="判断用户想做什么：查订单、退换货、咨询商品参数……本质是文本多分类任务，可用 BERT 等预训练模型微调，是课题的研究重点之一。">
+                            <title>意图识别（科研）</title>
+                            <rect class="sy_node_rect" x="100" y="228" width="200" height="44" rx="8" fill="rgb(179,101,47)" fill-opacity="0.16" stroke="rgb(179,101,47)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="200" y="255" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">意图识别</text>
+                            <rect x="264" y="220" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="283" y="232" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="实体抽取" data-desc="识别订单号、商品名、时间等关键槽位（命名实体识别 NER），供下游查询订单库或知识图谱使用。">
+                            <title>实体抽取</title>
+                            <rect class="sy_node_rect" x="312" y="228" width="200" height="44" rx="8" fill="rgb(179,101,47)" fill-opacity="0.16" stroke="rgb(179,101,47)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="412" y="255" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">实体抽取</text>
+                        </g>
+                        <g class="sy_node" data-title="情感分析（科研）" data-desc="识别用户情绪（愤怒 / 焦虑 / 中性），据此动态调整回复语气、优先级，必要时直接转人工，是体验优化的研究点。">
+                            <title>情感分析（科研）</title>
+                            <rect class="sy_node_rect" x="524" y="228" width="200" height="44" rx="8" fill="rgb(179,101,47)" fill-opacity="0.16" stroke="rgb(179,101,47)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="624" y="255" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">情感分析</text>
+                            <rect x="688" y="220" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="707" y="232" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="多轮对话管理（科研）" data-desc="维护对话状态跟踪(DST)：处理指代消解（“它”指上一个商品）、槽位继承与澄清反问，是多轮问答的核心研究问题。">
+                            <title>多轮对话管理（科研）</title>
+                            <rect class="sy_node_rect" x="736" y="228" width="200" height="44" rx="8" fill="rgb(179,101,47)" fill-opacity="0.16" stroke="rgb(179,101,47)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="836" y="255" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">多轮对话管理</text>
+                            <rect x="900" y="220" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="919" y="232" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                    </g>
+
+                    <!-- ===== L4 知识与检索层 ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif">
+                        <g class="sy_node" data-title="FAQ 知识库" data-desc="高频问题与标准答案对，支持同义问法扩展与编辑距离模糊匹配，命中即直接返回，响应最快。">
+                            <title>FAQ 知识库</title>
+                            <rect class="sy_node_rect" x="100" y="328" width="200" height="58" rx="8" fill="rgb(123,76,166)" fill-opacity="0.16" stroke="rgb(123,76,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="200" y="362" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">FAQ 知识库</text>
+                        </g>
+                        <g class="sy_node" data-title="文档向量库（科研）" data-desc="产品手册、售后政策等长文档切块后经 Embedding 模型向量化入库，用语义相似度检索，解决“换个说法就搜不到”的问题。">
+                            <title>文档向量库（科研）</title>
+                            <rect class="sy_node_rect" x="312" y="328" width="200" height="58" rx="8" fill="rgb(123,76,166)" fill-opacity="0.16" stroke="rgb(123,76,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="412" y="357" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">文档向量库</text>
+                            <text x="412" y="376" text-anchor="middle" font-size="11" fill="#61708a">Embedding 检索</text>
+                            <rect x="476" y="320" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="495" y="332" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="知识图谱（科研）" data-desc="构建“商品-订单-售后-用户”实体关系图，支撑多跳推理（如：这款手机的保修政策 → 该型号 → 该用户订单），是知识工程方向的研究点。">
+                            <title>知识图谱（科研）</title>
+                            <rect class="sy_node_rect" x="524" y="328" width="200" height="58" rx="8" fill="rgb(123,76,166)" fill-opacity="0.16" stroke="rgb(123,76,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="624" y="357" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">知识图谱</text>
+                            <text x="624" y="376" text-anchor="middle" font-size="11" fill="#61708a">多跳推理</text>
+                            <rect x="688" y="320" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="707" y="332" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="混合检索与重排（科研）" data-desc="关键词检索(BM25)与向量检索融合召回，再用重排序模型精排出 Top-K 证据片段，喂给大模型生成答案，即 RAG 检索增强生成的核心链路。">
+                            <title>混合检索与重排（科研）</title>
+                            <rect class="sy_node_rect" x="736" y="328" width="200" height="58" rx="8" fill="rgb(123,76,166)" fill-opacity="0.16" stroke="rgb(123,76,166)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="836" y="357" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">混合检索与重排</text>
+                            <text x="836" y="376" text-anchor="middle" font-size="11" fill="#61708a">BM25 + 向量 → Rerank</text>
+                            <rect x="900" y="320" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="919" y="332" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                    </g>
+
+                    <!-- ===== L5 生成与反馈层 ===== -->
+                    <g font-family="Microsoft YaHei, sans-serif">
+                        <g class="sy_node" data-title="LLM 答案生成（科研）" data-desc="基于检索到的知识片段，用大语言模型生成自然、准确的回答（检索增强生成 RAG），并要求答案可溯源到知识条目，抑制幻觉。">
+                            <title>LLM 答案生成（科研）</title>
+                            <rect class="sy_node_rect" x="100" y="442" width="200" height="48" rx="8" fill="rgb(153,55,60)" fill-opacity="0.16" stroke="rgb(153,55,60)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="200" y="471" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">LLM 答案生成</text>
+                            <rect x="264" y="434" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="283" y="446" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="置信度与人工兜底" data-desc="回答附置信度评分：低置信度或用户不满时无缝转人工坐席，并附对话摘要与系统推荐答案，降低人工成本。">
+                            <title>置信度与人工兜底</title>
+                            <rect class="sy_node_rect" x="312" y="442" width="200" height="48" rx="8" fill="rgb(153,55,60)" fill-opacity="0.16" stroke="rgb(153,55,60)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="412" y="471" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">置信度与人工兜底</text>
+                        </g>
+                        <g class="sy_node" data-title="用户反馈标注（科研）" data-desc="点赞 / 点踩、人工修正答案回流标注库，构成“数据 - 模型 - 评测”闭环的原始数据来源，可研究主动学习降低标注成本。">
+                            <title>用户反馈标注（科研）</title>
+                            <rect class="sy_node_rect" x="524" y="442" width="200" height="48" rx="8" fill="rgb(153,55,60)" fill-opacity="0.16" stroke="rgb(153,55,60)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="624" y="471" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">用户反馈标注</text>
+                            <rect x="688" y="434" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="707" y="446" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                        <g class="sy_node" data-title="自动评测与迭代（科研）" data-desc="构建领域评测集，自动计算回答准确率 / 召回率 / 幻觉率，量化每次知识库更新或模型更换的效果，驱动系统持续迭代。">
+                            <title>自动评测与迭代（科研）</title>
+                            <rect class="sy_node_rect" x="736" y="442" width="200" height="48" rx="8" fill="rgb(153,55,60)" fill-opacity="0.16" stroke="rgb(153,55,60)" stroke-opacity="0.55" stroke-width="1.4"></rect>
+                            <text class="sy_node_label" x="836" y="471" text-anchor="middle" font-size="14" font-weight="700" fill="#202b45">自动评测与迭代</text>
+                            <rect x="900" y="434" width="38" height="17" rx="8" fill="#f0a24a"></rect>
+                            <text x="919" y="446" text-anchor="middle" font-size="11" fill="#fff">科研</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="sy_legend">
+                <span><i style="background:rgba(36,87,166,0.25);"></i>用户渠道层</span>
+                <span><i style="background:rgba(47,124,120,0.25);"></i>接入与会话层</span>
+                <span><i style="background:rgba(179,101,47,0.25);"></i>智能理解层</span>
+                <span><i style="background:rgba(123,76,166,0.25);"></i>知识与检索层</span>
+                <span><i style="background:rgba(153,55,60,0.25);"></i>生成与反馈层</span>
+                <span><i style="background:#f0a24a;"></i>科研重点模块</span>
+            </div>
+            <p class="sy_hint">提示：鼠标悬停高亮模块，点击模块可在下方查看详细说明；SVG 矢量图放大不失真。</p>
+
+            <div class="sy_info" id="sy_info"></div>
+        </section>
+
+        <!-- 科研方向 -->
+        <section class="sy_section">
+            <h2>科研方向</h2>
+            <div class="sy_card">
+                <h3>围绕本架构可开展的研究问题</h3>
+                <ol>
+                    <li><b>检索增强生成（RAG）</b>：研究混合检索（BM25 + 向量）权重、切块(Chunking)策略与重排模型对回答质量的影响，抑制大模型幻觉。</li>
+                    <li><b>知识图谱与推理</b>：研究电商领域本体构建、实体对齐与多跳推理查询，回答跨知识点的复杂问题（如跨店铺比价、组合售后政策）。</li>
+                    <li><b>多轮对话状态跟踪（DST）</b>：研究指代消解与槽位继承方法，让"它多少钱？""那退换货呢？"这类省略式追问也能被正确理解。</li>
+                    <li><b>情感感知的服务策略</b>：研究情绪识别如何驱动回复语气调整、优先级排序与人工转接时机，量化对满意度的影响。</li>
+                    <li><b>自动评测与数据闭环</b>：研究无参考答案场景下的回答质量自动评估方法，以及用户反馈数据的主动学习标注策略。</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- SVG 与 Canvas 对比 -->
+        <section class="sy_section">
+            <h2>SVG 与 Canvas 对比（结合 18-2）</h2>
+            <div class="sy_card">
+                <table>
+                    <thead>
+                        <tr><th>对比项</th><th>SVG（本页）</th><th>Canvas（18-2）</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>图形本质</td><td>矢量 DOM 节点，永久保留在文档中</td><td>位图像素，画完即忘</td></tr>
+                        <tr><td>缩放表现</td><td>无限缩放不失真，适合打印 / 大屏</td><td>放大出现锯齿（需按 DPR 重绘）</td></tr>
+                        <tr><td>事件交互</td><td>每个图形可直接绑定 DOM 事件、支持 CSS :hover</td><td>需手动做坐标命中测试（hit-test）</td></tr>
+                        <tr><td>性能特点</td><td>节点多时 DOM 开销大，适合静态示意图</td><td>重绘效率高，适合大量粒子 / 游戏动画</td></tr>
+                        <tr><td>适用场景</td><td>架构图、图标、图表、地图</td><td>动画、烟花、游戏画面、像素处理</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== SVG 节点点击交互：点击模块显示说明面板 =====
+        var sy_info = document.getElementById("sy_info");
+        var sy_nodes = document.querySelectorAll(".sy_node");
+        var sy_activeNode = null;
+
+        sy_nodes.forEach(function (sy_node) {
+            sy_node.addEventListener("click", function () {
+                // 再次点击同一模块 → 取消选中
+                if (sy_activeNode === sy_node) {
+                    sy_node.classList.remove("sy_active");
+                    sy_activeNode = null;
+                    sy_info.style.display = "none";
+                    return;
+                }
+                if (sy_activeNode) { sy_activeNode.classList.remove("sy_active"); }
+                sy_node.classList.add("sy_active");
+                sy_activeNode = sy_node;
+
+                // 用 textContent 填充，避免任何 HTML 注入风险
+                var sy_title = document.createElement("b");
+                sy_title.textContent = "【" + sy_node.getAttribute("data-title") + "】";
+                var sy_desc = document.createTextNode(sy_node.getAttribute("data-desc"));
+                sy_info.innerHTML = "";
+                sy_info.appendChild(sy_title);
+                sy_info.appendChild(sy_desc);
+                sy_info.style.display = "block";
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!--
+    姓名：苏妍
+    建立时间：2026-11-05
+    使用模型：GLM-5.3-Flash
+    功能名称：基于 Canvas 的电商全站系统架构图
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="苏妍的 JavaScript 练习：用 Canvas 绘制电商系统全站架构图，支持悬停与点击查看说明">
+    <title>18-2 Canvas 系统架构图（电商系统）</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 40px 20px 56px;
+            color: #202b45;
+            background: #f4f6fb;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.7;
+        }
+
+        main { width: min(100%, 1020px); margin: 0 auto; }
+
+        .sy_topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px;
+            font-size: 0.88rem;
+        }
+
+        .sy_topbar a { color: #2457a6; text-decoration: none; border-bottom: 1px solid currentColor; }
+        .sy_author { color: #61708a; letter-spacing: 0.05em; }
+
+        header { margin-bottom: 26px; text-align: center; }
+
+        .sy_eyebrow {
+            margin: 0 0 8px;
+            color: #ef775e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.8rem, 5.4vw, 2.8rem); line-height: 1.2; }
+
+        .sy_intro { max-width: 740px; margin: 14px auto 0; color: #61708a; }
+
+        code {
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: #eef1f8;
+            color: #515fd0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.86em;
+        }
+
+        .sy_section { margin-top: 30px; }
+
+        .sy_section > h2 {
+            margin: 0 0 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ef775e;
+            font-size: 1.35rem;
+        }
+
+        /* 画布容器（含浮动提示框） */
+        .sy_canvas_wrap {
+            position: relative;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+            padding: 14px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            border-radius: 10px;
+            cursor: crosshair;
+        }
+
+        /* 悬浮提示 */
+        .sy_tooltip {
+            position: absolute;
+            display: none;
+            max-width: 260px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            pointer-events: none;
+            z-index: 5;
+            box-shadow: 0 8px 22px rgb(13 19 34 / 30%);
+        }
+
+        .sy_tooltip b { color: #ffc46b; display: block; margin-bottom: 2px; font-size: 0.84rem; }
+
+        /* 选中信息面板 */
+        .sy_info {
+            margin-top: 14px;
+            padding: 14px 18px;
+            border-left: 4px solid #2457a6;
+            border-radius: 10px;
+            background: #eef4fc;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .sy_info b { color: #15376d; }
+
+        /* 说明卡片 */
+        .sy_card {
+            padding: 22px;
+            border: 1px solid #e3e8f2;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgb(37 52 87 / 6%);
+        }
+
+        .sy_card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+
+        .sy_card ol { margin: 0; padding-left: 22px; color: #42506b; font-size: 0.9rem; }
+        .sy_card ol li { margin-bottom: 5px; }
+
+        .sy_code {
+            margin: 12px 0 0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #1d2940;
+            color: #dbe4f3;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.83rem;
+            line-height: 1.75;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .sy_code b { color: #ffc46b; font-weight: 700; }
+        .sy_code i { color: #7fd18c; font-style: normal; }
+
+        /* 图例 */
+        .sy_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            margin-top: 12px;
+            font-size: 0.82rem;
+            color: #42506b;
+        }
+
+        .sy_legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+        .sy_legend i {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            font-style: normal;
+        }
+
+        footer { margin-top: 36px; text-align: center; color: #61708a; font-size: 0.85rem; }
+        footer a { color: #2457a6; }
+    </style>
+</head>
+<body>
+    <main>
+        <nav class="sy_topbar">
+            <a href="index.html">← 返回首页</a>
+            <span class="sy_author">苏妍 · 高级网页设计</span>
+        </nav>
+
+        <header>
+            <p class="sy_eyebrow">Chapter 18 · Canvas 应用</p>
+            <h1>电商全站系统架构图（Canvas 绘制）</h1>
+            <p class="sy_intro">
+                Canvas 不只能做动画，也能画<b>架构图、流程图</b>这类示意图。
+                本页用 <code>fillRect</code> / <code>arc</code> / <code>fillText</code> /
+                <code>setLineDash</code> 在画布上绘制电商系统的五层架构，
+                虚线箭头带<b>流动动画</b>表示请求方向；把鼠标<b>悬停</b>或<b>点击</b>任意模块可查看说明。
+            </p>
+        </header>
+
+        <section class="sy_section">
+            <h2>架构总览</h2>
+            <div class="sy_canvas_wrap" id="sy_wrap">
+                <canvas id="sy_arch" width="960" height="630"></canvas>
+                <div class="sy_tooltip" id="sy_tooltip"></div>
+            </div>
+
+            <div class="sy_info" id="sy_info"></div>
+
+            <div class="sy_legend">
+                <span><i style="background:rgba(36,87,166,0.25);"></i>用户层</span>
+                <span><i style="background:rgba(47,124,120,0.25);"></i>接入层</span>
+                <span><i style="background:rgba(179,101,47,0.25);"></i>服务层</span>
+                <span><i style="background:rgba(123,76,166,0.25);"></i>中间件层</span>
+                <span><i style="background:rgba(153,55,60,0.25);"></i>数据层</span>
+                <span>→ 虚线箭头：请求 / 数据流向（自上而下）</span>
+            </div>
+        </section>
+
+        <section class="sy_section">
+            <h2>绘制要点</h2>
+            <div class="sy_card">
+                <h3>这张架构图是怎么画出来的</h3>
+                <ol>
+                    <li><b>圆角矩形</b>：Canvas 原生没有圆角矩形，需要用 <code>arcTo</code> 或 <code>quadraticCurveTo</code> 自己封装一个函数。</li>
+                    <li><b>分层布局</b>：每一层是一个数据对象（标题、颜色、y 坐标、模块数组），用循环批量绘制，改数据就能改图。</li>
+                    <li><b>流动箭头</b>：<code>setLineDash([8, 6])</code> 设置虚线，每帧改变 <code>lineDashOffset</code>，虚线就会"流动"。</li>
+                    <li><b>文字</b>：<code>fillText</code> 绘制，配合 <code>textAlign</code> 控制对齐；模块文字太长时截断加省略号。</li>
+                    <li><b>交互</b>：<code>mousemove</code> 时用 <code>offsetX / offsetY</code> 换算出画布坐标，逐一判断落在哪个模块矩形内，实现悬停高亮与提示框。</li>
+                </ol>
+                <pre class="sy_code"><i>// 圆角矩形封装（核心片段）</i>
+<b>function</b> sy_roundRect(sy_ctx, x, y, w, h, r) {
+  sy_ctx.beginPath();
+  sy_ctx.moveTo(x + r, y);
+  sy_ctx.arcTo(x + w, y, x + w, y + h, r);
+  sy_ctx.arcTo(x + w, y + h, x, y + h, r);
+  sy_ctx.arcTo(x, y + h, x, y, r);
+  sy_ctx.arcTo(x, y, x + w, y, r);
+  sy_ctx.closePath();
+}
+
+<i>// 流动虚线（每帧执行）</i>
+sy_ctx.setLineDash([8, 6]);
+sy_ctx.lineDashOffset = sy_dashOffset;   <i>// sy_dashOffset 每帧递减</i>
+sy_ctx.stroke();</pre>
+            </div>
+        </section>
+
+        <footer>
+            <p>苏妍 · 《高级网页设计》课堂练习 · <a href="index.html">返回首页</a></p>
+        </footer>
+    </main>
+
+    <script>
+        // ============================================================
+        // 画布初始化（处理高清屏 DPR）
+        // ============================================================
+        var sy_W = 960;
+        var sy_H = 630;
+        var sy_canvas = document.getElementById("sy_arch");
+        var sy_dpr = window.devicePixelRatio || 1;
+        sy_canvas.width = sy_W * sy_dpr;
+        sy_canvas.height = sy_H * sy_dpr;
+        var sy_ctx = sy_canvas.getContext("2d");
+        sy_ctx.setTransform(sy_dpr, 0, 0, sy_dpr, 0, 0);
+
+        // ============================================================
+        // 架构数据：五层结构
+        // ============================================================
+        var sy_pad = 12;                  // 层与画布边缘间距
+        var sy_titleW = 84;               // 层标题占位宽度
+        var sy_layerInner = 10;           // 层内部留白
+        var sy_gap = 12;                  // 模块间距
+
+        var sy_layers = [
+            {
+                title: "用户层", color: "36,87,166", y: 18, h: 84,
+                items: [
+                    { label: "PC 浏览器", desc: "用户通过桌面浏览器访问商城首页、商品页、购物车与结算页。" },
+                    { label: "移动 App", desc: "iOS / Android 原生 App，通过 RESTful API 与服务端通信。" },
+                    { label: "微信小程序", desc: "轻量级入口，适合拉新与社交分享裂变场景。" },
+                    { label: "商家后台", desc: "商家管理商品、订单、营销活动与售后的工作台。" }
+                ]
+            },
+            {
+                title: "接入层", color: "47,124,120", y: 142, h: 84,
+                items: [
+                    { label: "CDN 加速", desc: "静态资源（图片、JS、CSS）分发到边缘节点，降低首屏延迟。" },
+                    { label: "Nginx 负载均衡", desc: "反向代理，把请求按权重/轮询分发到多台应用服务器。" },
+                    { label: "API 网关", desc: "统一入口：鉴权、限流、路由、日志埋点、协议转换。" }
+                ]
+            },
+            {
+                title: "服务层", color: "179,101,47", y: 266, h: 84,
+                items: [
+                    { label: "用户服务", desc: "注册登录、会员体系、收货地址、JWT 会话管理。" },
+                    { label: "商品服务", desc: "商品 / SKU / 分类 / 库存展示，商品详情页聚合。" },
+                    { label: "订单服务", desc: "下单、订单状态机流转、购物车、优惠计算。" },
+                    { label: "支付服务", desc: "对接微信 / 支付宝，支付回调、对账与退款。" },
+                    { label: "搜索服务", desc: "全文检索、关键词联想、筛选排序。" }
+                ]
+            },
+            {
+                title: "中间件层", color: "123,76,166", y: 390, h: 84,
+                items: [
+                    { label: "Redis 缓存", desc: "热点商品、购物车、验证码、分布式 Session 与秒杀库存预扣。" },
+                    { label: "RabbitMQ 消息队列", desc: "订单超时取消、发货通知等异步任务削峰填谷。" },
+                    { label: "Elasticsearch", desc: "商品搜索引擎，支撑复杂条件过滤与高亮。" }
+                ]
+            },
+            {
+                title: "数据层", color: "153,55,60", y: 514, h: 84,
+                items: [
+                    { label: "MySQL 主从", desc: "核心业务数据；写主库读从库，分库分表应对大数据量。" },
+                    { label: "OSS 对象存储", desc: "商品图片、视频等静态大文件的持久化存储。" },
+                    { label: "ELK 日志监控", desc: "日志采集 + 可视化，配合告警保障全站可用性。" }
+                ]
+            }
+        ];
+
+        // ============================================================
+        // 布局计算：为每个模块计算矩形位置，扁平化到 sy_boxes
+        // ============================================================
+        var sy_boxes = [];     // [{x,y,w,h,label,desc,layer}]
+        var sy_innerLeft = sy_pad + sy_titleW;
+        var sy_innerRight = sy_W - sy_pad - 8;
+
+        sy_layers.forEach(function (sy_layer) {
+            var sy_n = sy_layer.items.length;
+            var sy_boxW = (sy_innerRight - sy_innerLeft - (sy_n - 1) * sy_gap) / sy_n;
+            sy_layer.items.forEach(function (sy_item, sy_i) {
+                var sy_box = {
+                    x: sy_innerLeft + sy_i * (sy_boxW + sy_gap),
+                    y: sy_layer.y + 26,
+                    w: sy_boxW,
+                    h: sy_layer.h - 40,
+                    label: sy_item.label,
+                    desc: sy_item.desc,
+                    layer: sy_layer.title,
+                    color: sy_layer.color
+                };
+                sy_boxes.push(sy_box);
+            });
+        });
+
+        // ============================================================
+        // 绘制工具
+        // ============================================================
+        function sy_roundRect(sy_c, sy_x, sy_y, sy_w, sy_h, sy_r) {
+            sy_c.beginPath();
+            sy_c.moveTo(sy_x + sy_r, sy_y);
+            sy_c.arcTo(sy_x + sy_w, sy_y, sy_x + sy_w, sy_y + sy_h, sy_r);
+            sy_c.arcTo(sy_x + sy_w, sy_y + sy_h, sy_x, sy_y + sy_h, sy_r);
+            sy_c.arcTo(sy_x, sy_y + sy_h, sy_x, sy_y, sy_r);
+            sy_c.arcTo(sy_x, sy_y, sy_x + sy_w, sy_y, sy_r);
+            sy_c.closePath();
+        }
+
+        // 文字过长时截断加省略号
+        function sy_fitText(sy_c, sy_text, sy_maxW) {
+            if (sy_c.measureText(sy_text).width <= sy_maxW) { return sy_text; }
+            while (sy_text.length > 1 && sy_c.measureText(sy_text + "…").width > sy_maxW) {
+                sy_text = sy_text.slice(0, -1);
+            }
+            return sy_text + "…";
+        }
+
+        function sy_arrow(sy_x, sy_y1, sy_y2) {
+            sy_ctx.beginPath();
+            sy_ctx.moveTo(sy_x, sy_y1);
+            sy_ctx.lineTo(sy_x, sy_y2 - 7);
+            sy_ctx.stroke();
+            // 箭头三角
+            sy_ctx.beginPath();
+            sy_ctx.moveTo(sy_x - 5, sy_y2 - 8);
+            sy_ctx.lineTo(sy_x + 5, sy_y2 - 8);
+            sy_ctx.lineTo(sy_x, sy_y2);
+            sy_ctx.closePath();
+            sy_ctx.fill();
+        }
+
+        // ============================================================
+        // 主绘制函数
+        // ============================================================
+        var sy_dashOffset = 0;
+        var sy_hover = null;      // 鼠标悬停的模块
+        var sy_selected = null;   // 点击选中的模块
+
+        function sy_draw() {
+            sy_dashOffset -= 0.55;
+            if (sy_dashOffset < -1000) { sy_dashOffset = 0; }
+
+            // 背景
+            sy_ctx.fillStyle = "#fbfcff";
+            sy_ctx.fillRect(0, 0, sy_W, sy_H);
+            // 细网格
+            sy_ctx.strokeStyle = "rgba(36,87,166,0.045)";
+            sy_ctx.lineWidth = 1;
+            for (var sy_g = 40; sy_g < sy_W; sy_g += 40) {
+                sy_ctx.beginPath(); sy_ctx.moveTo(sy_g, 0); sy_ctx.lineTo(sy_g, sy_H); sy_ctx.stroke();
+            }
+            for (var sy_g2 = 40; sy_g2 < sy_H; sy_g2 += 40) {
+                sy_ctx.beginPath(); sy_ctx.moveTo(0, sy_g2); sy_ctx.lineTo(sy_W, sy_g2); sy_ctx.stroke();
+            }
+
+            // 流动箭头（画在层与层之间的空隙里，先画避免被层盖住）
+            sy_ctx.lineWidth = 2;
+            for (var sy_li = 0; sy_li < sy_layers.length - 1; sy_li++) {
+                var sy_top = sy_layers[sy_li].y + sy_layers[sy_li].h;
+                var sy_bottom = sy_layers[sy_li + 1].y;
+                sy_ctx.strokeStyle = "rgba(36,87,166,0.45)";
+                sy_ctx.fillStyle = "rgba(36,87,166,0.55)";
+                sy_ctx.setLineDash([8, 6]);
+                sy_ctx.lineDashOffset = sy_dashOffset;
+                for (var sy_k = 1; sy_k <= 5; sy_k++) {
+                    var sy_ax = sy_innerLeft + (sy_innerRight - sy_innerLeft) * sy_k / 6;
+                    sy_arrow(sy_ax, sy_top + 5, sy_bottom - 4);
+                }
+                sy_ctx.setLineDash([]);
+            }
+
+            // 层背景与标题
+            sy_layers.forEach(function (sy_layer) {
+                sy_roundRect(sy_ctx, sy_pad, sy_layer.y, sy_W - sy_pad * 2, sy_layer.h, 12);
+                sy_ctx.fillStyle = "rgba(" + sy_layer.color + ",0.10)";
+                sy_ctx.fill();
+                sy_ctx.strokeStyle = "rgba(" + sy_layer.color + ",0.35)";
+                sy_ctx.lineWidth = 1.5;
+                sy_ctx.stroke();
+
+                // 层标题（左侧竖排感：逐字换行）
+                sy_ctx.fillStyle = "rgba(" + sy_layer.color + ",1)";
+                sy_ctx.font = "700 15px 'Microsoft YaHei', sans-serif";
+                sy_ctx.textAlign = "center";
+                sy_ctx.textBaseline = "middle";
+                var sy_chars = sy_layer.title.split("");
+                var sy_cy = sy_layer.y + sy_layer.h / 2 - (sy_chars.length - 1) * 10;
+                sy_chars.forEach(function (sy_ch, sy_ci) {
+                    sy_ctx.fillText(sy_ch, sy_pad + 34, sy_cy + sy_ci * 20);
+                });
+            });
+
+            // 模块矩形
+            sy_boxes.forEach(function (sy_box) {
+                var sy_isHover = sy_hover === sy_box;
+                var sy_isSel = sy_selected === sy_box;
+
+                sy_roundRect(sy_ctx, sy_box.x, sy_box.y, sy_box.w, sy_box.h, 8);
+                sy_ctx.fillStyle = "rgba(" + sy_box.color + (sy_isHover ? ",0.30)" : ",0.16)");
+                sy_ctx.fill();
+                if (sy_isSel) {
+                    sy_ctx.strokeStyle = "rgba(" + sy_box.color + ",0.95)";
+                    sy_ctx.lineWidth = 2.5;
+                    sy_ctx.setLineDash([6, 4]);
+                    sy_ctx.stroke();
+                    sy_ctx.setLineDash([]);
+                } else if (sy_isHover) {
+                    sy_ctx.strokeStyle = "rgba(" + sy_box.color + ",0.95)";
+                    sy_ctx.lineWidth = 2.5;
+                    sy_ctx.stroke();
+                } else {
+                    sy_ctx.strokeStyle = "rgba(" + sy_box.color + ",0.5)";
+                    sy_ctx.lineWidth = 1.4;
+                    sy_ctx.stroke();
+                }
+
+                // 模块文字（最多两行）
+                sy_ctx.fillStyle = "#202b45";
+                sy_ctx.font = (sy_isHover || sy_isSel ? "700 " : "") + "14px 'Microsoft YaHei', sans-serif";
+                sy_ctx.textAlign = "center";
+                sy_ctx.textBaseline = "middle";
+                var sy_label = sy_box.label;
+                var sy_maxW = sy_box.w - 12;
+                if (sy_ctx.measureText(sy_label).width > sy_maxW && sy_label.length > 4) {
+                    // 拆两行：前半 / 后半
+                    var sy_mid = Math.ceil(sy_label.length / 2);
+                    var sy_l1 = sy_fitText(sy_ctx, sy_label.slice(0, sy_mid), sy_maxW);
+                    var sy_l2 = sy_fitText(sy_ctx, sy_label.slice(sy_mid), sy_maxW);
+                    sy_ctx.fillText(sy_l1, sy_box.x + sy_box.w / 2, sy_box.y + sy_box.h / 2 - 9);
+                    sy_ctx.fillText(sy_l2, sy_box.x + sy_box.w / 2, sy_box.y + sy_box.h / 2 + 10);
+                } else {
+                    sy_ctx.fillText(sy_fitText(sy_ctx, sy_label, sy_maxW), sy_box.x + sy_box.w / 2, sy_box.y + sy_box.h / 2);
+                }
+            });
+
+            requestAnimationFrame(sy_draw);
+        }
+
+        // ============================================================
+        // 鼠标交互：悬停提示 + 点击选中
+        // ============================================================
+        var sy_wrap = document.getElementById("sy_wrap");
+        var sy_tooltip = document.getElementById("sy_tooltip");
+        var sy_info = document.getElementById("sy_info");
+
+        function sy_esc(sy_s) {
+            return String(sy_s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function sy_hitTest(sy_mx, sy_my) {
+            for (var sy_i = 0; sy_i < sy_boxes.length; sy_i++) {
+                var sy_b = sy_boxes[sy_i];
+                if (sy_mx >= sy_b.x && sy_mx <= sy_b.x + sy_b.w &&
+                    sy_my >= sy_b.y && sy_my <= sy_b.y + sy_b.h) {
+                    return sy_b;
+                }
+            }
+            return null;
+        }
+
+        sy_canvas.addEventListener("mousemove", function (sy_e) {
+            // 画布 CSS 宽度可能被缩放，需换算回逻辑坐标
+            var sy_rect = sy_canvas.getBoundingClientRect();
+            var sy_mx = (sy_e.clientX - sy_rect.left) * (sy_W / sy_rect.width);
+            var sy_my = (sy_e.clientY - sy_rect.top) * (sy_H / sy_rect.height);
+            sy_hover = sy_hitTest(sy_mx, sy_my);
+
+            if (sy_hover) {
+                sy_tooltip.innerHTML = "<b>" + sy_esc(sy_hover.layer + " · " + sy_hover.label) + "</b>" + sy_esc(sy_hover.desc);
+                sy_tooltip.style.display = "block";
+                // 提示框跟随鼠标，靠近右边缘时翻到左侧
+                var sy_wrapRect = sy_wrap.getBoundingClientRect();
+                var sy_tipX = sy_e.clientX - sy_wrapRect.left + 16;
+                if (sy_tipX + 280 > sy_wrapRect.width) { sy_tipX = sy_e.clientX - sy_wrapRect.left - 288; }
+                sy_tooltip.style.left = sy_tipX + "px";
+                sy_tooltip.style.top = (sy_e.clientY - sy_wrapRect.top + 16) + "px";
+                sy_canvas.style.cursor = "pointer";
+            } else {
+                sy_tooltip.style.display = "none";
+                sy_canvas.style.cursor = "crosshair";
+            }
+        });
+
+        sy_canvas.addEventListener("mouseleave", function () {
+            sy_hover = null;
+            sy_tooltip.style.display = "none";
+        });
+
+        sy_canvas.addEventListener("click", function (sy_e) {
+            var sy_rect = sy_canvas.getBoundingClientRect();
+            var sy_mx = (sy_e.clientX - sy_rect.left) * (sy_W / sy_rect.width);
+            var sy_my = (sy_e.clientY - sy_rect.top) * (sy_H / sy_rect.height);
+            sy_selected = sy_hitTest(sy_mx, sy_my);
+            if (sy_selected) {
+                sy_info.style.display = "block";
+                sy_info.innerHTML = "<b>【" + sy_esc(sy_selected.layer) + "】" + sy_esc(sy_selected.label) + "</b>：" + sy_esc(sy_selected.desc);
+            } else {
+                sy_selected = null;     // 点击空白处取消选中
+                sy_info.style.display = "none";
+            }
+        });
+
+        // 启动绘制循环
+        sy_draw();
+    </script>
+</body>
+</html>
